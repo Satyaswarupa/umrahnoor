@@ -1,69 +1,139 @@
-import Image from "next/image";
+import Link from "next/link";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
+import LocationSearchForm from "@/components/LocationSearchForm";
+import AgentPromoWidget from "@/components/AgentPromoWidget";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+    <div className="flex min-h-full flex-1 flex-col">
+      <SiteHeader />
+
+      <main className="flex-1">
+        <section className="relative overflow-hidden text-white">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage:
+                "url('https://www.qiblatravels.com/wp-content/uploads/2024/07/Difference-Hajj-and-Umrah-feature.jpg')",
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/90 via-emerald-950/60 to-emerald-950/25" />
+          <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/70 via-transparent to-transparent" />
+
+          <div className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
+            <p className="text-sm font-semibold uppercase tracking-widest text-emerald-300">
+              Hajj Mubarak
+            </p>
+            <h1 className="mt-4 max-w-2xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
+              Book Your Umrah Journey
+              <br />
+              With Trusted Agents
+            </h1>
+            <p className="mt-5 max-w-xl text-lg text-emerald-100/90">
+              UmrahNoor connects you with verified Umrah travel agents in your city. Search by
+              location, view agent details, and contact them directly by call or WhatsApp.
+            </p>
+
+            <div className="mt-10 max-w-3xl">
+              <LocationSearchForm variant="hero" />
+            </div>
+
+            <div className="mt-8 flex flex-wrap gap-4">
+              <Link
+                href="/agents"
+                className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-emerald-900 shadow-sm hover:bg-emerald-50"
+              >
+                Browse All Agents
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+          <h2 className="text-center text-2xl font-bold text-emerald-950">
+            How UmrahNoor Works
+          </h2>
+          <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3">
+            <Step
+              number="1"
+              title="Search Your Location"
+              description="Select your country, state, and city to find Umrah agents operating near you."
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+            <Step
+              number="2"
+              title="Review Verified Agents"
+              description="Browse company details for agents that have completed UmrahNoor's verification process."
+            />
+            <Step
+              number="3"
+              title="Contact Directly"
+              description="Call or message the agent on WhatsApp to discuss your Umrah travel plans."
+            />
+          </div>
+        </section>
+
+        <section className="bg-emerald-50">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+            <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 sm:items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-emerald-950">
+                  Why UmrahNoor Verification Matters
+                </h2>
+                <p className="mt-4 text-emerald-900/80">
+                  Every agent listed on UmrahNoor has submitted their business details, GST
+                  number, and verification documents for review by our team. Only agents that
+                  pass this review are listed publicly with a{" "}
+                  <span className="font-semibold text-emerald-800">Verified</span> badge.
+                </p>
+                <ul className="mt-6 space-y-3 text-sm text-emerald-900/80">
+                  <li>&bull; Business identity and GST number reviewed</li>
+                  <li>&bull; Verification certificate reviewed by our team</li>
+                  <li>&bull; Direct contact details, no middlemen or booking fees</li>
+                </ul>
+              </div>
+              <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-emerald-900/10">
+                <h3 className="text-lg font-semibold text-emerald-950">
+                  Are you an Umrah travel agent?
+                </h3>
+                <p className="mt-2 text-sm text-emerald-900/70">
+                  Register your company on UmrahNoor to reach pilgrims searching for trusted
+                  Umrah agents in your city. Complete your verification to get listed.
+                </p>
+                <Link
+                  href="/admin/signup"
+                  className="mt-6 inline-block rounded-full bg-emerald-800 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
+                >
+                  Register Your Company
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
+
+      <SiteFooter />
+      <AgentPromoWidget />
+    </div>
+  );
+}
+
+function Step({
+  number,
+  title,
+  description,
+}: {
+  number: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-emerald-900/10 p-6">
+      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-800 text-sm font-bold text-white">
+        {number}
+      </span>
+      <h3 className="mt-4 font-semibold text-emerald-950">{title}</h3>
+      <p className="mt-2 text-sm text-emerald-900/70">{description}</p>
     </div>
   );
 }

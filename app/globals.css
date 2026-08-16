@@ -2,7 +2,20 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #022c22;
+
+  /* Brand palette: #040D12 (50%) / #183D3D (30%) / #5C8374 (15%) / #93B1A6 (5%) */
+  --color-emerald-50: #93b1a6;
+  --color-emerald-100: #85a69a;
+  --color-emerald-200: #789a8d;
+  --color-emerald-300: #6a8f81;
+  --color-emerald-400: #5c8374;
+  --color-emerald-500: #456c62;
+  --color-emerald-600: #2f544f;
+  --color-emerald-700: #183d3d;
+  --color-emerald-800: #112d2f;
+  --color-emerald-900: #0b1d20;
+  --color-emerald-950: #040d12;
 }
 
 @theme inline {
@@ -12,15 +25,8 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
