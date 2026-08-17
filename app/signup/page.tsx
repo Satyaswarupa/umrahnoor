@@ -2,7 +2,11 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SignupForm from "@/components/auth/SignupForm";
 
-export const metadata = { title: "Sign Up | UmrahNoor" };
+export const metadata = {
+  title: "Sign Up",
+  description: "Create a free UmrahChal account to save and contact verified Umrah travel agents.",
+  robots: { index: false, follow: true },
+};
 
 export default function SignupPage() {
   return (

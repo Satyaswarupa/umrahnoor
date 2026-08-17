@@ -29,9 +29,16 @@ export async function POST(
     const agent = await Agent.findById(id);
     if (!agent) return notFoundResponse("Agent not found");
 
-    if (!agent.gstDocument || !agent.certificateDocument) {
+    // A Government ID Document alone is enough to approve. The GST document +
+    // verified certificate pair is a legacy alternate path; every other
+    // document (trade license, GST certificate, etc.) is optional and never
+    // blocks approval.
+    const hasGovId = Boolean(agent.govIdDocument);
+    const hasLegacyDocuments = Boolean(agent.gstDocument && agent.certificateDocument);
+
+    if (!hasGovId && !hasLegacyDocuments) {
       return errorResponse(
-        "Cannot approve: agent is missing required documents (GST document or verified certificate).",
+        "Cannot approve: agent has not uploaded a Government ID Document yet.",
         400
       );
     }

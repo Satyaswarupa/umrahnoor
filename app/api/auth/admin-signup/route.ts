@@ -64,6 +64,7 @@ export async function POST(request: NextRequest) {
       state,
       city,
       address,
+      locations: [{ country, state, city, address, services: [] }],
       verificationStatus: "INCOMPLETE",
       isListed: false,
     });

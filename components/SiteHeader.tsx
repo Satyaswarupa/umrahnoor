@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import LogoutButton from "@/components/LogoutButton";
@@ -6,38 +7,36 @@ export default async function SiteHeader() {
   const session = await getSession();
 
   return (
-    <header className="border-b border-emerald-900/10 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 sticky top-0 z-40">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-800 text-sm font-bold text-white">
-            UN
-          </span>
-          <span className="text-lg font-semibold tracking-tight text-emerald-950">
-            UmrahNoor
-          </span>
+    <header
+      className="sticky top-0 z-40 border-b border-white/70 bg-[#EAE5DB]/90 backdrop-blur-md"
+      style={{ fontFamily: "var(--font-jakarta), sans-serif" }}
+    >
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-6 px-4 py-3.5 sm:px-6">
+        <Link href="/" className="flex items-center gap-3">
+          <Image src="/logo.png" alt="UmrahChal logo" width={40} height={40} className="h-10 w-10 rounded-[14px]" priority />
+          <div className="text-[16px] font-extrabold tracking-tight text-[#24201A]">UmrahChal</div>
         </Link>
 
-        <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-medium text-emerald-950/80">
-          <Link href="/" className="hover:text-emerald-700">
-            Home
+        <div className="ml-auto flex flex-wrap items-center gap-3">
+          <Link
+            href="/admin/signup"
+            className="neu-raised-sm rounded-full bg-[#EAE5DB] px-4 py-2.5 text-[13px] font-bold text-[#6E6455] transition hover:text-[#0E5B4A]"
+          >
+            List your agency
           </Link>
-          <Link href="/agents" className="hover:text-emerald-700">
-            Find Umrah Agents
-          </Link>
-        </nav>
 
-        <div className="flex items-center gap-4">
           {!session && (
             <>
               <Link
                 href="/login"
-                className="text-sm font-medium text-emerald-950/80 hover:text-emerald-700"
+                className="text-sm font-semibold text-[#4A4238] hover:text-[#0E5B4A]"
               >
                 Login
               </Link>
               <Link
                 href="/signup"
-                className="rounded-full bg-emerald-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
+                className="rounded-full px-5 py-2.5 text-[13px] font-bold text-[#F3EFE6] shadow-sm"
+                style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)" }}
               >
                 Sign Up
               </Link>
@@ -46,9 +45,7 @@ export default async function SiteHeader() {
 
           {session?.role === "USER" && (
             <>
-              <span className="hidden text-sm text-emerald-950/60 sm:inline">
-                Welcome back
-              </span>
+              <span className="hidden text-sm text-[#6E6455] sm:inline">Welcome back</span>
               <LogoutButton />
             </>
           )}
@@ -57,7 +54,8 @@ export default async function SiteHeader() {
             <>
               <Link
                 href="/admin/dashboard"
-                className="rounded-full bg-emerald-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
+                className="rounded-full px-5 py-2.5 text-[13px] font-bold text-[#F3EFE6] shadow-sm"
+                style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)" }}
               >
                 Agent Dashboard
               </Link>
@@ -69,7 +67,8 @@ export default async function SiteHeader() {
             <>
               <Link
                 href="/superadmin/dashboard"
-                className="rounded-full bg-emerald-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
+                className="rounded-full px-5 py-2.5 text-[13px] font-bold text-[#F3EFE6] shadow-sm"
+                style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)" }}
               >
                 Superadmin Dashboard
               </Link>

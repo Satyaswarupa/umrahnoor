@@ -11,7 +11,15 @@ import {
   serverErrorResponse,
 } from "@/lib/api-response";
 
-const DOCUMENT_TYPES = ["gst", "certificate", "additional"] as const;
+const DOCUMENT_TYPES = [
+  "gst",
+  "certificate",
+  "additional",
+  "govId",
+  "tradeLicense",
+  "gstCertificate",
+  "profile",
+] as const;
 const MAX_ADDITIONAL_DOCUMENTS = 5;
 
 export async function POST(request: NextRequest) {
@@ -55,6 +63,14 @@ export async function POST(request: NextRequest) {
       agent.gstDocument = uploaded;
     } else if (type === "certificate") {
       agent.certificateDocument = uploaded;
+    } else if (type === "govId") {
+      agent.govIdDocument = uploaded;
+    } else if (type === "tradeLicense") {
+      agent.tradeLicenseDocument = uploaded;
+    } else if (type === "gstCertificate") {
+      agent.gstCertificateDocument = uploaded;
+    } else if (type === "profile") {
+      agent.profileImage = uploaded;
     } else {
       agent.additionalDocuments.push({
         ...uploaded,

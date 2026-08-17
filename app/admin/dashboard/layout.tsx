@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import LogoutButton from "@/components/LogoutButton";
@@ -20,13 +21,11 @@ export default async function AdminDashboardLayout({
   return (
     <div className="flex min-h-full flex-1 flex-col bg-emerald-50/40">
       <header className="border-b border-emerald-900/10 bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-800 text-sm font-bold text-white">
-              UN
-            </span>
+            <Image src="/logo.png" alt="UmrahChal logo" width={32} height={32} className="h-8 w-8 rounded-full" />
             <span className="text-lg font-semibold tracking-tight text-emerald-950">
-              UmrahNoor <span className="font-normal text-emerald-900/60">Agent Dashboard</span>
+              UmrahChal <span className="font-normal text-emerald-900/60">Agent Dashboard</span>
             </span>
           </Link>
           <LogoutButton className="rounded-full border border-emerald-900/15 px-4 py-2 text-sm font-medium text-emerald-900 hover:bg-emerald-50" />

@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Field, inputClass } from "@/components/form";
+import Spinner from "@/components/Spinner";
 
 export default function SignupForm() {
   const router = useRouter();
@@ -34,7 +35,7 @@ export default function SignupForm() {
         return;
       }
 
-      router.push("/agents");
+      router.push("/");
       router.refresh();
     } catch {
       setError("Network error. Please try again.");
@@ -95,8 +96,9 @@ export default function SignupForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-emerald-800 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-60"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-800 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-60"
         >
+          {loading && <Spinner className="h-4 w-4" />}
           {loading ? "Creating account..." : "Sign Up"}
         </button>
       </form>

@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "seed:superadmin": "tsx scripts/seed-superadmin.ts",
-    "promote:superadmin": "tsx scripts/promote-superadmin.ts"
+    "promote:superadmin": "tsx scripts/promote-superadmin.ts",
+    "migrate:agent-locations": "tsx scripts/migrate-agent-locations.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

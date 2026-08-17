@@ -1,10 +1,12 @@
 import { redirect } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import LogoutButton from "@/components/LogoutButton";
 
 const NAV_ITEMS = [
   { href: "/superadmin/dashboard", label: "Overview" },
+  { href: "/superadmin/agents/new", label: "Add Agent" },
   { href: "/superadmin/agents/requests", label: "Agent Requests" },
   { href: "/superadmin/agents/verified", label: "Verified Agents" },
   { href: "/superadmin/agents/rejected", label: "Rejected Agents" },
@@ -26,10 +28,8 @@ export default async function SuperadminLayout({ children }: { children: React.R
       <aside className="border-b border-emerald-900/10 bg-emerald-950 text-white sm:min-h-full sm:w-64 sm:border-b-0 sm:border-r">
         <div className="px-6 py-5">
           <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-bold text-emerald-900">
-              UN
-            </span>
-            <span className="text-base font-semibold">UmrahNoor</span>
+            <Image src="/logo.png" alt="UmrahChal logo" width={32} height={32} className="h-8 w-8 rounded-full" />
+            <span className="text-base font-semibold">UmrahChal</span>
           </Link>
           <p className="mt-1 text-xs text-emerald-200/70">Superadmin Panel</p>
         </div>

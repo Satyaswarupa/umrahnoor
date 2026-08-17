@@ -2,7 +2,11 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import LoginForm from "@/components/auth/LoginForm";
 
-export const metadata = { title: "Login | UmrahNoor" };
+export const metadata = {
+  title: "Login",
+  description: "Log in to your UmrahChal account to save and contact Umrah travel agents.",
+  robots: { index: false, follow: true },
+};
 
 export default function LoginPage() {
   return (

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { SERVICE_SLUGS } from "@/lib/services";
 
 const phoneRegex = /^\+?[0-9]{7,15}$/;
 const gstRegex = /^[0-9A-Z]{15}$/;
@@ -56,20 +57,77 @@ export const adminSignupSchema = z
 export const agentProfileUpdateSchema = z.object({
   companyName: z.string().trim().min(2).max(150),
   ownerName: nameSchema,
-  mobileNumber: phoneSchema,
-  whatsappNumber: phoneSchema,
-  country: countrySchema,
-  state: stateSchema,
-  city: citySchema,
-  address: z.string().trim().min(5).max(500),
+  mobileNumber: phoneSchema.optional().or(z.literal("")),
+  whatsappNumber: phoneSchema.optional().or(z.literal("")),
+  country: countrySchema.optional().or(z.literal("")),
+  state: stateSchema.optional().or(z.literal("")),
+  city: citySchema.optional().or(z.literal("")),
+  address: z.string().trim().max(500).optional().default(""),
+  pincode: z
+    .string()
+    .trim()
+    .regex(/^[0-9]{4,10}$/, "Enter a valid pincode")
+    .optional()
+    .or(z.literal("")),
   gstNumber: z
     .string()
     .trim()
     .toUpperCase()
     .regex(gstRegex, "Enter a valid 15-character GST number")
+    .optional()
     .or(z.literal("")),
   verifiedCertificate: z.string().trim().max(200).optional().default(""),
   description: z.string().trim().max(1000).optional().default(""),
+  businessType: z.string().trim().max(100).optional().or(z.literal("")),
+  businessEmail: emailSchema.optional().or(z.literal("")),
+  businessPhone: phoneSchema.optional().or(z.literal("")),
+  experienceYears: z.coerce.number().int().min(0).max(80).nullable().optional(),
+  totalBookings: z.coerce.number().int().min(0).nullable().optional(),
+  startingPrice: z.coerce.number().min(0).nullable().optional(),
+  govIdType: z.string().trim().max(100).optional().or(z.literal("")),
+  govIdNumber: z.string().trim().max(50).optional().or(z.literal("")),
+  services: z.array(z.enum(SERVICE_SLUGS)).max(SERVICE_SLUGS.length).optional().default([]),
+});
+
+export const locationSchema = z.object({
+  country: countrySchema.optional().or(z.literal("")),
+  state: stateSchema.optional().or(z.literal("")),
+  city: citySchema.optional().or(z.literal("")),
+  address: z.string().trim().max(500).optional().or(z.literal("")),
+  pincode: z
+    .string()
+    .trim()
+    .regex(/^[0-9]{4,10}$/, "Enter a valid pincode")
+    .optional()
+    .or(z.literal("")),
+  services: z.array(z.enum(SERVICE_SLUGS)).max(SERVICE_SLUGS.length).optional().default([]),
+});
+
+export const agentSignupSchema = z
+  .object({
+    name: nameSchema,
+    email: emailSchema,
+    phone: phoneSchema,
+    password: passwordSchema.optional(),
+    confirmPassword: z.string().optional(),
+  })
+  .refine((data) => !data.password || data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+// A superadmin adding an agent directly (no signup, already verified &
+// listed) only provides the basics — no email/password/documents. Business
+// type is picked from the same service taxonomy used for homepage filtering
+// (lib/services.ts), so the agent is immediately filterable there too.
+export const superadminCreateAgentSchema = z.object({
+  companyName: z.string().trim().min(2, "Business name is required").max(150),
+  businessType: z.enum(SERVICE_SLUGS, { message: "Select a business type" }),
+  mobileNumber: phoneSchema,
+  whatsappNumber: phoneSchema,
+  country: countrySchema,
+  state: stateSchema,
+  city: citySchema,
 });
 
 export const rejectAgentSchema = z.object({

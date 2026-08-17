@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AgentReviewCard from "@/components/superadmin/AgentReviewCard";
+import Spinner from "@/components/Spinner";
 import type { PrivateAgent } from "@/lib/types";
 
 export default function RejectedAgentsPage() {
@@ -29,7 +30,10 @@ export default function RejectedAgentsPage() {
 
       <div className="mt-6 space-y-6">
         {loading ? (
-          <p className="text-emerald-900/60">Loading agents...</p>
+          <div className="flex items-center justify-center gap-2 py-16 text-emerald-900/60">
+            <Spinner className="h-5 w-5" />
+            <span>Loading agents...</span>
+          </div>
         ) : agents.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-emerald-900/20 bg-white px-6 py-16 text-center">
             <p className="font-semibold text-emerald-950">No rejected agents.</p>

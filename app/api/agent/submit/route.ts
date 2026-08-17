@@ -26,15 +26,37 @@ export async function POST() {
       return errorResponse("Your company is already verified", 400);
     }
 
+    // Two independent verification paths, so both the website's original
+    // company/GST-document flow and the app's newer business/government-ID
+    // flow can each submit on their own without needing the other's fields.
     const missing: string[] = [];
     if (!agent.companyName) missing.push("company name");
-    if (!agent.mobileNumber) missing.push("mobile number");
-    if (!agent.whatsappNumber) missing.push("WhatsApp number");
-    if (!agent.country || !agent.state || !agent.city) missing.push("location");
-    if (!agent.address) missing.push("business address");
-    if (!agent.gstNumber) missing.push("GST number");
-    if (!agent.gstDocument) missing.push("GST document");
-    if (!agent.certificateDocument) missing.push("verified certificate document");
+
+    const hasLegacyVerification = Boolean(
+      agent.mobileNumber &&
+        agent.whatsappNumber &&
+        agent.country &&
+        agent.state &&
+        agent.city &&
+        agent.address &&
+        agent.gstNumber &&
+        agent.gstDocument &&
+        agent.certificateDocument
+    );
+    const hasBusinessVerification = Boolean(
+      agent.businessType &&
+        agent.businessEmail &&
+        agent.businessPhone &&
+        agent.govIdType &&
+        agent.govIdNumber &&
+        agent.govIdDocument
+    );
+
+    if (!hasLegacyVerification && !hasBusinessVerification) {
+      missing.push(
+        "your mobile/WhatsApp number, location, address, GST number, GST document, and verified certificate, or your business type, business email, business phone, government ID type/number, and government ID document"
+      );
+    }
 
     if (missing.length > 0) {
       return errorResponse(

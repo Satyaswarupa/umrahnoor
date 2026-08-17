@@ -15,7 +15,7 @@ export default async function SuperadminUsersPage() {
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       <h1 className="text-2xl font-bold text-emerald-950">Users</h1>
       <p className="mt-1 text-sm text-emerald-900/70">
-        All registered accounts on UmrahNoor, including customers, agents, and admins.
+        All registered accounts on UmrahChal, including customers, agents, and admins.
       </p>
 
       <div className="mt-6 overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-emerald-900/10">

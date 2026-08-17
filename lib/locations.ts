@@ -44,3 +44,44 @@ export const INDIA_STATES = Object.keys(INDIA_STATES_CITIES).sort();
 export function getCitiesForState(state: string): string[] {
   return INDIA_STATES_CITIES[state] ?? [];
 }
+
+export type LocationSuggestion = { state: string; city: string; label: string };
+
+function normalize(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+// Free-text search over the known state/city list, e.g. typing "jaipur" or
+// "odisha" — used for the location search bar's autocomplete.
+export function searchLocations(query: string, limit = 6): LocationSuggestion[] {
+  const trimmed = normalize(query);
+  if (!trimmed) return [];
+
+  const results: LocationSuggestion[] = [];
+
+  for (const state of INDIA_STATES) {
+    if (normalize(state).includes(trimmed)) {
+      results.push({ state, city: "", label: state });
+    }
+    for (const city of getCitiesForState(state)) {
+      if (normalize(city).includes(trimmed)) {
+        results.push({ state, city, label: `${city}, ${state}` });
+      }
+    }
+  }
+
+  results.sort((a, b) => {
+    const aStarts = normalize(a.label).startsWith(trimmed) ? 0 : 1;
+    const bStarts = normalize(b.label).startsWith(trimmed) ? 0 : 1;
+    return aStarts - bStarts;
+  });
+
+  return results.slice(0, limit);
+}
+
+// Best-effort single match for when the user submits the search bar directly
+// instead of picking a suggestion.
+export function resolveLocationQuery(query: string): { state: string; city: string } | null {
+  const [best] = searchLocations(query, 1);
+  return best ? { state: best.state, city: best.city } : null;
+}

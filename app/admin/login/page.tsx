@@ -2,7 +2,11 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AdminLoginForm from "@/components/auth/AdminLoginForm";
 
-export const metadata = { title: "Agent Login | UmrahNoor" };
+export const metadata = {
+  title: "Agent Login",
+  description: "Log in to your UmrahChal agent dashboard to manage your verification and listing.",
+  robots: { index: false, follow: true },
+};
 
 export default function AdminLoginPage() {
   return (

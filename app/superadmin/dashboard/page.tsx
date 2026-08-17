@@ -31,7 +31,7 @@ export default async function SuperadminOverviewPage() {
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       <h1 className="text-2xl font-bold text-emerald-950">Overview</h1>
       <p className="mt-1 text-sm text-emerald-900/70">
-        A snapshot of UmrahNoor&rsquo;s users and agent verification pipeline.
+        A snapshot of UmrahChal&rsquo;s users and agent verification pipeline.
       </p>
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

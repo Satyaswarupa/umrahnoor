@@ -1,0 +1,15 @@
+
+> umrahnoor@0.1.0 dev
+> next dev
+
+▲ Next.js 16.3.1 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.4:3000
+- Environments: .env.local
+✓ Ready in 1041ms
+✓ Running next.config.ts took 74ms
+
+○ Compiling /admin/dashboard ...
+ GET /admin/dashboard 200 in 6.0s (next.js: 5.7s, application-code: 359ms)
+ GET /api/agent/profile 200 in 10.9s (next.js: 934ms, application-code: 10.0s)
+ GET /api/agent/profile 200 in 219ms (next.js: 13ms, application-code: 206ms)
