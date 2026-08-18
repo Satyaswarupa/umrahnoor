@@ -88,6 +88,7 @@ const websiteJsonLd = {
   name: SITE_NAME,
   description: SITE_DESCRIPTION,
   publisher: { "@id": `${SITE_URL}/#organization` },
+  inLanguage: "en-IN",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

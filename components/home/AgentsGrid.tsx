@@ -198,7 +198,12 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
                 <div className="neu-pressed h-[62px] w-[62px] shrink-0 rounded-[19px] p-[5px]">
                   <div className="relative h-full w-full overflow-hidden rounded-[14px] bg-[#E4DED2]">
                     {agent.profileImage ? (
-                      <Image src={agent.profileImage.url} alt="" fill className="object-cover" />
+                      <Image
+                        src={agent.profileImage.url}
+                        alt={`${agent.companyName} — verified Umrah agent logo`}
+                        fill
+                        className="object-cover"
+                      />
                     ) : (
                       <div className="grid h-full w-full place-items-center text-lg font-bold text-[#9A907C]">
                         {agent.companyName?.charAt(0).toUpperCase() || "?"}
@@ -248,7 +253,7 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
                     </>
                   ) : (
                     <Link href={`/agents/${agent.id}`} className="text-[13px] font-bold text-[#0E5B4A] hover:text-[#C08A2E]">
-                      View details →
+                      View {agent.companyName} details →
                     </Link>
                   )}
                 </div>

@@ -10,6 +10,22 @@ import AgencyCTA from "@/components/home/AgencyCTA";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Agent } from "@/models/Agent";
 import { toPublicAgentSummary } from "@/lib/serializers";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site-config";
+
+const HOW_IT_WORKS = [
+  {
+    step: "1. Search",
+    text: "Enter your city or tap Near Me to see verified Umrah agents operating there.",
+  },
+  {
+    step: "2. Compare",
+    text: "Check each agent's services, starting price, and years of experience side by side.",
+  },
+  {
+    step: "3. Contact",
+    text: "Call or WhatsApp the agent directly to discuss packages and book — no forms, no fees.",
+  },
+];
 
 const FAQS = [
   {
@@ -49,6 +65,36 @@ const faqJsonLd = {
   })),
 };
 
+const webPageJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "@id": `${SITE_URL}/#webpage`,
+  url: SITE_URL,
+  name: `${SITE_NAME} — Find Verified Umrah Travel Agents in India`,
+  description: SITE_DESCRIPTION,
+  isPartOf: { "@id": `${SITE_URL}/#website` },
+  about: { "@id": `${SITE_URL}/#organization` },
+  publisher: { "@id": `${SITE_URL}/#organization` },
+  inLanguage: "en-IN",
+  audience: {
+    "@type": "Audience",
+    audienceType: "Pilgrims and families in India planning Umrah travel",
+  },
+};
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: SITE_URL,
+    },
+  ],
+};
+
 async function getFeaturedAgents() {
   await connectToDatabase();
   const agents = await Agent.find({ verificationStatus: "VERIFIED", isListed: true })
@@ -84,6 +130,14 @@ export default async function Home() {
 
   return (
     <div className="flex min-h-full flex-1 flex-col bg-[#EAE5DB]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <SiteHeader />
 
       <main className="flex-1" style={{ fontFamily: "var(--font-jakarta), sans-serif" }}>
@@ -97,16 +151,24 @@ export default async function Home() {
             </div>
 
             <h1 className="mt-5 text-[42px] font-extrabold leading-[1.08] tracking-tight text-[#24201A] sm:text-[56px]">
-              Talk to the right
+              Find & talk to
               <br />
-              Umrah agent —
+              verified Umrah agents —
               <br />
               <span className="text-[#0E5B4A]">directly.</span>
             </h1>
 
             <p className="mt-5 max-w-[480px] text-[17px] leading-[1.65] text-[#6E6455]">
-              No middlemen, no commission, no booking forms. Browse licensed Umrah operators near
-              you and call or WhatsApp them yourself — packages, visa, air ticket, hotel, ziyarat.
+              <strong className="text-[#24201A]">In short:</strong> UmrahChal is a free directory
+              that connects pilgrims across India with {stats.agentCount} verified, GST-registered
+              Umrah agents in {stats.cityCount} cities. Search by city, compare packages, and call
+              or WhatsApp any agent yourself — no middlemen, no commission, no booking forms.
+            </p>
+
+            <p className="mt-3 max-w-[480px] text-sm leading-[1.6] text-[#8A7F6C]">
+              Built for first-time pilgrims, families, and groups in India who want to book Umrah
+              packages, visa, air ticket, hotel, or ziyarat services directly with a licensed
+              operator instead of going through a travel portal.
             </p>
 
             <HeroSearch />
@@ -136,6 +198,26 @@ export default async function Home() {
         <Suspense fallback={<AgentsGridSkeleton />}>
           <AgentsGrid initialAgents={featuredAgents} />
         </Suspense>
+
+        <section className="mx-auto max-w-6xl px-4 pt-20 sm:px-6" style={{ fontFamily: "var(--font-jakarta), sans-serif" }}>
+          <h2 className="text-[28px] font-extrabold tracking-tight text-[#24201A] sm:text-[30px]">
+            How does UmrahChal work?
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-[1.6] text-[#7A705E]">
+            Three steps, no account and no booking fee: search your city, compare verified
+            agents, then contact the one you like directly.
+          </p>
+          <ol className="mt-7 grid grid-cols-1 gap-5 sm:grid-cols-3">
+            {HOW_IT_WORKS.map((item) => (
+              <li key={item.step} className="neu-raised-sm rounded-[26px] bg-[#EAE5DB] p-6">
+                <div className="text-[13px] font-extrabold tracking-wide text-[#0E5B4A]">
+                  {item.step}
+                </div>
+                <p className="mt-2 text-sm leading-[1.6] text-[#6E6455]">{item.text}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
 
         <ServicePicker />
 

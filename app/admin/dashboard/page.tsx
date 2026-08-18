@@ -582,7 +582,7 @@ export default function AgentDashboardPage() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
                   <StatCard
                     label="VERIFICATION STATUS"
                     value={STATUS_LABELS[agent.verificationStatus] ?? agent.verificationStatus}

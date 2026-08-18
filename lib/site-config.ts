@@ -6,7 +6,7 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://umrahjao.v
 );
 
 export const SITE_DESCRIPTION =
-  "UmrahChal is a free directory of verified, GST-registered Umrah travel agents across India. Search by city, compare agents, and contact them directly by call or WhatsApp — no middlemen, no booking fees.";
+  "Free directory of verified, GST-registered Umrah travel agents in India. Search by city and contact agents directly by call or WhatsApp — no fees.";
 
 export const SITE_KEYWORDS = [
   "Umrah agents",

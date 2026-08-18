@@ -21,6 +21,10 @@ export default function ServicePicker() {
         <h2 className="text-[28px] font-extrabold tracking-tight text-[#24201A] sm:text-[30px]">
           What are you looking for?
         </h2>
+        <p className="mt-2 max-w-2xl text-sm leading-[1.6] text-[#7A705E]">
+          Pick a service — full package, visa, air ticket, or hotel — to jump straight to
+          verified agents who offer it.
+        </p>
       </div>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {featured.map((service) => (
