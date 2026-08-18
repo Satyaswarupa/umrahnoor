@@ -3,7 +3,9 @@ import { Suspense } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AgentPromoWidget from "@/components/AgentPromoWidget";
+import WhatsAppFloatButton from "@/components/WhatsAppFloatButton";
 import HeroSearch from "@/components/home/HeroSearch";
+import ServicesShowcase from "@/components/home/ServicesShowcase";
 import ServicePicker from "@/components/home/ServicePicker";
 import AgentsGrid from "@/components/home/AgentsGrid";
 import AgencyCTA from "@/components/home/AgencyCTA";
@@ -199,6 +201,8 @@ export default async function Home() {
           <AgentsGrid initialAgents={featuredAgents} />
         </Suspense>
 
+        <ServicesShowcase />
+
         <section className="mx-auto max-w-6xl px-4 pt-20 sm:px-6" style={{ fontFamily: "var(--font-jakarta), sans-serif" }}>
           <h2 className="text-[28px] font-extrabold tracking-tight text-[#24201A] sm:text-[30px]">
             How does UmrahChal work?
@@ -244,6 +248,7 @@ export default async function Home() {
 
       <SiteFooter />
       <AgentPromoWidget />
+      <WhatsAppFloatButton />
     </div>
   );
 }

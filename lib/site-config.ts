@@ -20,3 +20,5 @@ export const SITE_KEYWORDS = [
 
 export const SITE_LOGO_PATH = "/logo.png";
 export const SITE_OG_IMAGE_PATH = "/og-image.png";
+
+export const SUPPORT_WHATSAPP_NUMBER = "917008671443";
