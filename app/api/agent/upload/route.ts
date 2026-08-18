@@ -3,6 +3,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { Agent } from "@/models/Agent";
 import { getSession } from "@/lib/auth";
 import { isAllowedDocumentFile, uploadDocumentToCloudinary } from "@/lib/cloudinary";
+import { toPrivateAgent } from "@/lib/serializers";
 import {
   unauthorizedResponse,
   forbiddenResponse,
@@ -83,6 +84,36 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ document: uploaded });
   } catch (error) {
     console.error("agent upload error", error);
+    return serverErrorResponse();
+  }
+}
+
+// Removes one additional document by its Cloudinary publicId. Only drops the
+// DB reference — the underlying Cloudinary asset is left in place, same
+// tradeoff as elsewhere in this codebase (no delete-from-Cloudinary helper
+// exists yet).
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getSession();
+    if (!session) return unauthorizedResponse();
+    if (session.role !== "ADMIN") return forbiddenResponse();
+
+    const publicId = new URL(request.url).searchParams.get("publicId");
+    if (!publicId) return errorResponse("Missing publicId", 400);
+
+    await connectToDatabase();
+
+    const agent = await Agent.findOne({ userId: session.userId });
+    if (!agent) return notFoundResponse("Agent profile not found");
+
+    agent.additionalDocuments = agent.additionalDocuments.filter(
+      (doc: { publicId: string }) => doc.publicId !== publicId
+    );
+    await agent.save();
+
+    return NextResponse.json({ agent: toPrivateAgent(agent) });
+  } catch (error) {
+    console.error("agent document delete error", error);
     return serverErrorResponse();
   }
 }

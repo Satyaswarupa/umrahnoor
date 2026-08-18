@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AgentReviewCard from "@/components/superadmin/AgentReviewCard";
+import PageHeader from "@/components/superadmin/PageHeader";
+import SearchInput from "@/components/superadmin/SearchInput";
 import Spinner from "@/components/Spinner";
 import type { PrivateAgent } from "@/lib/types";
 
 export default function RejectedAgentsPage() {
   const [agents, setAgents] = useState<PrivateAgent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -21,27 +24,52 @@ export default function RejectedAgentsPage() {
     })();
   }, []);
 
-  return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-bold text-emerald-950">Rejected Agents</h1>
-      <p className="mt-1 text-sm text-emerald-900/70">
-        These agents were rejected. They can update their information and resubmit for review.
-      </p>
+  const shown = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return agents;
+    return agents.filter((a) => (a.companyName + " " + a.ownerName).toLowerCase().includes(q));
+  }, [agents, query]);
 
-      <div className="mt-6 space-y-6">
+  return (
+    <>
+      <PageHeader
+        crumb="AGENTS"
+        title="Rejected Agents"
+        subtitle="Applications turned down, with the reason shared with each agent"
+      >
+        <SearchInput value={query} onChange={setQuery} placeholder="Search agents…" />
+      </PageHeader>
+
+      <div className="mt-[22px] flex flex-col gap-[18px]">
+        <div className="flex items-center gap-2.5">
+          <span
+            className="rounded-full px-4 py-2.5 text-[11.5px] font-extrabold tracking-[0.06em] text-[#F6E2B4]"
+            style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)" }}
+          >
+            REJECTED
+          </span>
+          <span className="neu-raised-sm rounded-full px-4 py-2.5 text-[11.5px] font-bold text-[#6E6455]">Newest first</span>
+          <span className="ml-auto text-xs text-[#8A7F6C]">
+            {shown.length} {shown.length === 1 ? "agent shown" : "agents shown"}
+          </span>
+        </div>
+
         {loading ? (
-          <div className="flex items-center justify-center gap-2 py-16 text-emerald-900/60">
+          <div className="flex items-center justify-center gap-2 py-16 text-[#6E6455]">
             <Spinner className="h-5 w-5" />
             <span>Loading agents...</span>
           </div>
-        ) : agents.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-emerald-900/20 bg-white px-6 py-16 text-center">
-            <p className="font-semibold text-emerald-950">No rejected agents.</p>
+        ) : shown.length === 0 ? (
+          <div className="neu-inset rounded-3xl px-8 py-16 text-center">
+            <p className="text-[15px] font-extrabold text-[#6E6455]">No rejected applications</p>
+            <p className="mt-2 text-[12.5px] text-[#9A907C]">
+              New applications appear here as soon as an agent submits for verification.
+            </p>
           </div>
         ) : (
-          agents.map((agent) => <AgentReviewCard key={agent.id} agent={agent} />)
+          shown.map((agent) => <AgentReviewCard key={agent.id} agent={agent} />)
         )}
       </div>
-    </div>
+    </>
   );
 }

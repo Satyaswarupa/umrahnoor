@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Field, inputClass, selectClass } from "@/components/form";
 import Spinner from "@/components/Spinner";
+import PageHeader from "@/components/superadmin/PageHeader";
 import { COUNTRIES, INDIA_STATES, getCitiesForState } from "@/lib/locations";
 import { SERVICES } from "@/lib/services";
 
@@ -16,6 +16,9 @@ const emptyForm = {
   city: "",
 };
 
+const fieldClass =
+  "w-full box-border rounded-2xl border-none bg-[#EAE5DB] px-4 py-3.5 text-[13.5px] font-semibold text-[#24201A] outline-none neu-pressed";
+
 export default function NewAgentPage() {
   const [form, setForm] = useState(emptyForm);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -24,6 +27,7 @@ export default function NewAgentPage() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const cities = useMemo(() => getCitiesForState(form.state), [form.state]);
+  const initial = (form.companyName.trim()[0] || "A").toUpperCase();
 
   function handleImageChange(file: File | null) {
     setImageFile(file);
@@ -33,8 +37,18 @@ export default function NewAgentPage() {
     });
   }
 
+  function handleReset() {
+    setForm(emptyForm);
+    handleImageChange(null);
+    setMessage(null);
+  }
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+    if (!form.companyName.trim() || !form.mobileNumber.trim() || !form.whatsappNumber.trim() || !form.businessType) {
+      setMessage({ type: "error", text: "Business name, business type, call number and WhatsApp number are required." });
+      return;
+    }
     setSaving(true);
     setMessage(null);
     try {
@@ -56,7 +70,7 @@ export default function NewAgentPage() {
         return;
       }
 
-      setMessage({ type: "success", text: `${data.agent.companyName} was added and is now live on the site.` });
+      setMessage({ type: "success", text: `${data.agent.companyName} added and published as VERIFIED on the public directory.` });
       setForm(emptyForm);
       handleImageChange(null);
     } catch {
@@ -67,171 +81,228 @@ export default function NewAgentPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-bold text-emerald-950">Add Agent</h1>
-      <p className="mt-1 text-sm text-emerald-900/70">
-        Add an agent directly — they&apos;re published as verified and listed on the site
-        immediately, no review queue.
-      </p>
+    <>
+      <PageHeader
+        crumb="AGENTS"
+        title="Add Agent"
+        subtitle="Add an agency directly — it publishes live as verified and listed, no signup flow"
+      />
 
-      {message && (
-        <div
-          className={`mt-4 rounded-lg px-4 py-3 text-sm ${
-            message.type === "success"
-              ? "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-600/20"
-              : "bg-red-50 text-red-700 ring-1 ring-red-600/20"
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="mt-6 space-y-5 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-emerald-900/10">
-        <Field label="Business Name *">
-          <input
-            required
-            className={inputClass}
-            value={form.companyName}
-            onChange={(e) => setForm({ ...form, companyName: e.target.value })}
-          />
-        </Field>
-
-        <Field label="Business Type *">
-          <select
-            required
-            className={selectClass}
-            value={form.businessType}
-            onChange={(e) => setForm({ ...form, businessType: e.target.value })}
+      <form onSubmit={handleSubmit} className="mt-[26px] max-w-[960px]">
+        {message && (
+          <div
+            className={
+              "mb-[18px] flex items-center gap-2.5 rounded-[18px] px-[18px] py-3.5 text-[13px] font-bold " +
+              (message.type === "success" ? "bg-[#0E5B4A]/10 text-[#0A4438]" : "bg-[#C0392B]/10 text-[#A0301F]")
+            }
           >
-            <option value="" disabled>
-              Select Business Type
-            </option>
-            {SERVICES.map((service) => (
-              <option key={service.slug} value={service.slug}>
-                {service.icon} {service.label}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <p className="-mt-3 text-xs text-emerald-900/50">
-          This is also how pilgrims filter agents on the homepage.
-        </p>
+            <span>{message.type === "success" ? "✓" : "⚠"}</span>
+            {message.text}
+          </div>
+        )}
 
-        <div>
-          <span className="text-sm font-medium text-emerald-950">Profile Image</span>
-          <div className="mt-1 flex items-center gap-4">
-            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full bg-emerald-50 ring-1 ring-emerald-900/10">
-              {imagePreview ? (
-                // eslint-disable-next-line @next/next/no-img-element -- local blob: preview, not an optimizable remote/static asset
-                <img src={imagePreview} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <div className="grid h-full w-full place-items-center text-lg font-semibold text-emerald-900/30">
-                  {form.companyName.charAt(0).toUpperCase() || "?"}
-                </div>
-              )}
+        <div className="neu-raised rounded-3xl bg-[#EAE5DB] p-7">
+          <div className="flex flex-wrap items-center justify-between gap-5">
+            <div>
+              <div className="text-base font-extrabold text-[#24201A]">Agent details</div>
+              <div className="mt-1 text-xs text-[#8A7F6C]">
+                Added by staff — publishes live as VERIFIED and listed, no signup flow.
+              </div>
             </div>
-            <input
-              type="file"
-              accept="image/png,image/jpeg,image/jpg,image/webp"
-              onChange={(e) => handleImageChange(e.target.files?.[0] ?? null)}
-              className="text-sm text-emerald-900/70"
-            />
+            <div
+              className="flex items-center gap-[7px] rounded-full px-3 py-[7px] text-[10px] font-extrabold tracking-[0.08em]"
+              style={{ color: "#0A4438", background: "rgba(14,91,74,.14)" }}
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-[#0E5B4A]" />
+              PUBLISHES AS VERIFIED
+            </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <div>
-            <Field label="Call Number *">
-              <input
-                required
-                className={inputClass}
-                placeholder="e.g. 9876543210"
-                value={form.mobileNumber}
-                onChange={(e) => setForm({ ...form, mobileNumber: e.target.value })}
-              />
-            </Field>
+          <div className="mt-[26px] grid grid-cols-1 gap-[30px] sm:grid-cols-[156px_1fr]">
+            <div className="flex flex-col items-center gap-3">
+              <div className="neu-inset h-[124px] w-[124px] rounded-full p-[7px]">
+                <div className="relative h-full w-full overflow-hidden rounded-full bg-[#EAE5DB]">
+                  {imagePreview ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- local blob: preview
+                    <img src={imagePreview} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="grid h-full w-full place-items-center text-3xl font-extrabold text-[#0E5B4A]">
+                      {initial}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <label className="cursor-pointer text-xs font-bold text-[#0E5B4A]">
+                Upload profile image
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  className="hidden"
+                  onChange={(e) => handleImageChange(e.target.files?.[0] ?? null)}
+                />
+              </label>
+              <div className="text-center text-[10px] leading-[1.5] text-[#9A907C]">
+                Square JPG or PNG, min 400×400.
+                <br />
+                Falls back to the initial &ldquo;{initial}&rdquo;.
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-[18px] sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <div className="mb-[7px] text-[11px] font-bold text-[#6E6455]">
+                  Business Name <span className="text-[#C0392B]">*</span>
+                </div>
+                <input
+                  required
+                  className={fieldClass}
+                  placeholder="e.g. Al-Safar Travels"
+                  value={form.companyName}
+                  onChange={(e) => setForm({ ...form, companyName: e.target.value })}
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <div className="mb-2 flex items-baseline justify-between">
+                  <span className="text-[11px] font-bold text-[#6E6455]">Business Type</span>
+                  <span className="text-[10.5px] text-[#9A907C]">This is also how pilgrims filter agents on the homepage.</span>
+                </div>
+                <div className="flex flex-wrap gap-[9px]">
+                  {SERVICES.map((service) => {
+                    const active = form.businessType === service.slug;
+                    return (
+                      <button
+                        key={service.slug}
+                        type="button"
+                        onClick={() => setForm({ ...form, businessType: service.slug })}
+                        className={
+                          "flex items-center gap-[7px] rounded-2xl px-[14px] py-2.5 text-xs font-bold transition " +
+                          (active ? "text-[#F6E2B4]" : "neu-raised-sm text-[#4A4238]")
+                        }
+                        style={active ? { background: "linear-gradient(145deg, #0E5B4A, #0A4438)" } : undefined}
+                      >
+                        <span className="text-[13px]">{service.icon}</span>
+                        {service.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-[7px] text-[11px] font-bold text-[#6E6455]">
+                  Call Number <span className="text-[#C0392B]">*</span>
+                </div>
+                <input
+                  required
+                  className={fieldClass}
+                  placeholder="+91 98490 12345"
+                  value={form.mobileNumber}
+                  onChange={(e) => setForm({ ...form, mobileNumber: e.target.value })}
+                />
+              </div>
+              <div>
+                <div className="mb-[7px] flex items-baseline justify-between">
+                  <span className="text-[11px] font-bold text-[#6E6455]">
+                    WhatsApp Number <span className="text-[#C0392B]">*</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, whatsappNumber: form.mobileNumber })}
+                    className="text-[10.5px] font-bold text-[#0E5B4A]"
+                  >
+                    Same as call number
+                  </button>
+                </div>
+                <input
+                  required
+                  className={fieldClass}
+                  placeholder="+91 98490 12345"
+                  value={form.whatsappNumber}
+                  onChange={(e) => setForm({ ...form, whatsappNumber: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <div className="mb-[7px] text-[11px] font-bold text-[#6E6455]">Country</div>
+                <select
+                  className={fieldClass}
+                  value={form.country}
+                  onChange={(e) => setForm({ ...form, country: e.target.value })}
+                >
+                  {COUNTRIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <div className="mb-[7px] text-[11px] font-bold text-[#6E6455]">State</div>
+                <select
+                  className={fieldClass}
+                  value={form.state}
+                  onChange={(e) => setForm({ ...form, state: e.target.value, city: "" })}
+                >
+                  <option value="" disabled>
+                    Select state
+                  </option>
+                  {INDIA_STATES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <div className="mb-[7px] text-[11px] font-bold text-[#6E6455]">City</div>
+                <select
+                  className={fieldClass}
+                  disabled={!form.state}
+                  value={form.city}
+                  onChange={(e) => setForm({ ...form, city: e.target.value })}
+                >
+                  <option value="" disabled>
+                    {form.state ? "Select city" : "Select a state first"}
+                  </option>
+                  {cities.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-end">
+                <div className="text-[11px] leading-[1.5] text-[#9A907C]">City list cascades from the selected state.</div>
+              </div>
+            </div>
           </div>
-          <div>
-            <Field label="WhatsApp Number *">
-              <input
-                required
-                className={inputClass}
-                placeholder="e.g. 9876543210"
-                value={form.whatsappNumber}
-                onChange={(e) => setForm({ ...form, whatsappNumber: e.target.value })}
-              />
-            </Field>
+
+          <div className="my-[26px] h-px bg-gradient-to-r from-[#96897650] to-white/95" />
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex items-center gap-2 rounded-full px-[26px] py-[15px] text-[13.5px] font-extrabold text-[#F6E2B4] disabled:opacity-75"
+              style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)" }}
+            >
+              {saving && <Spinner className="h-3.5 w-3.5" />}
+              {saving ? "Adding agent…" : "Add Agent"}
+            </button>
             <button
               type="button"
-              onClick={() => setForm({ ...form, whatsappNumber: form.mobileNumber })}
-              className="mt-1 text-xs font-medium text-emerald-700 hover:text-emerald-800"
+              onClick={handleReset}
+              disabled={saving}
+              className="neu-raised-sm rounded-full px-6 py-[13px] text-[13px] font-bold text-[#6E6455] disabled:opacity-50"
             >
-              Same as call number
+              Reset
             </button>
+            <div className="ml-auto text-[11.5px] text-[#9A907C]">
+              Required: business name, business type, call number, WhatsApp number.
+            </div>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-          <Field label="Country *">
-            <select
-              required
-              className={selectClass}
-              value={form.country}
-              onChange={(e) => setForm({ ...form, country: e.target.value })}
-            >
-              {COUNTRIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label="State *">
-            <select
-              required
-              className={selectClass}
-              value={form.state}
-              onChange={(e) => setForm({ ...form, state: e.target.value, city: "" })}
-            >
-              <option value="" disabled>
-                Select State
-              </option>
-              {INDIA_STATES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label="City *">
-            <select
-              required
-              disabled={!form.state}
-              className={selectClass}
-              value={form.city}
-              onChange={(e) => setForm({ ...form, city: e.target.value })}
-            >
-              <option value="" disabled>
-                {form.state ? "Select City" : "Select a state first"}
-              </option>
-              {cities.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </Field>
-        </div>
-
-        <button
-          type="submit"
-          disabled={saving}
-          className="inline-flex items-center gap-2 rounded-lg bg-emerald-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
-        >
-          {saving && <Spinner className="h-4 w-4" />}
-          {saving ? "Adding..." : "Add Agent"}
-        </button>
       </form>
-    </div>
+    </>
   );
 }

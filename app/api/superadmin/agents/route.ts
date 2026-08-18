@@ -8,7 +8,6 @@ import { getSession, hashPassword } from "@/lib/auth";
 import { toPrivateAgent } from "@/lib/serializers";
 import { superadminCreateAgentSchema } from "@/lib/validation";
 import { isAllowedDocumentFile, uploadDocumentToCloudinary } from "@/lib/cloudinary";
-import { getServiceLabel } from "@/lib/services";
 import {
   unauthorizedResponse,
   forbiddenResponse,
@@ -103,7 +102,7 @@ export async function POST(request: NextRequest) {
       email,
       mobileNumber,
       whatsappNumber,
-      businessType: getServiceLabel(businessType),
+      businessType,
       services: [businessType],
       country,
       state,

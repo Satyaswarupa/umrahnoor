@@ -2,21 +2,46 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Field, inputClass, selectClass } from "@/components/form";
 import Spinner from "@/components/Spinner";
-import StatusBadge from "@/components/StatusBadge";
-import SuccessOverlay from "@/components/SuccessOverlay";
+import LogoutButton from "@/components/LogoutButton";
 import { COUNTRIES, INDIA_STATES, getCitiesForState } from "@/lib/locations";
-import { BUSINESS_TYPES, GOVERNMENT_ID_TYPES } from "@/lib/agent-options";
+import { GOVERNMENT_ID_TYPES } from "@/lib/agent-options";
 import { SERVICES, getServiceLabel } from "@/lib/services";
-import type { AgentLocation, PrivateAgent } from "@/lib/types";
+import type { AgentDoc, AgentLocation, PrivateAgent } from "@/lib/types";
+
+const jakarta = { fontFamily: "var(--font-jakarta), sans-serif" };
+const amiri = { fontFamily: "var(--font-amiri), serif" };
 
 const TABS = [
-  { key: "dashboard", label: "Dashboard" },
-  { key: "info", label: "All Info" },
-  { key: "subscription", label: "Subscription" },
+  { key: "dashboard", label: "Dashboard", icon: "◈" },
+  { key: "info", label: "All Info", icon: "☰" },
+  { key: "subscription", label: "Subscription", icon: "◇" },
 ] as const;
 type TabKey = (typeof TABS)[number]["key"];
+
+const STATUS_STYLES: Record<string, { fg: string; bg: string; dot: string }> = {
+  INCOMPLETE: { fg: "#5B5346", bg: "rgba(120,110,95,.18)", dot: "#8A7F6C" },
+  PENDING: { fg: "#8A5A12", bg: "rgba(192,138,46,.18)", dot: "#C08A2E" },
+  VERIFIED: { fg: "#0A4438", bg: "rgba(14,91,74,.14)", dot: "#0E5B4A" },
+  REJECTED: { fg: "#A0301F", bg: "rgba(192,57,43,.12)", dot: "#C0392B" },
+};
+const STATUS_LABELS: Record<string, string> = {
+  INCOMPLETE: "Incomplete",
+  PENDING: "Pending Review",
+  VERIFIED: "Verified",
+  REJECTED: "Rejected",
+};
+
+type DocKey = "govId" | "tradeLicense" | "gstCertificate" | "gst" | "certificate";
+const DOC_FIELDS: { key: DocKey; label: string; required?: boolean; note: string }[] = [
+  { key: "govId", label: "Government ID", required: true, note: "Aadhaar, Passport or Voter ID of the owner." },
+  { key: "tradeLicense", label: "Trade License", note: "Municipal / shop establishment licence." },
+  { key: "gstCertificate", label: "GST Certificate", note: "Registration certificate in the business name." },
+  { key: "gst", label: "GST Document", note: "Latest filed return or GST letter." },
+  { key: "certificate", label: "Verified Certificate", note: "Hajj committee / IATA / tourism board proof." },
+];
 
 const emptyProfile = {
   companyName: "",
@@ -77,6 +102,7 @@ export default function AgentDashboardPage() {
     null
   );
   const [uploading, setUploading] = useState<string | null>(null);
+  const [addDocLabel, setAddDocLabel] = useState("");
 
   const [editingBusinessInfo, setEditingBusinessInfo] = useState(false);
 
@@ -148,7 +174,8 @@ export default function AgentDashboardPage() {
 
   async function handleUpload(
     type: "gst" | "certificate" | "additional" | "govId" | "tradeLicense" | "gstCertificate" | "profile",
-    file: File
+    file: File,
+    name?: string
   ) {
     setUploading(type);
     setMessage(null);
@@ -156,6 +183,7 @@ export default function AgentDashboardPage() {
       const formData = new FormData();
       formData.set("type", type);
       formData.set("file", file);
+      if (name) formData.set("name", name);
       const res = await fetch("/api/agent/upload", { method: "POST", body: formData });
       const data = await res.json();
       if (!res.ok) {
@@ -163,11 +191,29 @@ export default function AgentDashboardPage() {
         return;
       }
       await loadAgent();
+      if (type === "additional") setAddDocLabel("");
       setMessage({ type: "success", text: "Uploaded successfully." });
     } catch {
       setMessage({ type: "error", text: "Network error during upload." });
     } finally {
       setUploading(null);
+    }
+  }
+
+  async function handleRemoveAdditionalDocument(publicId: string) {
+    setMessage(null);
+    try {
+      const res = await fetch(`/api/agent/upload?publicId=${encodeURIComponent(publicId)}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMessage({ type: "error", text: data.error ?? "Failed to remove document" });
+        return;
+      }
+      setAgent(data.agent);
+    } catch {
+      setMessage({ type: "error", text: "Network error. Please try again." });
     }
   }
 
@@ -183,10 +229,6 @@ export default function AgentDashboardPage() {
       }
       setAgent(data.agent);
       setSubmitSuccess(true);
-      setMessage({
-        type: "success",
-        text: "Your documents have been submitted successfully. Our team will review your information and you will be notified here once your company is verified and listed on UmrahChal.",
-      });
     } catch {
       setMessage({ type: "error", text: "Network error. Please try again." });
     } finally {
@@ -286,7 +328,7 @@ export default function AgentDashboardPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-4 py-24 text-emerald-900/60 sm:px-6">
+      <div className="flex min-h-screen items-center justify-center gap-2 bg-[#EAE5DB] text-[#6E6455]" style={jakarta}>
         <Spinner className="h-5 w-5" />
         <span>Loading dashboard...</span>
       </div>
@@ -295,7 +337,7 @@ export default function AgentDashboardPage() {
 
   if (!agent) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+      <div className="min-h-screen bg-[#EAE5DB] px-4 py-10 sm:px-6" style={jakarta}>
         <p className="text-red-600">Could not load your agent profile. Please try logging in again.</p>
       </div>
     );
@@ -305,13 +347,14 @@ export default function AgentDashboardPage() {
     agent.govIdDocument || (agent.gstDocument && agent.certificateDocument)
   );
 
-  const documentSlots = [
-    agent.govIdDocument,
-    agent.tradeLicenseDocument,
-    agent.gstCertificateDocument,
-    agent.gstDocument,
-    agent.certificateDocument,
-  ];
+  const documentValues: Record<DocKey, AgentDoc | null | undefined> = {
+    govId: agent.govIdDocument,
+    tradeLicense: agent.tradeLicenseDocument,
+    gstCertificate: agent.gstCertificateDocument,
+    gst: agent.gstDocument,
+    certificate: agent.certificateDocument,
+  };
+  const documentSlots = DOC_FIELDS.map((d) => documentValues[d.key]);
   const documentsUploaded = documentSlots.filter(Boolean).length;
 
   const completionChecks = [
@@ -327,286 +370,444 @@ export default function AgentDashboardPage() {
     (completionChecks.filter(Boolean).length / completionChecks.length) * 100
   );
 
+  const st = STATUS_STYLES[agent.verificationStatus] ?? STATUS_STYLES.INCOMPLETE;
+  const isLive = agent.verificationStatus === "VERIFIED" && agent.isListed;
+
+  const statusCopy: Record<string, [string, string]> = {
+    INCOMPLETE: [
+      "Your registration is not finished",
+      "Add your business information, one location and your Government ID, then submit for verification. Nothing is public yet.",
+    ],
+    PENDING: [
+      "Your application is under review",
+      "Our team is checking your documents — typically within 2 working days. You can keep editing while the review is pending.",
+    ],
+    VERIFIED: [
+      "You are live on UmrahChal",
+      agent.locations.length > 0
+        ? `Pilgrims in ${agent.locations.map((l) => l.city).filter(Boolean).join(", ")} can see your listing and call or WhatsApp you directly. Keep your numbers current.`
+        : "Pilgrims can see your listing and call or WhatsApp you directly. Keep your numbers current.",
+    ],
+    REJECTED: [
+      "Your application was rejected",
+      agent.rejectionReason || 'Update your information and documents under "All Info", then submit again for review.',
+    ],
+  };
+  const [statusHeadline, statusBody] = statusCopy[agent.verificationStatus] ?? statusCopy.INCOMPLETE;
+
+  const checklist = [
+    {
+      ok: Boolean(agent.companyName && agent.businessType && agent.businessEmail && agent.businessPhone),
+      text: "Business information complete",
+    },
+    { ok: agent.locations.length > 0, text: `At least one location added (${agent.locations.length})` },
+    { ok: hasRequiredDocument, text: "Government ID Document uploaded" },
+    { ok: documentsUploaded >= 4, text: `Supporting documents (${documentsUploaded} of ${documentSlots.length})` },
+  ];
+
+  const typeService = SERVICES.find((s) => s.slug === agent.businessType);
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-white px-6 py-6 shadow-sm ring-1 ring-emerald-900/10 sm:px-8">
-        <div className="flex items-center gap-4">
-          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-emerald-50 ring-1 ring-emerald-900/10">
-            {agent.profileImage ? (
-              <Image src={agent.profileImage.url} alt="" fill className="object-cover" />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-xl font-semibold text-emerald-900/30">
-                {agent.companyName?.charAt(0).toUpperCase() || agent.ownerName?.charAt(0).toUpperCase() || "?"}
-              </div>
-            )}
+    <div className="min-h-screen bg-[#EAE5DB] px-4 py-7 sm:px-8 lg:py-9" style={jakarta}>
+      <div className="mx-auto max-w-[1320px]">
+        <div className="flex flex-wrap items-center justify-between gap-4 pb-5">
+          <div className="flex items-center gap-2.5">
+            <Image src="/logo.png" alt="UmrahChal logo" width={36} height={36} className="h-9 w-9 rounded-xl" />
+            <div>
+              <div className="text-sm font-extrabold tracking-tight text-[#24201A]">UmrahChal</div>
+              <div className="mt-0.5 text-[9px] font-bold tracking-[0.14em] text-[#8A7F6C]">AGENT PORTAL</div>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-emerald-950">{agent.companyName || "Your Agency"}</h1>
-            <p className="mt-0.5 text-sm text-emerald-900/60">{agent.ownerName}</p>
+          <div className="flex items-center gap-2.5">
+            {isLive ? (
+              <Link
+                href={`/agents/${agent.id}`}
+                target="_blank"
+                className="neu-raised-sm rounded-xl px-4 py-2.5 text-xs font-bold text-[#6E6455] hover:text-[#0E5B4A]"
+              >
+                View public listing
+              </Link>
+            ) : (
+              <span
+                title="Not visible on the public site yet"
+                className="neu-pressed cursor-not-allowed rounded-xl px-4 py-2.5 text-xs font-bold text-[#9A907C]"
+              >
+                View public listing
+              </span>
+            )}
+            <LogoutButton className="neu-raised-sm rounded-xl px-4 py-2.5 text-xs font-bold text-[#6E6455] hover:text-[#0E5B4A]" />
           </div>
         </div>
-        <StatusBadge status={agent.verificationStatus} />
-      </div>
 
-      <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
-        <aside className="lg:w-72 lg:shrink-0">
-          <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-emerald-900/10 lg:sticky lg:top-8">
-            <p className="px-2 text-xs font-semibold uppercase tracking-wide text-emerald-900/40">Menu</p>
-            <nav className="mt-3 space-y-2">
-              {TABS.map(({ key, label }) => (
+        <div className="neu-raised flex flex-wrap items-center gap-4 rounded-3xl bg-[#EAE5DB] px-6 py-5 sm:px-7">
+          <div className="relative h-[68px] w-[68px] shrink-0 rounded-full">
+            {agent.profileImage ? (
+              <div className="relative h-full w-full overflow-hidden rounded-full">
+                <Image src={agent.profileImage.url} alt="" fill className="object-cover" />
+              </div>
+            ) : (
+              <div className="neu-pressed grid h-full w-full place-items-center rounded-full text-2xl font-extrabold text-[#0E5B4A]">
+                {(agent.companyName || agent.ownerName || "?").charAt(0).toUpperCase()}
+              </div>
+            )}
+            <label className="absolute -bottom-1 -right-1 grid h-7 w-7 cursor-pointer place-items-center rounded-full bg-[#0E5B4A] text-white ring-2 ring-[#EAE5DB]">
+              {uploading === "profile" ? <Spinner className="h-3.5 w-3.5" /> : <span className="text-[11px]">✎</span>}
+              <input
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp"
+                className="hidden"
+                disabled={uploading === "profile"}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleUpload("profile", file);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-[21px] font-extrabold tracking-tight text-[#24201A]">
+              {agent.companyName || "Your Agency"}
+            </div>
+            <div className="mt-1 text-[13px] text-[#7A705E]">
+              {agent.ownerName} · {agent.email}
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="mb-1.5 text-[10px] font-bold tracking-[0.1em] text-[#9A907C]">VERIFICATION</div>
+            <span
+              className="inline-block rounded-lg px-3 py-1.5 text-[11px] font-extrabold tracking-wide"
+              style={{ color: st.fg, background: st.bg }}
+            >
+              {STATUS_LABELS[agent.verificationStatus] ?? agent.verificationStatus}
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-6 grid grid-cols-1 items-start gap-6 lg:grid-cols-[236px_1fr]">
+          <aside className="neu-raised flex flex-col gap-1.5 rounded-[22px] bg-[#EAE5DB] p-3.5 lg:sticky lg:top-6">
+            {TABS.map((t) => {
+              const active = t.key === tab;
+              const flagged = t.key === "info" && !hasRequiredDocument;
+              return (
                 <button
-                  key={key}
+                  key={t.key}
                   type="button"
                   onClick={() => {
                     setMessage(null);
-                    setTab(key);
+                    setTab(t.key);
                   }}
-                  className={`flex w-full items-center rounded-xl px-4 py-3 text-left text-sm font-semibold transition ${
-                    key === tab
-                      ? "bg-emerald-800 text-white shadow-sm"
-                      : "text-emerald-900/70 hover:bg-emerald-50"
-                  }`}
+                  className={
+                    "flex items-center gap-2.5 rounded-2xl px-4 py-3 text-left transition " +
+                    (active ? "text-[#F3EFE6] shadow-sm" : "neu-raised-sm text-[#4A4238]")
+                  }
+                  style={active ? { background: "linear-gradient(145deg, #0E5B4A, #0A4438)" } : undefined}
                 >
-                  {label}
+                  <span className="w-[18px] text-center text-sm">{t.icon}</span>
+                  <span className="flex-1 text-[13.5px] font-bold">{t.label}</span>
+                  {flagged && <span className="h-[7px] w-[7px] shrink-0 rounded-full bg-[#C08A2E]" />}
                 </button>
-              ))}
-            </nav>
-          </div>
-        </aside>
-
-        <div className="min-w-0 flex-1 space-y-8">
-          {message && (
-            <div
-              className={`rounded-xl px-5 py-4 text-sm ${
-                message.type === "success"
-                  ? "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-600/20"
-                  : "bg-red-50 text-red-700 ring-1 ring-red-600/20"
-              }`}
-            >
-              {message.text}
-            </div>
-          )}
-
-          {tab === "dashboard" && (
-            <div className="space-y-8">
-              <StatusBanner agent={agent} />
-
-              {agent.verificationStatus === "INCOMPLETE" && (
-                <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-emerald-800 px-6 py-6 text-white shadow-sm sm:px-8">
-                  <div>
-                    <p className="text-lg font-semibold">New here? Complete your registration.</p>
-                    <p className="mt-1 text-sm text-emerald-50/80">
-                      Fill in your business information, locations, and documents to get listed on
-                      UmrahChal.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleRegisterClick}
-                    className="shrink-0 rounded-full bg-white px-6 py-3 text-sm font-semibold text-emerald-800 shadow-sm hover:bg-emerald-50"
-                  >
-                    Register
-                  </button>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                <StatCard label="Verification Status" value={STATUS_LABELS[agent.verificationStatus] ?? agent.verificationStatus} accent="emerald" />
-                <StatCard label="Profile Completion" value={`${completionPercent}%`} accent="sky">
-                  <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-sky-100">
-                    <div
-                      className="h-full rounded-full bg-sky-600 transition-all"
-                      style={{ width: `${completionPercent}%` }}
-                    />
-                  </div>
-                </StatCard>
-                <StatCard label="Locations Added" value={String(agent.locations.length)} accent="amber" />
-                <StatCard label="Documents Uploaded" value={`${documentsUploaded} / ${documentSlots.length}`} accent="violet" />
+              );
+            })}
+            <div className="my-2.5 h-px bg-[#96897640]" />
+            <div className="px-3 pb-2 pt-1">
+              <div className="text-[10px] font-extrabold tracking-[0.1em] text-[#9A907C]">PROFILE COMPLETION</div>
+              <div className="mt-2 flex items-baseline gap-1.5">
+                <span className="text-[22px] font-extrabold text-[#0E5B4A]">{completionPercent}%</span>
+                <span className="text-[11px] text-[#9A907C]">complete</span>
               </div>
-
-              {agent.verificationStatus !== "VERIFIED" && (
-                <Section title="Submit for Verification">
-                  <p className="text-sm text-emerald-900/60">
-                    Once your business info and required documents are complete, submit your profile for
-                    review by the UmrahChal team.
-                  </p>
-                  {!hasRequiredDocument && (
-                    <p className="mt-3 text-xs text-amber-700">
-                      Upload your Government ID Document under "All Info" before submitting — it's the
-                      only required document.
-                    </p>
-                  )}
-                  <div className="mt-5">
-                    <button
-                      type="button"
-                      onClick={handleSubmitVerification}
-                      disabled={submitting}
-                      className="inline-flex items-center gap-2 rounded-full bg-emerald-800 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {submitting && <Spinner className="h-4 w-4" />}
-                      {submitting ? "Submitting..." : "Submit for Verification"}
-                    </button>
-                  </div>
-                </Section>
-              )}
+              <div className="neu-pressed mt-2.5 h-2 overflow-hidden rounded-full">
+                <div
+                  className="h-full rounded-full"
+                  style={{ width: `${completionPercent}%`, background: "linear-gradient(90deg, #0E5B4A, #1C7F69)" }}
+                />
+              </div>
+              <div className="mt-2.5 text-[11px] leading-[1.5] text-[#8A7F6C]">
+                {!hasRequiredDocument
+                  ? "Upload your Government ID to reach 100%."
+                  : documentsUploaded < documentSlots.length
+                    ? "Add the remaining documents to reach 100%."
+                    : "Everything on file — nothing pending."}
+              </div>
             </div>
-          )}
+          </aside>
 
-          {tab === "info" && (
-            <div className="space-y-8">
-              <Section title="Business Profile">
-                <div className="flex items-center gap-5">
-                  <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full bg-emerald-50 ring-1 ring-emerald-900/10">
-                    {agent.profileImage ? (
-                      <Image src={agent.profileImage.url} alt="Business profile" fill className="object-cover" />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-2xl text-emerald-900/30">
-                        {agent.companyName?.charAt(0).toUpperCase() || agent.ownerName?.charAt(0).toUpperCase() || "?"}
-                      </div>
-                    )}
-                    {uploading === "profile" && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-emerald-950/40 text-white">
-                        <Spinner className="h-5 w-5" />
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-emerald-950">{agent.ownerName}</p>
-                    <p className="text-xs text-emerald-900/60">{agent.email}</p>
-                    <div className="mt-2">
-                      <UploadButton
-                        uploading={uploading === "profile"}
-                        label={agent.profileImage ? "Replace Photo" : "Upload Photo"}
-                        accept=".jpg,.jpeg,.png,.webp"
-                        onUpload={(file) => handleUpload("profile", file)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </Section>
-
-              <Section
-                title="Business Information"
-                headerAction={
-                  !editingBusinessInfo && (
-                    <button
-                      type="button"
-                      onClick={() => setEditingBusinessInfo(true)}
-                      className="text-xs font-medium text-emerald-700 hover:text-emerald-800"
-                    >
-                      Edit
-                    </button>
-                  )
+          <div className="min-w-0">
+            {message && (
+              <div
+                className={
+                  "mb-5 rounded-2xl px-5 py-3.5 text-sm font-semibold " +
+                  (message.type === "success" ? "bg-[#0E5B4A]/10 text-[#0A4438]" : "bg-[#C0392B]/10 text-[#A0301F]")
                 }
               >
-                {editingBusinessInfo ? (
-                  <>
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <Field label="Company Name *">
-                        <input
-                          required
-                          className={inputClass}
-                          value={profile.companyName}
-                          onChange={(e) => setProfile({ ...profile, companyName: e.target.value })}
-                        />
-                      </Field>
-                      <Field label="Business Type *">
+                {message.text}
+              </div>
+            )}
+
+            {tab === "dashboard" && (
+              <div className="flex flex-col gap-5">
+                <div
+                  className="rounded-[20px] border-l-4 px-6 py-5"
+                  style={{ color: st.fg, background: st.bg, borderColor: st.dot }}
+                >
+                  <div className="text-sm font-extrabold">{statusHeadline}</div>
+                  <div className="mt-1.5 text-[12.5px] leading-[1.6] opacity-85">{statusBody}</div>
+                </div>
+
+                {agent.verificationStatus === "INCOMPLETE" && (
+                  <div
+                    className="flex flex-wrap items-center gap-6 rounded-[22px] px-6 py-6 sm:px-7"
+                    style={{ background: "linear-gradient(145deg, #0E5B4A, #093B31)" }}
+                  >
+                    <div className="flex-1">
+                      <div style={amiri} className="text-lg text-[#F6E2B4]">
+                        أهلاً وسهلاً
+                      </div>
+                      <div className="mt-2 text-[19px] font-extrabold text-white">
+                        New here? Complete your registration.
+                      </div>
+                      <div className="mt-1.5 max-w-[560px] text-[12.5px] leading-[1.6] text-white/70">
+                        Add your business details, at least one location and your Government ID document —
+                        then submit for verification. Pilgrims see your listing only after our team approves it.
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRegisterClick}
+                      className="shrink-0 rounded-2xl px-6 py-3.5 text-[13.5px] font-extrabold text-[#0A4438]"
+                      style={{ background: "#F6E2B4" }}
+                    >
+                      Register now
+                    </button>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  <StatCard
+                    label="VERIFICATION STATUS"
+                    value={STATUS_LABELS[agent.verificationStatus] ?? agent.verificationStatus}
+                    color={st.dot}
+                    note={agent.updatedAt ? `Updated ${new Date(agent.updatedAt).toLocaleDateString()}` : undefined}
+                  />
+                  <StatCard label="PROFILE COMPLETION" value={`${completionPercent}%`} note="Business info, locations, documents">
+                    <div className="neu-pressed mt-2.5 h-[7px] overflow-hidden rounded-full">
+                      <div
+                        className="h-full rounded-full"
+                        style={{ width: `${completionPercent}%`, background: "linear-gradient(90deg, #0E5B4A, #1C7F69)" }}
+                      />
+                    </div>
+                  </StatCard>
+                  <StatCard
+                    label="LOCATIONS ADDED"
+                    value={String(agent.locations.length)}
+                    note={agent.locations.map((l) => l.city).filter(Boolean).join(" · ") || "None yet"}
+                  />
+                  <StatCard
+                    label="DOCUMENTS UPLOADED"
+                    value={`${documentsUploaded} / ${documentSlots.length}`}
+                    color={hasRequiredDocument ? "#0E5B4A" : "#A0301F"}
+                    note={hasRequiredDocument ? "Government ID on file" : "Government ID missing"}
+                  />
+                </div>
+
+                {agent.verificationStatus !== "VERIFIED" && (
+                  <div className="neu-raised rounded-[22px] bg-[#EAE5DB] p-6">
+                    <div className="flex flex-wrap items-start gap-6">
+                      <div className="flex-1">
+                        <div className="text-base font-extrabold text-[#24201A]">Submit for Verification</div>
+                        <div className="mt-1.5 max-w-[620px] text-[12.5px] leading-[1.6] text-[#7A705E]">
+                          Our team checks your licence, GST and Government ID, usually within 2 working days. You
+                          can keep editing while the review is pending — resubmitting resets the queue position.
+                        </div>
+                        <div className="mt-4 flex flex-col gap-2">
+                          {checklist.map((k) => (
+                            <div key={k.text} className="flex items-center gap-2.5">
+                              <span
+                                className="grid h-[19px] w-[19px] shrink-0 place-items-center rounded-full text-[11px] font-extrabold text-white"
+                                style={{ background: k.ok ? "#0E5B4A" : "#C0392B" }}
+                              >
+                                {k.ok ? "✓" : "!"}
+                              </span>
+                              <span
+                                className="text-[12.5px] font-semibold"
+                                style={{ color: k.ok ? "#3A342B" : "#A0301F" }}
+                              >
+                                {k.text}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                        {!hasRequiredDocument && (
+                          <div
+                            className="mt-4 flex items-center gap-2.5 rounded-xl border-l-[3px] px-3.5 py-3"
+                            style={{ background: "rgba(192,57,43,.09)", borderColor: "#C0392B" }}
+                          >
+                            <span className="text-xs font-bold text-[#A0301F]">
+                              Government ID Document is required before you can submit.
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex min-w-[200px] flex-none flex-col gap-2.5">
+                        <button
+                          type="button"
+                          onClick={handleSubmitVerification}
+                          disabled={!hasRequiredDocument || submitting}
+                          className={
+                            "flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-[13.5px] font-extrabold transition " +
+                            (!hasRequiredDocument
+                              ? "neu-pressed cursor-not-allowed text-[#A9A08C]"
+                              : "text-[#F3EFE6]")
+                          }
+                          style={
+                            hasRequiredDocument
+                              ? { background: "linear-gradient(145deg, #0E5B4A, #0A4438)", opacity: submitting ? 0.75 : 1 }
+                              : undefined
+                          }
+                        >
+                          {submitting && <Spinner className="h-3.5 w-3.5" />}
+                          {submitting
+                            ? "Submitting…"
+                            : !hasRequiredDocument
+                              ? "Upload ID to submit"
+                              : "Submit for Verification"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setTab("info")}
+                          className="neu-raised-sm flex items-center justify-center rounded-2xl px-4 py-3 text-[12.5px] font-bold text-[#6E6455]"
+                        >
+                          Edit my information
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {tab === "info" && (
+              <div className="flex flex-col gap-5">
+                <div className="neu-raised rounded-[22px] bg-[#EAE5DB] p-6">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <div className="text-base font-extrabold text-[#24201A]">Business Information</div>
+                      <div className="mt-1 text-xs text-[#8A7F6C]">Shown on your public profile card.</div>
+                    </div>
+                    <div className="flex gap-2.5">
+                      {editingBusinessInfo && (
+                        <button
+                          type="button"
+                          onClick={handleSaveBusinessInfoSection}
+                          disabled={saving}
+                          className="flex items-center gap-2 rounded-xl px-[18px] py-2.5 text-[12.5px] font-extrabold text-[#F3EFE6]"
+                          style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)", opacity: saving ? 0.75 : 1 }}
+                        >
+                          {saving && <Spinner className="h-3.5 w-3.5" />}
+                          {saving ? "Saving…" : "Save changes"}
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          editingBusinessInfo ? handleCancelBusinessInfoSection() : setEditingBusinessInfo(true)
+                        }
+                        className="neu-raised-sm rounded-xl px-[18px] py-2.5 text-[12.5px] font-bold text-[#6E6455]"
+                      >
+                        {editingBusinessInfo ? "Cancel" : "Edit section"}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <BizField
+                      label="Company Name"
+                      editing={editingBusinessInfo}
+                      value={profile.companyName}
+                      shown={agent.companyName}
+                      placeholder="Al-Safar Travels"
+                      onChange={(v) => setProfile({ ...profile, companyName: v })}
+                    />
+                    <div>
+                      <div className="mb-[7px] text-[11px] font-bold text-[#6E6455]">Business Type</div>
+                      {editingBusinessInfo ? (
                         <select
-                          required
-                          className={selectClass}
+                          className="w-full rounded-xl border-none bg-[#EAE5DB] px-3.5 py-3 text-[13px] font-semibold text-[#24201A] outline-none neu-pressed"
                           value={profile.businessType}
                           onChange={(e) => setProfile({ ...profile, businessType: e.target.value })}
                         >
                           <option value="" disabled>
                             Select Business Type
                           </option>
-                          {BUSINESS_TYPES.map((type) => (
-                            <option key={type} value={type}>
-                              {type}
+                          {SERVICES.map((s) => (
+                            <option key={s.slug} value={s.slug}>
+                              {s.icon} {s.label}
                             </option>
                           ))}
                         </select>
-                      </Field>
-                      <div>
-                        <Field label="Business Email *">
-                          <input
-                            required
-                            type="email"
-                            className={inputClass}
-                            placeholder={agent.email}
-                            value={profile.businessEmail}
-                            onChange={(e) => setProfile({ ...profile, businessEmail: e.target.value })}
-                          />
-                        </Field>
-                        <button
-                          type="button"
-                          onClick={() => setProfile({ ...profile, businessEmail: agent.email })}
-                          className="mt-1 text-xs font-medium text-emerald-700 hover:text-emerald-800"
-                        >
-                          Use account email
-                        </button>
-                      </div>
-                      <div>
-                        <Field label="Business Phone *">
-                          <input
-                            required
-                            className={inputClass}
-                            placeholder={agent.mobileNumber}
-                            value={profile.businessPhone}
-                            onChange={(e) => setProfile({ ...profile, businessPhone: e.target.value })}
-                          />
-                        </Field>
-                        <button
-                          type="button"
-                          onClick={() => setProfile({ ...profile, businessPhone: agent.mobileNumber })}
-                          className="mt-1 text-xs font-medium text-emerald-700 hover:text-emerald-800"
-                        >
-                          Use account phone
-                        </button>
-                      </div>
-                      <Field label="Experience (Years)">
-                        <input
-                          type="number"
-                          min={0}
-                          max={80}
-                          className={inputClass}
-                          placeholder="e.g. 5"
-                          value={profile.experienceYears}
-                          onChange={(e) => setProfile({ ...profile, experienceYears: e.target.value })}
-                        />
-                      </Field>
-                      <Field label="Total Bookings">
-                        <input
-                          type="number"
-                          min={0}
-                          className={inputClass}
-                          placeholder="e.g. 120"
-                          value={profile.totalBookings}
-                          onChange={(e) => setProfile({ ...profile, totalBookings: e.target.value })}
-                        />
-                      </Field>
-                      <Field label="Starting Package Price (₹)">
-                        <input
-                          type="number"
-                          min={0}
-                          className={inputClass}
-                          placeholder="e.g. 85000"
-                          value={profile.startingPrice}
-                          onChange={(e) => setProfile({ ...profile, startingPrice: e.target.value })}
-                        />
-                      </Field>
-                      <Field label="GST Number (Optional)">
-                        <input
-                          className={inputClass}
-                          placeholder="Enter 15-digit GST number"
-                          value={profile.gstNumber}
-                          onChange={(e) => setProfile({ ...profile, gstNumber: e.target.value })}
-                        />
-                      </Field>
-                      <Field label="Government ID Type *">
+                      ) : (
+                        <div className="px-0 py-[3px] text-[13.5px] font-bold text-[#3A342B]">
+                          {typeService ? `${typeService.icon} ${typeService.label}` : agent.businessType || "—"}
+                        </div>
+                      )}
+                    </div>
+                    <BizField
+                      label="Business Email"
+                      editing={editingBusinessInfo}
+                      value={profile.businessEmail}
+                      shown={agent.businessEmail}
+                      placeholder="office@agency.in"
+                      quick="Use account email"
+                      onQuick={() => setProfile({ ...profile, businessEmail: agent.email })}
+                      onChange={(v) => setProfile({ ...profile, businessEmail: v })}
+                    />
+                    <BizField
+                      label="Business Phone"
+                      editing={editingBusinessInfo}
+                      value={profile.businessPhone}
+                      shown={agent.businessPhone}
+                      placeholder="+91 40 0000 0000"
+                      quick="Use account phone"
+                      onQuick={() => setProfile({ ...profile, businessPhone: agent.mobileNumber })}
+                      onChange={(v) => setProfile({ ...profile, businessPhone: v })}
+                    />
+                    <BizField
+                      label="Experience (years)"
+                      editing={editingBusinessInfo}
+                      value={profile.experienceYears}
+                      shown={agent.experienceYears != null ? `${agent.experienceYears} years` : ""}
+                      type="number"
+                      onChange={(v) => setProfile({ ...profile, experienceYears: v })}
+                    />
+                    <BizField
+                      label="Total Bookings"
+                      editing={editingBusinessInfo}
+                      value={profile.totalBookings}
+                      shown={agent.totalBookings != null ? agent.totalBookings.toLocaleString("en-IN") : ""}
+                      type="number"
+                      onChange={(v) => setProfile({ ...profile, totalBookings: v })}
+                    />
+                    <BizField
+                      label="Starting Package Price (₹)"
+                      editing={editingBusinessInfo}
+                      value={profile.startingPrice}
+                      shown={agent.startingPrice != null ? `₹${agent.startingPrice.toLocaleString("en-IN")}` : ""}
+                      type="number"
+                      onChange={(v) => setProfile({ ...profile, startingPrice: v })}
+                    />
+                    <BizField
+                      label="GST Number"
+                      editing={editingBusinessInfo}
+                      value={profile.gstNumber}
+                      shown={agent.gstNumber}
+                      placeholder="36AAAAA0000A1Z5"
+                      onChange={(v) => setProfile({ ...profile, gstNumber: v })}
+                    />
+                    <div>
+                      <div className="mb-[7px] text-[11px] font-bold text-[#6E6455]">Government ID Type</div>
+                      {editingBusinessInfo ? (
                         <select
-                          required
-                          className={selectClass}
+                          className="w-full rounded-xl border-none bg-[#EAE5DB] px-3.5 py-3 text-[13px] font-semibold text-[#24201A] outline-none neu-pressed"
                           value={profile.govIdType}
                           onChange={(e) => setProfile({ ...profile, govIdType: e.target.value })}
                         >
@@ -619,536 +820,556 @@ export default function AgentDashboardPage() {
                             </option>
                           ))}
                         </select>
-                      </Field>
-                      <Field label="Government ID Number *">
-                        <input
-                          required
-                          className={inputClass}
-                          placeholder="Enter ID number"
-                          value={profile.govIdNumber}
-                          onChange={(e) => setProfile({ ...profile, govIdNumber: e.target.value })}
-                        />
-                      </Field>
+                      ) : (
+                        <div className="px-0 py-[3px] text-[13.5px] font-bold text-[#3A342B]">
+                          {agent.govIdType || "—"}
+                        </div>
+                      )}
                     </div>
-                    <div className="mt-4 flex gap-3">
-                      <button
-                        type="button"
-                        onClick={handleSaveBusinessInfoSection}
-                        disabled={saving}
-                        className="inline-flex items-center gap-2 rounded-lg bg-emerald-800 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
-                      >
-                        {saving && <Spinner className="h-4 w-4" />}
-                        {saving ? "Saving..." : "Save"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleCancelBusinessInfoSection}
-                        disabled={saving}
-                        className="rounded-lg border border-emerald-900/15 px-4 py-2 text-sm font-medium text-emerald-900 hover:bg-emerald-50"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <div className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
-                    <PreviewItem label="Company Name" value={agent.companyName} />
-                    <PreviewItem label="Business Type" value={agent.businessType} />
-                    <PreviewItem label="Business Email" value={agent.businessEmail} />
-                    <PreviewItem label="Business Phone" value={agent.businessPhone} />
-                    <PreviewItem
-                      label="Experience"
-                      value={agent.experienceYears != null ? `${agent.experienceYears} years` : ""}
-                    />
-                    <PreviewItem
-                      label="Total Bookings"
-                      value={agent.totalBookings != null ? String(agent.totalBookings) : ""}
-                    />
-                    <PreviewItem
-                      label="Starting Package Price"
-                      value={agent.startingPrice != null ? `₹${agent.startingPrice.toLocaleString("en-IN")}` : ""}
-                    />
-                    <PreviewItem label="GST Number" value={agent.gstNumber} />
-                    <PreviewItem
-                      label="Government ID"
-                      value={[agent.govIdType, agent.govIdNumber].filter(Boolean).join(" · ")}
+                    <BizField
+                      label="Government ID Number"
+                      editing={editingBusinessInfo}
+                      value={profile.govIdNumber}
+                      shown={agent.govIdNumber}
+                      onChange={(v) => setProfile({ ...profile, govIdNumber: v })}
                     />
                   </div>
-                )}
-              </Section>
+                </div>
 
-              <Section title="Locations">
-                <p className="text-sm text-emerald-900/60">
-                  Add every city or state you serve. Each location has its own address and services —
-                  pilgrims searching any of these locations will find you.
-                </p>
+                <div className="neu-raised rounded-[22px] bg-[#EAE5DB] p-6">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <div className="text-base font-extrabold text-[#24201A]">Locations</div>
+                      <div className="mt-1 text-xs text-[#8A7F6C]">
+                        Pilgrims filter by city — add every office you operate from.
+                      </div>
+                    </div>
+                    {!locationDraft && (
+                      <button
+                        type="button"
+                        onClick={startAddLocation}
+                        disabled={agent.locations.length >= 10}
+                        className="flex items-center gap-2 rounded-xl px-[18px] py-2.5 text-[12.5px] font-extrabold text-[#F3EFE6] disabled:opacity-50"
+                        style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)" }}
+                      >
+                        + Add location
+                      </button>
+                    )}
+                  </div>
 
-                <div className="mt-5 space-y-4">
-                  {agent.locations.length === 0 && (
-                    <p className="text-sm italic text-emerald-900/50">No locations added yet.</p>
-                  )}
-                  {agent.locations.map((location) => (
-                    <div
-                      key={location.id}
-                      className="flex flex-wrap items-start justify-between gap-3 rounded-xl border border-emerald-900/10 p-4"
-                    >
-                      <div>
-                        <p className="text-sm font-semibold text-emerald-950">
-                          {[location.city, location.state, location.country].filter(Boolean).join(", ") || "Untitled location"}
-                        </p>
-                        {location.address && <p className="mt-1 text-xs text-emerald-900/60">{location.address}</p>}
-                        {location.services.length > 0 && (
-                          <div className="mt-2 flex flex-wrap gap-1.5">
-                            {location.services.map((slug) => (
-                              <span
-                                key={slug}
-                                className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-800 ring-1 ring-emerald-600/20"
+                  <div className="mt-4 flex flex-col gap-3.5">
+                    {agent.locations.length === 0 && !locationDraft && (
+                      <p className="text-sm italic text-[#8A7F6C]">No locations added yet.</p>
+                    )}
+                    {agent.locations.map((location) => (
+                      <div key={location.id}>
+                        <div className="neu-pressed rounded-[18px] p-[18px]">
+                          <div className="flex flex-wrap items-start justify-between gap-4">
+                            <div>
+                              <div className="text-[14.5px] font-extrabold text-[#24201A]">
+                                {[location.city, location.state].filter(Boolean).join(", ") || "Untitled location"}
+                              </div>
+                              <div className="mt-1 text-xs leading-[1.55] text-[#8A7F6C]">
+                                {location.address}
+                                {location.address && <br />}
+                                {[location.country, location.pincode].filter(Boolean).join(" · ")}
+                              </div>
+                            </div>
+                            <div className="flex flex-none gap-2">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  locationDraft?.id === location.id
+                                    ? setLocationDraft(null)
+                                    : startEditLocation(location)
+                                }
+                                className="neu-raised-sm rounded-[10px] px-3.5 py-2 text-[11.5px] font-bold text-[#4A4238]"
                               >
-                                {getServiceLabel(slug)}
-                              </span>
-                            ))}
+                                {locationDraft?.id === location.id ? "Done" : "Edit"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteLocation(location.id)}
+                                disabled={savingLocation}
+                                className="rounded-[10px] border-[1.5px] px-3 py-2 text-[11.5px] font-bold text-[#C0392B] disabled:opacity-50"
+                                style={{ borderColor: "rgba(192,57,43,.45)" }}
+                              >
+                                Delete
+                              </button>
+                            </div>
                           </div>
+
+                          {location.services.length > 0 && (
+                            <>
+                              <div className="mt-4 text-[10px] font-extrabold tracking-[0.1em] text-[#8A7F6C]">
+                                SERVICES OFFERED HERE
+                              </div>
+                              <div className="mt-2.5 flex flex-wrap gap-2">
+                                {location.services.map((slug) => {
+                                  const svc = SERVICES.find((s) => s.slug === slug);
+                                  return (
+                                    <span
+                                      key={slug}
+                                      className="neu-raised-sm flex items-center gap-1.5 rounded-[11px] px-3 py-2 text-[11.5px] font-bold text-[#6E6455]"
+                                    >
+                                      <span className="text-[13px]">{svc?.icon}</span>
+                                      {getServiceLabel(slug)}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            </>
+                          )}
+                        </div>
+
+                        {locationDraft?.id === location.id && (
+                          <LocationEditor
+                            draft={locationDraft}
+                            cities={cities}
+                            saving={savingLocation}
+                            onChange={setLocationDraft}
+                            onToggleService={toggleDraftService}
+                            onSave={handleSaveLocation}
+                            onCancel={() => setLocationDraft(null)}
+                          />
                         )}
                       </div>
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() => startEditLocation(location)}
-                          className="text-xs font-medium text-emerald-700 hover:text-emerald-800"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteLocation(location.id)}
-                          disabled={savingLocation}
-                          className="text-xs font-medium text-red-600 hover:text-red-700 disabled:opacity-50"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {locationDraft ? (
-                  <div className="mt-5 rounded-xl border border-emerald-600/30 bg-emerald-50/40 p-4">
-                    <p className="text-sm font-semibold text-emerald-950">
-                      {locationDraft.id ? "Edit Location" : "Add Location"}
-                    </p>
-                    <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <Field label="Country">
-                        <select
-                          className={selectClass}
-                          value={locationDraft.country}
-                          onChange={(e) => setLocationDraft({ ...locationDraft, country: e.target.value })}
-                        >
-                          {COUNTRIES.map((c) => (
-                            <option key={c} value={c}>
-                              {c}
-                            </option>
-                          ))}
-                        </select>
-                      </Field>
-                      <Field label="State">
-                        <select
-                          className={selectClass}
-                          value={locationDraft.state}
-                          onChange={(e) => setLocationDraft({ ...locationDraft, state: e.target.value, city: "" })}
-                        >
-                          <option value="" disabled>
-                            Select state
-                          </option>
-                          {INDIA_STATES.map((s) => (
-                            <option key={s} value={s}>
-                              {s}
-                            </option>
-                          ))}
-                        </select>
-                      </Field>
-                      <Field label="City">
-                        <select
-                          className={selectClass}
-                          disabled={!locationDraft.state}
-                          value={locationDraft.city}
-                          onChange={(e) => setLocationDraft({ ...locationDraft, city: e.target.value })}
-                        >
-                          <option value="" disabled>
-                            {locationDraft.state ? "Select city" : "Select a state first"}
-                          </option>
-                          {cities.map((c) => (
-                            <option key={c} value={c}>
-                              {c}
-                            </option>
-                          ))}
-                        </select>
-                      </Field>
-                      <Field label="Pincode">
-                        <input
-                          className={inputClass}
-                          placeholder="Pincode"
-                          value={locationDraft.pincode}
-                          onChange={(e) =>
-                            setLocationDraft({ ...locationDraft, pincode: e.target.value.replace(/[^0-9]/g, "") })
-                          }
-                        />
-                      </Field>
-                      <div className="sm:col-span-2">
-                        <Field label="Address (Optional)">
-                          <textarea
-                            rows={2}
-                            className={inputClass}
-                            value={locationDraft.address}
-                            onChange={(e) => setLocationDraft({ ...locationDraft, address: e.target.value })}
-                          />
-                        </Field>
-                      </div>
-                    </div>
-
-                    <p className="mt-4 text-xs font-medium uppercase tracking-wide text-emerald-900/50">
-                      Services at this location
-                    </p>
-                    <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
-                      {SERVICES.map((service) => {
-                        const active = locationDraft.services.includes(service.slug);
-                        return (
-                          <button
-                            key={service.slug}
-                            type="button"
-                            onClick={() => toggleDraftService(service.slug)}
-                            className={`flex flex-col items-center gap-1 rounded-lg border px-2 py-2 text-center transition ${
-                              active
-                                ? "border-emerald-600 bg-emerald-50 ring-1 ring-emerald-600/30"
-                                : "border-emerald-900/10 bg-white hover:border-emerald-600/30"
-                            }`}
-                          >
-                            <span className="text-lg">{service.icon}</span>
-                            <span className="text-[11px] font-medium text-emerald-950">{service.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    <div className="mt-4 flex gap-3">
-                      <button
-                        type="button"
-                        onClick={handleSaveLocation}
-                        disabled={savingLocation}
-                        className="inline-flex items-center gap-2 rounded-lg bg-emerald-800 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
-                      >
-                        {savingLocation && <Spinner className="h-4 w-4" />}
-                        {savingLocation ? "Saving..." : "Save Location"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setLocationDraft(null)}
-                        disabled={savingLocation}
-                        className="rounded-lg border border-emerald-900/15 px-4 py-2 text-sm font-medium text-emerald-900 hover:bg-emerald-50"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={startAddLocation}
-                    disabled={agent.locations.length >= 10}
-                    className="mt-5 rounded-lg border border-dashed border-emerald-600/40 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-50 disabled:opacity-50"
-                  >
-                    + Add Location
-                  </button>
-                )}
-              </Section>
-
-              <Section title="Documents & Verification">
-                <p className="text-sm text-emerald-900/60">
-                  Accepted formats: PDF, JPG, PNG, WEBP. Maximum size 5MB. Documents are private and are
-                  only visible to you and the UmrahChal verification team.
-                </p>
-
-                <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-2">
-                  <DocumentUploader
-                    label="Government ID Document"
-                    required
-                    uploaded={agent.govIdDocument}
-                    uploading={uploading === "govId"}
-                    onUpload={(file) => handleUpload("govId", file)}
-                  />
-                  <DocumentUploader
-                    label="Trade License"
-                    uploaded={agent.tradeLicenseDocument}
-                    uploading={uploading === "tradeLicense"}
-                    onUpload={(file) => handleUpload("tradeLicense", file)}
-                  />
-                  <DocumentUploader
-                    label="GST Certificate"
-                    uploaded={agent.gstCertificateDocument}
-                    uploading={uploading === "gstCertificate"}
-                    onUpload={(file) => handleUpload("gstCertificate", file)}
-                  />
-                  <DocumentUploader
-                    label="GST Document"
-                    uploaded={agent.gstDocument}
-                    uploading={uploading === "gst"}
-                    onUpload={(file) => handleUpload("gst", file)}
-                  />
-                  <DocumentUploader
-                    label="Verified Certificate"
-                    uploaded={agent.certificateDocument}
-                    uploading={uploading === "certificate"}
-                    onUpload={(file) => handleUpload("certificate", file)}
-                  />
-                </div>
-
-                <div className="mt-6">
-                  <p className="text-sm font-medium text-emerald-950">
-                    Additional Documents{" "}
-                    <span className="font-normal text-emerald-900/50">(optional, up to 5)</span>
-                  </p>
-                  <ul className="mt-2 space-y-1">
-                    {agent.additionalDocuments?.map((doc) => (
-                      <li key={doc.publicId} className="text-sm text-emerald-800">
-                        &bull; {doc.name || "Document"}
-                      </li>
                     ))}
-                  </ul>
-                  <div className="mt-3">
-                    <UploadButton
-                      uploading={uploading === "additional"}
-                      disabled={(agent.additionalDocuments?.length ?? 0) >= 5}
-                      label="Upload Additional Document"
-                      onUpload={(file) => handleUpload("additional", file)}
-                    />
+
+                    {locationDraft && locationDraft.id === null && (
+                      <LocationEditor
+                        draft={locationDraft}
+                        cities={cities}
+                        saving={savingLocation}
+                        isNew
+                        onChange={setLocationDraft}
+                        onToggleService={toggleDraftService}
+                        onSave={handleSaveLocation}
+                        onCancel={() => setLocationDraft(null)}
+                      />
+                    )}
                   </div>
                 </div>
 
-                <p className="mt-4 text-xs text-emerald-900/50">
-                  Only the Government ID Document is required. All other documents are optional.
-                </p>
-                {!hasRequiredDocument && (
-                  <p className="mt-1 text-xs text-amber-700">
-                    Upload your Government ID Document to get verified.
-                  </p>
-                )}
-
-                {agent.verificationStatus === "PENDING" ? (
-                  <div className="mt-5 rounded-xl bg-amber-50 px-5 py-4 text-amber-900 ring-1 ring-amber-600/20">
-                    <p className="font-semibold">Your verification request is under review.</p>
-                    <p className="mt-1 text-sm text-amber-800/80">
-                      Our team will review your documents and notify you here once verified.
-                    </p>
+                <div className="neu-raised rounded-[22px] bg-[#EAE5DB] p-6">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <div className="text-base font-extrabold text-[#24201A]">Documents</div>
+                      <div className="mt-1 text-xs text-[#8A7F6C]">
+                        Only our verification team sees these — never shown publicly.
+                      </div>
+                    </div>
+                    <div className="text-xs font-bold text-[#6E6455]">
+                      {documentsUploaded} of {documentSlots.length} core documents uploaded
+                    </div>
                   </div>
-                ) : agent.verificationStatus !== "VERIFIED" ? (
-                  <div className="mt-5">
-                    <button
-                      type="button"
-                      onClick={handleSubmitVerification}
-                      disabled={submitting}
-                      className="inline-flex items-center gap-2 rounded-full bg-emerald-800 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+
+                  <div className="mt-[18px] grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+                    {DOC_FIELDS.map((d) => {
+                      const uploaded = documentValues[d.key];
+                      const bad = d.required && !uploaded;
+                      const busy = uploading === d.key;
+                      return (
+                        <label
+                          key={d.key}
+                          className={
+                            "block cursor-pointer rounded-2xl p-4 transition " +
+                            (uploaded ? "neu-raised-sm" : bad ? "border-[1.5px] border-dashed" : "neu-pressed")
+                          }
+                          style={
+                            !uploaded
+                              ? { background: bad ? "rgba(192,57,43,.06)" : undefined, borderColor: bad ? "rgba(192,57,43,.45)" : undefined }
+                              : undefined
+                          }
+                        >
+                          <div className="flex items-center justify-between gap-2.5">
+                            <span className="text-[12.5px] font-extrabold text-[#24201A]">{d.label}</span>
+                            <span
+                              className="rounded-md px-2 py-1 text-[9.5px] font-extrabold tracking-wide"
+                              style={{
+                                color: uploaded ? "#0A4438" : bad ? "#A0301F" : "#8A7F6C",
+                                background: uploaded ? "rgba(14,91,74,.14)" : bad ? "rgba(192,57,43,.12)" : "rgba(120,110,95,.14)",
+                              }}
+                            >
+                              {busy ? "…" : uploaded ? "UPLOADED" : bad ? "REQUIRED" : "UPLOAD"}
+                            </span>
+                          </div>
+                          <div className="mt-2 text-[11px] leading-[1.5] text-[#9A907C]">
+                            {uploaded ? "Uploaded — click to replace." : d.note}
+                          </div>
+                          <input
+                            type="file"
+                            accept=".pdf,.jpg,.jpeg,.png,.webp"
+                            className="hidden"
+                            disabled={busy}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleUpload(d.key, file);
+                              e.target.value = "";
+                            }}
+                          />
+                        </label>
+                      );
+                    })}
+                  </div>
+
+                  <div className="my-5 h-px bg-gradient-to-r from-[#96897650] to-white/95" />
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <div className="text-[13px] font-extrabold text-[#24201A]">Additional documents</div>
+                      <div className="mt-0.5 text-[11.5px] text-[#8A7F6C]">
+                        Up to 5 extra files with your own labels — quota letters, hotel contracts, awards.
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-3.5 flex flex-wrap items-center gap-2.5">
+                    {agent.additionalDocuments?.map((doc) => (
+                      <div key={doc.publicId} className="neu-pressed flex items-center gap-2 rounded-xl px-3.5 py-2.5">
+                        <a
+                          href={doc.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-bold text-[#3A342B] hover:text-[#0E5B4A]"
+                        >
+                          {doc.name || "Document"}
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveAdditionalDocument(doc.publicId)}
+                          className="text-[11px] font-extrabold text-[#C0392B]"
+                          aria-label="Remove document"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3 flex flex-wrap items-center gap-2.5">
+                    <input
+                      value={addDocLabel}
+                      onChange={(e) => setAddDocLabel(e.target.value)}
+                      disabled={(agent.additionalDocuments?.length ?? 0) >= 5}
+                      placeholder="Document label (optional)"
+                      className="neu-pressed min-w-0 flex-1 rounded-xl border-none bg-[#EAE5DB] px-3.5 py-2.5 text-xs font-semibold text-[#24201A] outline-none disabled:opacity-50"
+                    />
+                    <label
+                      className={
+                        "neu-raised-sm shrink-0 rounded-xl px-4 py-2.5 text-xs font-bold text-[#0E5B4A] " +
+                        ((agent.additionalDocuments?.length ?? 0) >= 5 || uploading === "additional"
+                          ? "cursor-not-allowed opacity-50"
+                          : "cursor-pointer")
+                      }
                     >
-                      {submitting && <Spinner className="h-4 w-4" />}
-                      {submitting ? "Applying..." : "Apply for Verification"}
-                    </button>
+                      {uploading === "additional" ? "Uploading…" : "+ Add document"}
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png,.webp"
+                        className="hidden"
+                        disabled={(agent.additionalDocuments?.length ?? 0) >= 5 || uploading === "additional"}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleUpload("additional", file, addDocLabel);
+                          e.target.value = "";
+                        }}
+                      />
+                    </label>
                   </div>
-                ) : null}
-              </Section>
-            </div>
-          )}
 
-          {tab === "subscription" && (
-            <Section title="Subscription">
-              <p className="text-sm italic text-emerald-900/50">Coming soon.</p>
-            </Section>
-          )}
+                  {agent.verificationStatus === "PENDING" ? (
+                    <div className="mt-5 rounded-xl px-5 py-4" style={{ background: "rgba(192,138,46,.14)", color: "#8A5A12" }}>
+                      <p className="font-semibold">Your verification request is under review.</p>
+                      <p className="mt-1 text-sm opacity-80">
+                        Our team will review your documents and notify you here once verified.
+                      </p>
+                    </div>
+                  ) : agent.verificationStatus !== "VERIFIED" ? (
+                    <div className="mt-5">
+                      <button
+                        type="button"
+                        onClick={handleSubmitVerification}
+                        disabled={submitting}
+                        className="inline-flex items-center gap-2 rounded-2xl px-6 py-3.5 text-[13.5px] font-extrabold text-[#F3EFE6] disabled:cursor-not-allowed"
+                        style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)", opacity: submitting ? 0.6 : 1 }}
+                      >
+                        {submitting && <Spinner className="h-4 w-4" />}
+                        {submitting ? "Applying..." : "Apply for Verification"}
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            )}
+
+            {tab === "subscription" && (
+              <div className="neu-inset rounded-3xl px-8 py-16 text-center">
+                <div className="neu-raised mx-auto grid h-16 w-16 place-items-center rounded-[20px] bg-[#EAE5DB]">
+                  <span style={amiri} className="text-2xl text-[#0E5B4A]">
+                    ص
+                  </span>
+                </div>
+                <div className="mt-5 text-xl font-extrabold text-[#24201A]">Subscriptions are coming soon</div>
+                <p className="mx-auto mt-2.5 max-w-[460px] text-[13px] leading-[1.65] text-[#7A705E]">
+                  Your listing is free and stays free. Later this year you&apos;ll be able to boost your placement
+                  in city searches and see who viewed your number.
+                </p>
+                <div
+                  className="mt-5 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-xs font-bold"
+                  style={{ color: "#8A5A12", background: "rgba(192,138,46,.16)" }}
+                >
+                  <span className="h-[7px] w-[7px] rounded-full bg-[#C08A2E]" />
+                  Notify me when it launches
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {submitSuccess && (
-        <SuccessOverlay
-          title="Submitted for Verification"
-          message="Your documents have been submitted successfully. Our team will verify your information. Once verified, your company will be listed on UmrahChal."
-          onClose={() => setSubmitSuccess(false)}
-        />
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 grid place-items-center bg-[#14201C]/55 p-4 backdrop-blur-sm"
+        >
+          <div className="w-full max-w-[440px] rounded-[26px] bg-[#EAE5DB] p-9 text-center shadow-2xl">
+            <div
+              className="mx-auto grid h-[68px] w-[68px] place-items-center rounded-full"
+              style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)" }}
+            >
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#F6E2B4" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 12.5l5 5L20 6.5" />
+              </svg>
+            </div>
+            <div className="mt-5 text-[21px] font-extrabold text-[#24201A]">Submitted for Verification.</div>
+            <p className="mt-2.5 text-[13px] leading-[1.65] text-[#7A705E]">
+              Our team will review {agent.companyName || "your business"} within 2 working days. We&apos;ll email{" "}
+              {agent.email} as soon as there&apos;s a decision.
+            </p>
+            <button
+              type="button"
+              onClick={() => setSubmitSuccess(false)}
+              className="mt-6 w-full rounded-2xl py-3.5 text-[13.5px] font-extrabold text-[#F3EFE6]"
+              style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)" }}
+            >
+              Back to dashboard
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
 }
 
-function PreviewItem({ label, value }: { label: string; value: string | null | undefined }) {
-  return (
-    <div>
-      <dt className="text-xs font-medium uppercase tracking-wide text-emerald-900/50">{label}</dt>
-      <dd className={`mt-0.5 text-sm ${value ? "text-emerald-950" : "text-emerald-900/40 italic"}`}>
-        {value || "Not set"}
-      </dd>
-    </div>
-  );
-}
-
-function Section({
-  title,
-  headerAction,
-  children,
-}: {
-  title: string;
-  headerAction?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-emerald-900/10 sm:p-8">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-emerald-950">{title}</h2>
-        {headerAction}
-      </div>
-      <div className="mt-5">{children}</div>
-    </section>
-  );
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  INCOMPLETE: "Incomplete",
-  PENDING: "Pending",
-  VERIFIED: "Verified",
-  REJECTED: "Rejected",
-};
-
-const STAT_ACCENTS = {
-  emerald: "bg-emerald-50 text-emerald-700",
-  sky: "bg-sky-50 text-sky-700",
-  amber: "bg-amber-50 text-amber-700",
-  violet: "bg-violet-50 text-violet-700",
-} as const;
-
 function StatCard({
   label,
   value,
-  accent,
+  color,
+  note,
   children,
 }: {
   label: string;
   value: string;
-  accent: keyof typeof STAT_ACCENTS;
+  color?: string;
+  note?: string;
   children?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-emerald-900/10">
-      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${STAT_ACCENTS[accent]}`}>
-        {label}
-      </span>
-      <p className="mt-4 text-2xl font-bold text-emerald-950">{value}</p>
+    <div className="neu-raised rounded-[20px] bg-[#EAE5DB] p-[19px]">
+      <div className="text-[10.5px] font-extrabold tracking-[0.08em] text-[#8A7F6C]">{label}</div>
+      <div className="mt-2.5 text-[26px] font-extrabold tracking-tight" style={{ color: color ?? "#24201A" }}>
+        {value}
+      </div>
       {children}
+      {note && <div className="mt-2 text-[11px] text-[#9A907C]">{note}</div>}
     </div>
   );
 }
 
-function StatusBanner({ agent }: { agent: PrivateAgent }) {
-  if (agent.verificationStatus === "VERIFIED") {
-    return (
-      <div className="rounded-xl bg-emerald-50 px-5 py-4 text-emerald-900 ring-1 ring-emerald-600/20">
-        <p className="font-semibold">Verified &mdash; Your company is listed on UmrahChal.</p>
-        {!agent.isListed && (
-          <p className="mt-1 text-sm text-emerald-800/80">
-            Your listing is currently unpublished by the UmrahChal team. Contact support for
-            details.
-          </p>
-        )}
-      </div>
-    );
-  }
-  if (agent.verificationStatus === "PENDING") {
-    return (
-      <div className="rounded-xl bg-amber-50 px-5 py-4 text-amber-900 ring-1 ring-amber-600/20">
-        <p className="font-semibold">Your verification request is under review.</p>
-        <p className="mt-1 text-sm text-amber-800/80">
-          Our team will review your documents and notify you once verified.
-        </p>
-      </div>
-    );
-  }
-  if (agent.verificationStatus === "REJECTED") {
-    return (
-      <div className="rounded-xl bg-red-50 px-5 py-4 text-red-900 ring-1 ring-red-600/20">
-        <p className="font-semibold">Your verification request was rejected.</p>
-        {agent.rejectionReason && <p className="mt-1 text-sm text-red-800/80">Reason: {agent.rejectionReason}</p>}
-        <p className="mt-1 text-sm text-red-800/80">
-          Update your information and documents under "All Info", then submit again for review.
-        </p>
-      </div>
-    );
-  }
-  return (
-    <div className="rounded-xl bg-zinc-50 px-5 py-4 text-zinc-800 ring-1 ring-zinc-500/20">
-      <p className="font-semibold">Complete your company verification to get listed on UmrahChal.</p>
-    </div>
-  );
-}
-
-function DocumentUploader({
+function BizField({
   label,
-  required,
-  uploaded,
-  uploading,
-  onUpload,
+  editing,
+  value,
+  shown,
+  placeholder,
+  type,
+  quick,
+  onQuick,
+  onChange,
 }: {
   label: string;
-  required?: boolean;
-  uploaded: { url: string; publicId: string } | null;
-  uploading: boolean;
-  onUpload: (file: File) => void;
+  editing: boolean;
+  value: string;
+  shown: string | null | undefined;
+  placeholder?: string;
+  type?: string;
+  quick?: string;
+  onQuick?: () => void;
+  onChange: (value: string) => void;
 }) {
   return (
     <div>
-      <p className="text-sm font-medium text-emerald-950">
-        {label}{" "}
-        {required ? (
-          <span className="text-red-500">*</span>
-        ) : (
-          <span className="font-normal text-emerald-900/40">(Optional)</span>
+      <div className="mb-[7px] flex items-baseline justify-between">
+        <span className="text-[11px] font-bold text-[#6E6455]">{label}</span>
+        {editing && quick && (
+          <button type="button" onClick={onQuick} className="text-[10.5px] font-bold text-[#0E5B4A]">
+            {quick}
+          </button>
         )}
-      </p>
-      <p className="mt-1 text-xs text-emerald-900/60">
-        {uploaded ? "Uploaded — you can replace it below." : "Not uploaded yet."}
-      </p>
-      <div className="mt-2">
-        <UploadButton uploading={uploading} onUpload={onUpload} label={uploaded ? "Replace file" : "Upload file"} />
+      </div>
+      {editing ? (
+        <input
+          type={type ?? "text"}
+          value={value}
+          placeholder={placeholder}
+          onChange={(e) => onChange(e.target.value)}
+          className="neu-pressed w-full rounded-xl border-none bg-[#EAE5DB] px-3.5 py-3 text-[13px] font-semibold text-[#24201A] outline-none"
+        />
+      ) : (
+        <div className="px-0 py-[3px] text-[13.5px] font-bold text-[#3A342B]">{shown || "—"}</div>
+      )}
+    </div>
+  );
+}
+
+function LocationEditor({
+  draft,
+  cities,
+  saving,
+  isNew,
+  onChange,
+  onToggleService,
+  onSave,
+  onCancel,
+}: {
+  draft: typeof emptyLocationDraft & { id: string | null };
+  cities: string[];
+  saving: boolean;
+  isNew?: boolean;
+  onChange: (draft: typeof emptyLocationDraft & { id: string | null }) => void;
+  onToggleService: (slug: string) => void;
+  onSave: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="neu-pressed mt-3.5 rounded-[18px] p-[18px]">
+      {isNew && <div className="mb-3.5 text-[13px] font-extrabold text-[#24201A]">Add Location</div>}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <LocEditField label="Country">
+          <select
+            className={selectClass}
+            value={draft.country}
+            onChange={(e) => onChange({ ...draft, country: e.target.value })}
+          >
+            {COUNTRIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </LocEditField>
+        <LocEditField label="State">
+          <select
+            className={selectClass}
+            value={draft.state}
+            onChange={(e) => onChange({ ...draft, state: e.target.value, city: "" })}
+          >
+            <option value="" disabled>
+              Select state
+            </option>
+            {INDIA_STATES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </LocEditField>
+        <LocEditField label="City">
+          <select
+            className={selectClass}
+            disabled={!draft.state}
+            value={draft.city}
+            onChange={(e) => onChange({ ...draft, city: e.target.value })}
+          >
+            <option value="" disabled>
+              {draft.state ? "Select city" : "Select a state first"}
+            </option>
+            {cities.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </LocEditField>
+        <LocEditField label="Pincode">
+          <input
+            className={inputClass}
+            value={draft.pincode}
+            onChange={(e) => onChange({ ...draft, pincode: e.target.value.replace(/[^0-9]/g, "") })}
+          />
+        </LocEditField>
+      </div>
+      <div className="mt-3">
+        <Field label="Address (Optional)">
+          <textarea
+            rows={2}
+            className={inputClass}
+            value={draft.address}
+            onChange={(e) => onChange({ ...draft, address: e.target.value })}
+          />
+        </Field>
+      </div>
+
+      <div className="mt-4 text-[10px] font-extrabold tracking-[0.1em] text-[#8A7F6C]">SERVICES OFFERED HERE</div>
+      <div className="mt-2.5 flex flex-wrap gap-2">
+        {SERVICES.map((service) => {
+          const active = draft.services.includes(service.slug);
+          return (
+            <button
+              key={service.slug}
+              type="button"
+              onClick={() => onToggleService(service.slug)}
+              className={
+                "flex items-center gap-1.5 rounded-[11px] px-3 py-2 text-[11.5px] font-bold transition " +
+                (active ? "text-[#F3EFE6]" : "neu-raised-sm text-[#6E6455]")
+              }
+              style={active ? { background: "linear-gradient(145deg, #0E5B4A, #0A4438)" } : undefined}
+            >
+              <span className="text-[13px]">{service.icon}</span>
+              {service.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mt-4 flex gap-2.5">
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={saving}
+          className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[12.5px] font-extrabold text-[#F3EFE6] disabled:opacity-60"
+          style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)" }}
+        >
+          {saving && <Spinner className="h-3.5 w-3.5" />}
+          {saving ? "Saving..." : "Save Location"}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={saving}
+          className="neu-raised-sm rounded-xl px-4 py-2.5 text-[12.5px] font-bold text-[#4A4238] disabled:opacity-60"
+        >
+          Cancel
+        </button>
       </div>
     </div>
   );
 }
 
-function UploadButton({
-  label,
-  uploading,
-  disabled,
-  accept,
-  onUpload,
-}: {
-  label: string;
-  uploading: boolean;
-  disabled?: boolean;
-  accept?: string;
-  onUpload: (file: File) => void;
-}) {
+function LocEditField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label
-      className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border border-emerald-900/15 px-3 py-2 text-sm font-medium text-emerald-900 hover:bg-emerald-50 ${
-        disabled || uploading ? "cursor-not-allowed opacity-50" : ""
-      }`}
-    >
-      {uploading && <Spinner className="h-4 w-4" />}
-      {uploading ? "Uploading..." : label}
-      <input
-        type="file"
-        accept={accept ?? ".pdf,.jpg,.jpeg,.png,.webp"}
-        className="hidden"
-        disabled={disabled || uploading}
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) onUpload(file);
-          e.target.value = "";
-        }}
-      />
-    </label>
+    <div>
+      <div className="mb-[6px] text-[10.5px] font-bold text-[#6E6455]">{label}</div>
+      {children}
+    </div>
   );
 }

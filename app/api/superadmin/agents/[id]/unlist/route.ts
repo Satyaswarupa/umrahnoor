@@ -30,10 +30,10 @@ export async function POST(
     if (!agent) return notFoundResponse("Agent not found");
 
     if (agent.verificationStatus !== "VERIFIED") {
-      return errorResponse("Only verified agents can be unlisted", 400);
+      return errorResponse("Only verified agents can be listed or unlisted", 400);
     }
 
-    agent.isListed = false;
+    agent.isListed = !agent.isListed;
     await agent.save();
 
     return NextResponse.json({ agent: toPrivateAgent(agent) });
