@@ -72,8 +72,8 @@ export default function HeroSearch() {
 
   return (
     <form onSubmit={handleSubmit} className="relative mt-7 max-w-[620px]">
-      <div className="neu-raised flex items-center gap-2.5 rounded-[24px] bg-[#EAE5DB] p-3">
-        <div className="neu-pressed flex flex-1 items-center gap-2.5 rounded-2xl px-4 py-3.5">
+      <div className="neu-raised flex flex-col gap-2.5 rounded-[24px] bg-[#EAE5DB] p-3 sm:flex-row sm:items-center">
+        <div className="neu-pressed flex items-center gap-2.5 rounded-2xl px-4 py-3.5 sm:flex-1">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9A907C" strokeWidth={2.2} strokeLinecap="round">
             <circle cx="11" cy="11" r="7" />
             <path d="M16.5 16.5L21 21" />
@@ -85,24 +85,26 @@ export default function HeroSearch() {
             className="min-w-0 flex-1 border-none bg-transparent text-sm font-semibold text-[#3A342B] outline-none placeholder:text-[#9A907C]"
           />
         </div>
-        <button
-          type="button"
-          onClick={handleNearMe}
-          disabled={locating}
-          className="neu-raised-sm flex shrink-0 items-center gap-2 whitespace-nowrap rounded-2xl px-[18px] py-3.5 text-[#0E5B4A] transition disabled:opacity-60"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E5B4A" strokeWidth={2.1} strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 3L14 21l-2.4-7.6L4 11z" />
-          </svg>
-          <span className="text-sm font-bold">{locating ? "Locating…" : "Near me"}</span>
-        </button>
-        <button
-          type="submit"
-          className="shrink-0 rounded-2xl px-6 py-3.5 text-sm font-bold text-[#F3EFE6] shadow-sm"
-          style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)" }}
-        >
-          Search
-        </button>
+        <div className="flex gap-2.5">
+          <button
+            type="button"
+            onClick={handleNearMe}
+            disabled={locating}
+            className="neu-raised-sm flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-2xl px-[18px] py-3.5 text-[#0E5B4A] transition disabled:opacity-60 sm:flex-initial"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E5B4A" strokeWidth={2.1} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 3L14 21l-2.4-7.6L4 11z" />
+            </svg>
+            <span className="text-sm font-bold">{locating ? "Locating…" : "Near me"}</span>
+          </button>
+          <button
+            type="submit"
+            className="flex-1 rounded-2xl px-6 py-3.5 text-sm font-bold text-[#F3EFE6] shadow-sm sm:flex-initial"
+            style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)" }}
+          >
+            Search
+          </button>
+        </div>
       </div>
 
       {suggestions.length > 0 && (

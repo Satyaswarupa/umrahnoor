@@ -4,7 +4,7 @@ import AdminLoginForm from "@/components/auth/AdminLoginForm";
 
 export const metadata = {
   title: "Agent Login",
-  description: "Log in to your UmrahChal agent dashboard to manage your verification and listing.",
+  description: "Log in to your UmrahJao agent dashboard to manage your verification and listing.",
   robots: { index: false, follow: true },
 };
 

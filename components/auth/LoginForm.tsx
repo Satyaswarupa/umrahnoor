@@ -79,7 +79,7 @@ export default function LoginForm() {
       </form>
 
       <p className="mt-6 text-center text-sm text-emerald-900/70">
-        New to UmrahChal?{" "}
+        New to UmrahJao?{" "}
         <Link href="/signup" className="font-medium text-emerald-800 hover:text-emerald-600">
           Create an account
         </Link>

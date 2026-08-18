@@ -56,7 +56,7 @@ export default async function SuperadminLayout({ children }: { children: React.R
             </span>
           </div>
           <div>
-            <div className="text-[15px] font-extrabold tracking-tight text-[#24201A]">UmrahChal</div>
+            <div className="text-[15px] font-extrabold tracking-tight text-[#24201A]">UmrahJao</div>
             <div className="mt-0.5 text-[9px] font-bold tracking-[0.14em] text-[#8A7F6C]">SUPERADMIN PANEL</div>
           </div>
         </Link>

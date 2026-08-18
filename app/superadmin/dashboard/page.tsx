@@ -61,7 +61,7 @@ export default async function SuperadminOverviewPage() {
       <PageHeader
         crumb="DASHBOARD"
         title="Overview"
-        subtitle="A snapshot of UmrahChal's users and agent verification pipeline"
+        subtitle="A snapshot of UmrahJao's users and agent verification pipeline"
       />
 
       <div className="mt-[26px] flex flex-col gap-[22px]">

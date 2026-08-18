@@ -15,7 +15,7 @@ export default async function SuperadminUsersPage() {
 
   return (
     <>
-      <PageHeader crumb="PLATFORM" title="Users" subtitle="Every registered account and its role on UmrahChal" />
+      <PageHeader crumb="PLATFORM" title="Users" subtitle="Every registered account and its role on UmrahJao" />
       <div className="mt-[22px]">
         <UsersTable users={users} />
       </div>

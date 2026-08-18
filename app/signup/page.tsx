@@ -4,7 +4,7 @@ import SignupForm from "@/components/auth/SignupForm";
 
 export const metadata = {
   title: "Sign Up",
-  description: "Create a free UmrahChal account to save and contact verified Umrah travel agents.",
+  description: "Create a free UmrahJao account to save and contact verified Umrah travel agents.",
   robots: { index: false, follow: true },
 };
 

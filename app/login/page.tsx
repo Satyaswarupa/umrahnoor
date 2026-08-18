@@ -4,7 +4,7 @@ import LoginForm from "@/components/auth/LoginForm";
 
 export const metadata = {
   title: "Login",
-  description: "Log in to your UmrahChal account to save and contact Umrah travel agents.",
+  description: "Log in to your UmrahJao account to save and contact Umrah travel agents.",
   robots: { index: false, follow: true },
 };
 

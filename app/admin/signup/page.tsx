@@ -5,7 +5,7 @@ import AdminSignupForm from "@/components/auth/AdminSignupForm";
 export const metadata = {
   title: "Become a Verified Umrah Agent",
   description:
-    "Register your Umrah travel agency on UmrahChal for free. Complete GST and certificate verification to get listed and reach pilgrims searching for trusted agents in your city.",
+    "Register your Umrah travel agency on UmrahJao for free. Complete GST and certificate verification to get listed and reach pilgrims searching for trusted agents in your city.",
   alternates: { canonical: "/admin/signup" },
 };
 

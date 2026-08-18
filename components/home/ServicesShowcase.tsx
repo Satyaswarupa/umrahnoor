@@ -113,7 +113,7 @@ export default function ServicesShowcase() {
         Everything for your trip, in one place
       </h2>
       <p className="mt-2 max-w-2xl text-sm leading-[1.6] text-[#7A705E]">
-        From visa paperwork to hotel stays, verified agents on UmrahChal handle the full range of
+        From visa paperwork to hotel stays, verified agents on UmrahJao handle the full range of
         Umrah services.
       </p>
 

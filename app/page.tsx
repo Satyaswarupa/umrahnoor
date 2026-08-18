@@ -31,27 +31,27 @@ const HOW_IT_WORKS = [
 
 const FAQS = [
   {
-    question: "Is UmrahChal free to use?",
+    question: "Is UmrahJao free to use?",
     answer:
-      "Yes. UmrahChal is completely free for pilgrims. There are no booking fees, no commissions, and no middlemen — you contact agents directly.",
+      "Yes. UmrahJao is completely free for pilgrims. There are no booking fees, no commissions, and no middlemen — you contact agents directly.",
   },
   {
-    question: "Does UmrahChal book Umrah packages or handle payments?",
+    question: "Does UmrahJao book Umrah packages or handle payments?",
     answer:
-      "No. UmrahChal is a directory, not a travel agency. We help you find and contact verified Umrah agents; you book and pay the agent directly.",
+      "No. UmrahJao is a directory, not a travel agency. We help you find and contact verified Umrah agents; you book and pay the agent directly.",
   },
   {
-    question: "How are Umrah agents verified on UmrahChal?",
+    question: "How are Umrah agents verified on UmrahJao?",
     answer:
       "Every agent submits their business identity, GST number, and a verification certificate. Our team manually reviews these documents, and only agents that pass review are listed publicly with a Verified badge.",
   },
   {
-    question: "How do I contact an Umrah agent on UmrahChal?",
+    question: "How do I contact an Umrah agent on UmrahJao?",
     answer:
       "Browse verified agents on the homepage and use the Call or WhatsApp button on their card to message them directly.",
   },
   {
-    question: "Is UmrahChal available across India?",
+    question: "Is UmrahJao available across India?",
     answer:
       "Yes. Use the location search or Near Me on the homepage to see verified Umrah agents in any city or state across India.",
   },
@@ -161,7 +161,7 @@ export default async function Home() {
             </h1>
 
             <p className="mt-5 max-w-[480px] text-[17px] leading-[1.65] text-[#6E6455]">
-              <strong className="text-[#24201A]">In short:</strong> UmrahChal is a free directory
+              <strong className="text-[#24201A]">In short:</strong> UmrahJao is a free directory
               that connects pilgrims across India with {stats.agentCount} verified, GST-registered
               Umrah agents in {stats.cityCount} cities. Search by city, compare packages, and call
               or WhatsApp any agent yourself — no middlemen, no commission, no booking forms.
@@ -187,12 +187,12 @@ export default async function Home() {
             />
             <Link
               href="#agents"
-              className="neu-raised absolute -left-6 bottom-10 flex items-center justify-center gap-2 rounded-2xl bg-[#25D366] px-5 py-3.5 sm:-left-8"
+              className="neu-raised absolute left-5 bottom-6 flex items-center justify-center gap-2 rounded-2xl bg-[#25D366] px-4 py-3 sm:left-6 sm:bottom-8 sm:px-5 sm:py-3.5 lg:-left-8 lg:bottom-10"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFF">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFF" className="shrink-0">
                 <path d="M12 2.6a9.3 9.3 0 00-7.9 14.2L2.7 21.4l4.7-1.3A9.3 9.3 0 1012 2.6zm5.3 13c-.2.6-1.2 1.2-1.9 1.2-1.7 0-4.2-1.4-5.8-3.1-1.3-1.4-2.2-3.2-2.2-4.4 0-.8.5-1.6 1-1.9.3-.2.9-.2 1.1.1l1.1 1.8c.1.3.1.5-.1.8l-.5.6c-.2.2-.2.4-.1.6.5 1.1 1.6 2.2 2.7 2.7.2.1.5.1.6-.1l.6-.6c.2-.2.5-.3.8-.2l1.8 1c.3.2.3.8 0 1.5z" />
               </svg>
-              <span className="text-[13px] font-extrabold text-white">WhatsApp an agent</span>
+              <span className="text-[12px] font-extrabold text-white sm:text-[13px]">WhatsApp an agent</span>
             </Link>
           </div>
         </section>
@@ -205,7 +205,7 @@ export default async function Home() {
 
         <section className="mx-auto max-w-6xl px-4 pt-20 sm:px-6" style={{ fontFamily: "var(--font-jakarta), sans-serif" }}>
           <h2 className="text-[28px] font-extrabold tracking-tight text-[#24201A] sm:text-[30px]">
-            How does UmrahChal work?
+            How does UmrahJao work?
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-[1.6] text-[#7A705E]">
             Three steps, no account and no booking fee: search your city, compare verified

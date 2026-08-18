@@ -383,7 +383,7 @@ export default function AgentDashboardPage() {
       "Our team is checking your documents — typically within 2 working days. You can keep editing while the review is pending.",
     ],
     VERIFIED: [
-      "You are live on UmrahChal",
+      "You are live on UmrahJao",
       agent.locations.length > 0
         ? `Pilgrims in ${agent.locations.map((l) => l.city).filter(Boolean).join(", ")} can see your listing and call or WhatsApp you directly. Keep your numbers current.`
         : "Pilgrims can see your listing and call or WhatsApp you directly. Keep your numbers current.",
@@ -412,9 +412,9 @@ export default function AgentDashboardPage() {
       <div className="mx-auto max-w-[1320px]">
         <div className="flex flex-wrap items-center justify-between gap-4 pb-5">
           <div className="flex items-center gap-2.5">
-            <Image src="/logo.png" alt="UmrahChal logo" width={36} height={36} className="h-9 w-9 rounded-xl" />
+            <Image src="/logo.png" alt="UmrahJao logo" width={36} height={36} className="h-9 w-9 rounded-xl" />
             <div>
-              <div className="text-sm font-extrabold tracking-tight text-[#24201A]">UmrahChal</div>
+              <div className="text-sm font-extrabold tracking-tight text-[#24201A]">UmrahJao</div>
               <div className="mt-0.5 text-[9px] font-bold tracking-[0.14em] text-[#8A7F6C]">AGENT PORTAL</div>
             </div>
           </div>

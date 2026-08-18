@@ -10,8 +10,8 @@ export default function SiteFooter() {
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 py-11 sm:px-6 md:grid-cols-[1.4fr_1fr]">
         <div>
           <div className="flex items-center gap-2.5">
-            <Image src="/logo.png" alt="UmrahChal logo" width={36} height={36} className="h-9 w-9 rounded-xl" />
-            <div className="text-[15px] font-extrabold">UmrahChal</div>
+            <Image src="/logo.png" alt="UmrahJao logo" width={36} height={36} className="h-9 w-9 rounded-xl" />
+            <div className="text-[15px] font-extrabold">UmrahJao</div>
           </div>
           <p className="mt-3.5 max-w-xs text-xs leading-[1.7] text-[#8A7F6C]">
             A directory of licensed Hajj and Umrah operators across India. We list agents and
@@ -37,7 +37,7 @@ export default function SiteFooter() {
       </div>
 
       <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 pb-9 text-[11px] text-[#9A907C] sm:flex-row sm:justify-between sm:px-6">
-        <span>&copy; {new Date().getFullYear()} UmrahChal &middot; Directory only, not a travel agent</span>
+        <span>&copy; {new Date().getFullYear()} UmrahJao &middot; Directory only, not a travel agent</span>
         <span>Privacy &middot; Terms &middot; Report an agent</span>
       </div>
     </footer>

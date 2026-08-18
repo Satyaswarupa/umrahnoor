@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const title = locationLabel ? `${agent.companyName} — Umrah Agent in ${locationLabel}` : agent.companyName;
   const description =
     agent.description ||
-    `${agent.companyName} is a verified Umrah travel agent${locationLabel ? ` in ${locationLabel}` : ""}. Contact them directly by call or WhatsApp on UmrahChal.`;
+    `${agent.companyName} is a verified Umrah travel agent${locationLabel ? ` in ${locationLabel}` : ""}. Contact them directly by call or WhatsApp on UmrahJao.`;
 
   return {
     title,

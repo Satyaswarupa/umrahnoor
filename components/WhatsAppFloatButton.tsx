@@ -7,7 +7,7 @@ export default function WhatsAppFloatButton() {
       href={toWhatsappLink(SUPPORT_WHATSAPP_NUMBER)}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Chat with UmrahChal support on WhatsApp"
+      aria-label="Chat with UmrahJao support on WhatsApp"
       className="neu-raised fixed bottom-4 left-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] transition hover:scale-105 sm:bottom-6 sm:left-6"
     >
       <svg width="26" height="26" viewBox="0 0 24 24" fill="#FFF">
