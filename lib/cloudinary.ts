@@ -49,6 +49,16 @@ export async function uploadDocumentToCloudinary(
       {
         folder,
         resource_type: resourceType,
+        // Without this, "raw" uploads (PDFs) get a random public_id with no
+        // file extension, so Cloudinary serves them with a generic/incorrect
+        // Content-Type instead of application/pdf — browsers then have
+        // nothing to identify the file as a PDF and download it as plain
+        // text. filename_override supplies the name (a Buffer upload has no
+        // OS filename of its own for use_filename to read), and Cloudinary
+        // keeps its extension in the generated public_id.
+        use_filename: true,
+        unique_filename: true,
+        filename_override: file.name,
       },
       (error, result) => {
         if (error || !result) {

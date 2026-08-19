@@ -5,7 +5,15 @@ import LogoutButton from "@/components/LogoutButton";
 
 type Session = Awaited<ReturnType<typeof getSession>>;
 
-function NavLinks({ session, className }: { session: Session; className: string }) {
+function NavLinks({
+  session,
+  className,
+  showAgentDashboardLink = true,
+}: {
+  session: Session;
+  className: string;
+  showAgentDashboardLink?: boolean;
+}) {
   return (
     <div className={className}>
       <Link
@@ -42,13 +50,15 @@ function NavLinks({ session, className }: { session: Session; className: string 
 
       {session?.role === "ADMIN" && (
         <>
-          <Link
-            href="/admin/dashboard"
-            className="rounded-full px-5 py-2.5 text-center text-[13px] font-bold text-[#F3EFE6] shadow-sm"
-            style={{ background: "#06042a" }}
-          >
-            Agent Dashboard
-          </Link>
+          {showAgentDashboardLink && (
+            <Link
+              href="/admin/dashboard"
+              className="rounded-full px-5 py-2.5 text-center text-[13px] font-bold text-[#F3EFE6] shadow-sm"
+              style={{ background: "#06042a" }}
+            >
+              Agent Dashboard
+            </Link>
+          )}
           <LogoutButton />
         </>
       )}
@@ -69,7 +79,7 @@ function NavLinks({ session, className }: { session: Session; className: string 
   );
 }
 
-export default async function SiteHeader() {
+export default async function SiteHeader({ showAgentDashboardLink = true }: { showAgentDashboardLink?: boolean } = {}) {
   const session = await getSession();
 
   return (
@@ -88,7 +98,11 @@ export default async function SiteHeader() {
             <div className="text-[16px] font-extrabold tracking-tight text-[#24201A]">UmrahJao</div>
           </Link>
 
-          <NavLinks session={session} className="ml-auto hidden items-center gap-3 sm:flex" />
+          <NavLinks
+            session={session}
+            className="ml-auto hidden items-center gap-3 sm:flex"
+            showAgentDashboardLink={showAgentDashboardLink}
+          />
 
           <label
             htmlFor="mobile-nav-toggle"
@@ -104,6 +118,7 @@ export default async function SiteHeader() {
         <NavLinks
           session={session}
           className="hidden flex-col gap-3 border-t border-black/[0.06] pb-4 pt-4 peer-checked:flex sm:hidden"
+          showAgentDashboardLink={showAgentDashboardLink}
         />
       </div>
     </header>

@@ -25,12 +25,16 @@ export async function POST(request: NextRequest) {
     await connectToDatabase();
 
     const session = await getSession();
+    // A session cookie can outlive the user it points to (e.g. the account
+    // was removed directly in the database during testing) — treat that the
+    // same as not being logged in and fall through to a fresh signup below,
+    // rather than hard-failing with a confusing "session invalid" error.
+    const existingUser = session ? await User.findById(session.userId) : null;
 
-    if (session) {
+    if (existingUser) {
       // Already signed in — upgrade this account to an agent in place instead
       // of creating a second, conflicting account with the same email.
-      const user = await User.findById(session.userId);
-      if (!user) return errorResponse("Your session is no longer valid. Please log in again.", 401);
+      const user = existingUser;
 
       if (user.role !== "ADMIN" && user.role !== "SUPERADMIN") {
         user.role = "ADMIN";

@@ -62,6 +62,7 @@ export function toPublicAgentSummary(agent: LeanAgent, filter?: LocationFilter) 
     profileImage: agent.profileImage,
     experienceYears: agent.experienceYears,
     startingPrice: agent.startingPrice,
+    verificationBadge: agent.verificationBadge ?? "BLUE",
   };
 }
 
@@ -83,6 +84,7 @@ export function toPublicAgentDetail(agent: LeanAgent, filter?: LocationFilter) {
     profileImage: agent.profileImage,
     experienceYears: agent.experienceYears,
     startingPrice: agent.startingPrice,
+    verificationBadge: agent.verificationBadge ?? "BLUE",
   };
 }
 
@@ -130,6 +132,7 @@ export function toPrivateAgent(agent: LeanAgent) {
       services: location.services ?? [],
     })),
     verificationStatus: agent.verificationStatus,
+    verificationBadge: agent.verificationBadge ?? "BLUE",
     isListed: agent.isListed,
     rejectionReason: agent.rejectionReason,
     createdAt: agent.createdAt,

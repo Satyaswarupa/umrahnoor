@@ -12,6 +12,13 @@ type AgentLocation = {
   services?: string[];
 };
 
+// GOLD-badge agents rank ahead of everyone else, wherever they appear in a
+// results list — Array#sort is stable, so this only reorders across badge
+// tiers and leaves each tier's existing order (recency, distance) untouched.
+function badgeWeight(badge: string | undefined): number {
+  return badge === "GOLD" ? 0 : 1;
+}
+
 // Verified/listed agents change infrequently — cache each distinct search
 // (by query string) for a minute instead of hitting the DB on every request.
 export const revalidate = 60;
@@ -46,8 +53,11 @@ export async function GET(request: NextRequest) {
     const agents = await Agent.find(query).sort({ createdAt: -1 }).limit(100).lean();
 
     if (agents.length > 0) {
+      const sorted = [...agents].sort(
+        (a, b) => badgeWeight(a.verificationBadge) - badgeWeight(b.verificationBadge),
+      );
       return NextResponse.json({
-        agents: agents.map((agent) => toPublicAgentSummary(agent, { country, state, city })),
+        agents: sorted.map((agent) => toPublicAgentSummary(agent, { country, state, city })),
       });
     }
 
@@ -98,7 +108,11 @@ export async function GET(request: NextRequest) {
         return { agent, nearestCity, nearestDistanceKm };
       })
       .filter((entry) => Number.isFinite(entry.nearestDistanceKm))
-      .sort((a, b) => a.nearestDistanceKm - b.nearestDistanceKm)
+      .sort(
+        (a, b) =>
+          badgeWeight(a.agent.verificationBadge) - badgeWeight(b.agent.verificationBadge) ||
+          a.nearestDistanceKm - b.nearestDistanceKm,
+      )
       .slice(0, 100);
 
     return NextResponse.json({

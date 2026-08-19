@@ -91,10 +91,15 @@ export default async function AgentDetailPage({ params }: { params: Params }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify([travelAgencyJsonLd, breadcrumbJsonLd]) }}
       />
-      <div className="rounded-2xl border border-emerald-900/10 bg-white p-8 shadow-sm">
+      <div
+        className={
+          "rounded-2xl bg-white p-8 shadow-sm " +
+          (agent.verificationBadge === "GOLD" ? "border-2 border-[#D4A017]/60" : "border border-emerald-900/10")
+        }
+      >
         <div className="flex flex-wrap items-start justify-between gap-3">
           <h1 className="text-2xl font-bold text-emerald-950">{agent.companyName}</h1>
-          <VerifiedBadge />
+          <VerifiedBadge badge={agent.verificationBadge} />
         </div>
 
         <p className="mt-1 text-sm text-emerald-900/70">

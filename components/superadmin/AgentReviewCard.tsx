@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Spinner from "@/components/Spinner";
+import { VerifiedTick } from "@/components/VerifiedBadge";
 import { getServiceLabel, SERVICES } from "@/lib/services";
 import type { PrivateAgent } from "@/lib/types";
 
@@ -15,16 +16,18 @@ const STATUS_STYLES: Record<string, { fg: string; bg: string }> = {
 
 type Props = {
   agent: PrivateAgent;
-  onApprove?: (id: string) => Promise<void> | void;
+  onApprove?: (id: string, badge: "BLUE" | "GOLD") => Promise<void> | void;
   onReject?: (id: string, reason: string) => Promise<void> | void;
   onToggleListed?: (id: string) => Promise<void> | void;
+  onChangeBadge?: (id: string, badge: "BLUE" | "GOLD") => Promise<void> | void;
 };
 
-export default function AgentReviewCard({ agent, onApprove, onReject, onToggleListed }: Props) {
+export default function AgentReviewCard({ agent, onApprove, onReject, onToggleListed, onChangeBadge }: Props) {
   const [expanded, setExpanded] = useState(false);
-  const [busyAction, setBusyAction] = useState<"approve" | "reject" | "toggle" | null>(null);
+  const [busyAction, setBusyAction] = useState<"approve" | "reject" | "toggle" | "badge" | null>(null);
   const [rejecting, setRejecting] = useState(false);
   const [reason, setReason] = useState("");
+  const [approveBadge, setApproveBadge] = useState<"BLUE" | "GOLD">("BLUE");
   const busy = busyAction !== null;
 
   const hasLegacyDocuments = Boolean(agent.gstDocument && agent.certificateDocument);
@@ -37,7 +40,17 @@ export default function AgentReviewCard({ agent, onApprove, onReject, onToggleLi
     if (!onApprove) return;
     setBusyAction("approve");
     try {
-      await onApprove(agent.id);
+      await onApprove(agent.id, approveBadge);
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function handleChangeBadge(badge: "BLUE" | "GOLD") {
+    if (!onChangeBadge || badge === agent.verificationBadge) return;
+    setBusyAction("badge");
+    try {
+      await onChangeBadge(agent.id, badge);
     } finally {
       setBusyAction(null);
     }
@@ -119,6 +132,9 @@ export default function AgentReviewCard({ agent, onApprove, onReject, onToggleLi
             >
               UNLISTED
             </span>
+          )}
+          {agent.verificationStatus === "VERIFIED" && (
+            <VerifiedTick badge={agent.verificationBadge === "GOLD" ? "GOLD" : "BLUE"} />
           )}
           <span className="rounded-full px-3 py-1.5 text-[10.5px] font-extrabold tracking-[0.08em]" style={{ color: st.fg, background: st.bg }}>
             {agent.verificationStatus}
@@ -304,8 +320,36 @@ export default function AgentReviewCard({ agent, onApprove, onReject, onToggleLi
                 </div>
               </div>
             ) : (
-              (onApprove || onReject || onToggleListed) && (
+              (onApprove || onReject || onToggleListed || onChangeBadge) && (
                 <div className="flex flex-wrap items-center gap-[11px]">
+                  {onApprove && (
+                    <div className="neu-pressed flex items-center gap-1 rounded-2xl p-1">
+                      <button
+                        type="button"
+                        onClick={() => setApproveBadge("BLUE")}
+                        disabled={busy}
+                        className={
+                          "flex items-center gap-1.5 rounded-xl px-3 py-2 text-[11.5px] font-extrabold transition " +
+                          (approveBadge === "BLUE" ? "neu-raised-sm bg-white text-[#1D6FD8]" : "text-[#9A907C]")
+                        }
+                      >
+                        <VerifiedTick badge="BLUE" />
+                        Blue
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setApproveBadge("GOLD")}
+                        disabled={busy}
+                        className={
+                          "flex items-center gap-1.5 rounded-xl px-3 py-2 text-[11.5px] font-extrabold transition " +
+                          (approveBadge === "GOLD" ? "neu-raised-sm bg-white text-[#B8860B]" : "text-[#9A907C]")
+                        }
+                      >
+                        <VerifiedTick badge="GOLD" />
+                        Gold
+                      </button>
+                    </div>
+                  )}
                   {onApprove && (
                     <button
                       type="button"
@@ -349,6 +393,36 @@ export default function AgentReviewCard({ agent, onApprove, onReject, onToggleLi
                       {busyAction === "toggle" && <Spinner className="h-3.5 w-3.5" />}
                       {busyAction === "toggle" ? "Updating…" : unlisted ? "Relist Agent" : "Unlist Agent"}
                     </button>
+                  )}
+                  {onChangeBadge && (
+                    <div className="neu-pressed flex items-center gap-1 rounded-2xl p-1">
+                      <button
+                        type="button"
+                        onClick={() => handleChangeBadge("BLUE")}
+                        disabled={busy}
+                        title="Switch this agent to the blue badge"
+                        className={
+                          "flex items-center gap-1.5 rounded-xl px-3 py-2 text-[11.5px] font-extrabold transition disabled:opacity-50 " +
+                          (agent.verificationBadge === "BLUE" ? "neu-raised-sm bg-white text-[#1D6FD8]" : "text-[#9A907C]")
+                        }
+                      >
+                        {busyAction === "badge" ? <Spinner className="h-3.5 w-3.5" /> : <VerifiedTick badge="BLUE" />}
+                        Blue
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleChangeBadge("GOLD")}
+                        disabled={busy}
+                        title="Switch this agent to the gold badge"
+                        className={
+                          "flex items-center gap-1.5 rounded-xl px-3 py-2 text-[11.5px] font-extrabold transition disabled:opacity-50 " +
+                          (agent.verificationBadge === "GOLD" ? "neu-raised-sm bg-white text-[#B8860B]" : "text-[#9A907C]")
+                        }
+                      >
+                        {busyAction === "badge" ? <Spinner className="h-3.5 w-3.5" /> : <VerifiedTick badge="GOLD" />}
+                        Gold
+                      </button>
+                    </div>
                   )}
                   <span className="ml-auto text-[11px] text-[#9A907C]">
                     Applied {agent.createdAt ? new Date(agent.createdAt).toLocaleDateString() : "—"} · ID {agent.id.slice(-6).toUpperCase()}

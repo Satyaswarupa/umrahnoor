@@ -12,7 +12,7 @@ export const metadata = {
 export default function AdminSignupPage() {
   return (
     <div className="flex min-h-full flex-1 flex-col">
-      <SiteHeader />
+      <SiteHeader showAgentDashboardLink={false} />
       <main className="flex flex-1 items-center justify-center bg-emerald-50/40 px-4 py-12">
         <AdminSignupForm />
       </main>

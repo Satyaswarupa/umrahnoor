@@ -39,6 +39,22 @@ export default function VerifiedAgentsPage() {
     }
   }
 
+  async function handleChangeBadge(id: string, badge: "BLUE" | "GOLD") {
+    setMessage(null);
+    const res = await fetch(`/api/superadmin/agents/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ verificationBadge: badge }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setMessage({ type: "success", text: `Badge switched to ${badge === "GOLD" ? "gold" : "blue"}.` });
+      await load();
+    } else {
+      setMessage({ type: "error", text: data.error ?? "Failed to update badge" });
+    }
+  }
+
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return agents;
@@ -94,7 +110,12 @@ export default function VerifiedAgentsPage() {
           </div>
         ) : (
           shown.map((agent) => (
-            <AgentReviewCard key={agent.id} agent={agent} onToggleListed={handleToggleListed} />
+            <AgentReviewCard
+              key={agent.id}
+              agent={agent}
+              onToggleListed={handleToggleListed}
+              onChangeBadge={handleChangeBadge}
+            />
           ))
         )}
       </div>

@@ -58,6 +58,14 @@ export async function POST() {
       );
     }
 
+    // The legacy path's top-level country/state/city already imply a
+    // location; the business path doesn't touch `locations[]` at all, so it
+    // needs its own explicit check — otherwise an agent could go live
+    // nowhere findable in any city/state search.
+    if (!agent.locations.some((l: { state?: string; city?: string }) => l.state && l.city)) {
+      missing.push("at least one location with a state and city");
+    }
+
     if (missing.length > 0) {
       return errorResponse(
         `Please complete the following before submitting: ${missing.join(", ")}.`,

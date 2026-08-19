@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Spinner from "@/components/Spinner";
 import PageHeader from "@/components/superadmin/PageHeader";
+import { VerifiedTick } from "@/components/VerifiedBadge";
 import { COUNTRIES, INDIA_STATES, getCitiesForState } from "@/lib/locations";
 import { SERVICES } from "@/lib/services";
 
@@ -14,6 +15,7 @@ const emptyForm = {
   country: "India",
   state: "",
   city: "",
+  verificationBadge: "BLUE" as "BLUE" | "GOLD",
 };
 
 const fieldClass =
@@ -60,6 +62,7 @@ export default function NewAgentPage() {
       body.set("country", form.country);
       body.set("state", form.state);
       body.set("city", form.city);
+      body.set("verificationBadge", form.verificationBadge);
       if (imageFile) body.set("profileImage", imageFile);
 
       const res = await fetch("/api/superadmin/agents", { method: "POST", body });
@@ -115,6 +118,36 @@ export default function NewAgentPage() {
             >
               <span className="h-1.5 w-1.5 rounded-full bg-[#0E5B4A]" />
               PUBLISHES AS VERIFIED
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <div className="mb-[7px] text-[11px] font-bold text-[#6E6455]">Verification badge</div>
+            <div className="flex flex-wrap gap-[9px]">
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, verificationBadge: "BLUE" })}
+                className={
+                  "flex items-center gap-[7px] rounded-2xl px-[14px] py-2.5 text-xs font-bold transition " +
+                  (form.verificationBadge === "BLUE" ? "text-[#F6E2B4]" : "neu-raised-sm text-[#4A4238]")
+                }
+                style={form.verificationBadge === "BLUE" ? { background: "#1D6FD8" } : undefined}
+              >
+                <VerifiedTick badge="BLUE" />
+                Blue Verified
+              </button>
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, verificationBadge: "GOLD" })}
+                className={
+                  "flex items-center gap-[7px] rounded-2xl px-[14px] py-2.5 text-xs font-bold transition " +
+                  (form.verificationBadge === "GOLD" ? "text-[#3A2E00]" : "neu-raised-sm text-[#4A4238]")
+                }
+                style={form.verificationBadge === "GOLD" ? { background: "#D4A017" } : undefined}
+              >
+                <VerifiedTick badge="GOLD" />
+                Gold Verified
+              </button>
             </div>
           </div>
 

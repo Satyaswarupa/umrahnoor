@@ -8,6 +8,7 @@ import type { PublicAgentSummary } from "@/lib/types";
 import { toTelLink, toWhatsappLink } from "@/lib/contact-links";
 import { getServiceLabel } from "@/lib/services";
 import { resolveNearbyLocation } from "@/lib/geolocation";
+import { VerifiedTick } from "@/components/VerifiedBadge";
 
 const CHIPS = [
   { id: "", label: "All agents" },
@@ -32,15 +33,6 @@ type NearbyState = {
   // or both came back empty, so we're showing the newest-agents fallback.
   source: "search" | "near-me" | null;
 };
-
-function VerifiedMark() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="#0E5B4A" className="shrink-0">
-      <path d="M12 1.8l2.4 1.9 3-.3 1 2.9 2.6 1.6-1 2.9 1 2.9-2.6 1.6-1 2.9-3-.3L12 22.2 9.6 20.3l-3 .3-1-2.9L3 16.1l1-2.9-1-2.9 2.6-1.6 1-2.9 3 .3z" />
-      <path d="M8.5 12.2l2.4 2.4 4.6-4.8" fill="none" stroke="#EAE5DB" strokeWidth={2} strokeLinecap="round" />
-    </svg>
-  );
-}
 
 export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAgentSummary[] }) {
   const [chip, setChip] = useState("");
@@ -257,8 +249,24 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
         </div>
       ) : (
         <div className="mt-7 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {agents.map((agent) => (
-            <div key={agent.id} className="neu-raised-sm rounded-[26px] bg-white p-[22px]">
+          {agents.map((agent) => {
+            const gold = agent.verificationBadge === "GOLD";
+            return (
+            <div
+              key={agent.id}
+              className={
+                "relative overflow-hidden rounded-[26px] bg-white p-[22px] " +
+                (gold ? "border-2 border-[#D4A017]/70 shadow-[0_4px_20px_rgba(212,160,23,0.18)]" : "neu-raised-sm")
+              }
+            >
+              {gold && (
+                <span
+                  className="absolute right-0 top-0 rounded-bl-2xl px-3 py-1 text-[9.5px] font-extrabold tracking-[0.08em] text-white"
+                  style={{ background: "#D4A017" }}
+                >
+                  GOLD VERIFIED
+                </span>
+              )}
               <div className="flex items-start gap-3.5">
                 <div className="neu-pressed h-[62px] w-[62px] shrink-0 rounded-[19px] p-[5px]">
                   <div className="relative h-full w-full overflow-hidden rounded-[14px] bg-[#F4F2EC]">
@@ -281,7 +289,7 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
                     <div className="truncate text-[16px] font-extrabold tracking-tight text-[#24201A]">
                       {agent.companyName}
                     </div>
-                    <VerifiedMark />
+                    <VerifiedTick badge={gold ? "GOLD" : "BLUE"} />
                   </div>
                   <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-[#8A7F6C]">
                     <span>
@@ -310,18 +318,13 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
 
               <div className="flex items-center gap-2.5">
                 <div className="flex-1">
-                  {agent.startingPrice != null ? (
-                    <>
-                      <div className="text-[10px] font-semibold text-[#9A907C]">Package from</div>
-                      <div className="text-[18px] font-extrabold tracking-tight text-[#24201A]">
-                        ₹{agent.startingPrice.toLocaleString("en-IN")}
-                      </div>
-                    </>
-                  ) : (
-                    <Link href={`/agents/${agent.id}`} className="text-[13px] font-bold text-[#0E5B4A] hover:text-[#C08A2E]">
-                      View {agent.companyName} details →
-                    </Link>
-                  )}
+                  <div className="text-[10px] font-semibold text-[#9A907C]">Location</div>
+                  <Link
+                    href={`/agents/${agent.id}`}
+                    className="text-[15px] font-extrabold tracking-tight text-[#24201A] hover:text-[#0E5B4A]"
+                  >
+                    {[agent.city, agent.state].filter(Boolean).join(", ") || "India"}
+                  </Link>
                 </div>
                 <a
                   href={toTelLink(agent.mobileNumber)}
@@ -345,7 +348,8 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
                 </a>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </section>

@@ -8,6 +8,12 @@ export const VERIFICATION_STATUSES = [
 ] as const;
 export type VerificationStatus = (typeof VERIFICATION_STATUSES)[number];
 
+// Chosen by a superadmin at approval time (or when adding an agent directly).
+// GOLD ranks ahead of BLUE in public search results and renders with a
+// distinct gold badge/card treatment; both just read "Verified" otherwise.
+export const VERIFICATION_BADGES = ["BLUE", "GOLD"] as const;
+export type VerificationBadge = (typeof VERIFICATION_BADGES)[number];
+
 const DocumentSchema = new Schema(
   {
     url: { type: String, required: true },
@@ -74,6 +80,11 @@ const AgentSchema = new Schema(
     },
     isListed: { type: Boolean, required: true, default: false, index: true },
     rejectionReason: { type: String, default: "" },
+    verificationBadge: {
+      type: String,
+      enum: VERIFICATION_BADGES,
+      default: "BLUE",
+    },
   },
   { timestamps: true }
 );

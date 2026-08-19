@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { SERVICE_SLUGS } from "@/lib/services";
+import { VERIFICATION_BADGES } from "@/models/Agent";
 
 const phoneRegex = /^\+?[0-9]{7,15}$/;
 const gstRegex = /^[0-9A-Z]{15}$/;
@@ -128,8 +129,17 @@ export const superadminCreateAgentSchema = z.object({
   country: countrySchema,
   state: stateSchema,
   city: citySchema,
+  verificationBadge: z.enum(VERIFICATION_BADGES).default("BLUE"),
 });
 
 export const rejectAgentSchema = z.object({
   rejectionReason: z.string().trim().min(5, "Provide a rejection reason").max(500),
+});
+
+export const approveAgentSchema = z.object({
+  verificationBadge: z.enum(VERIFICATION_BADGES).default("BLUE"),
+});
+
+export const updateAgentBadgeSchema = z.object({
+  verificationBadge: z.enum(VERIFICATION_BADGES),
 });

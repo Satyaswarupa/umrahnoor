@@ -27,12 +27,16 @@ export default function AgentRequestsPage() {
     load();
   }, []);
 
-  async function handleApprove(id: string) {
+  async function handleApprove(id: string, badge: "BLUE" | "GOLD") {
     setMessage(null);
-    const res = await fetch(`/api/superadmin/agents/${id}/approve`, { method: "POST" });
+    const res = await fetch(`/api/superadmin/agents/${id}/approve`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ verificationBadge: badge }),
+    });
     const data = await res.json();
     if (res.ok) {
-      setMessage({ type: "success", text: "Agent approved and listed." });
+      setMessage({ type: "success", text: `Agent approved and listed with a ${badge === "GOLD" ? "gold" : "blue"} badge.` });
       await load();
     } else {
       setMessage({ type: "error", text: data.error ?? "Failed to approve agent" });

@@ -7,6 +7,7 @@ import { Field, inputClass, selectClass } from "@/components/form";
 import Spinner from "@/components/Spinner";
 import LogoutButton from "@/components/LogoutButton";
 import { COUNTRIES, INDIA_STATES, getCitiesForState } from "@/lib/locations";
+import { LocationError, resolveNearbyLocation } from "@/lib/geolocation";
 import { GOVERNMENT_ID_TYPES } from "@/lib/agent-options";
 import { SERVICES, getServiceLabel } from "@/lib/services";
 import type { AgentDoc, AgentLocation, PrivateAgent } from "@/lib/types";
@@ -90,6 +91,22 @@ const emptyLocationDraft = {
   services: [] as string[],
 };
 
+// Mirrors the business-verification path checked server-side in
+// /api/agent/submit — kept in sync so the popup can tell the agent exactly
+// what's missing before they ever hit Submit, instead of after.
+function getMissingRequiredFields(agent: PrivateAgent, profile: typeof emptyProfile): string[] {
+  const missing: string[] = [];
+  if (!profile.companyName.trim()) missing.push("Company Name");
+  if (!profile.businessType.trim()) missing.push("Business Type");
+  if (!profile.businessEmail.trim()) missing.push("Business Email");
+  if (!profile.businessPhone.trim()) missing.push("Business Phone");
+  if (!profile.govIdType.trim()) missing.push("Government ID Type");
+  if (!profile.govIdNumber.trim()) missing.push("Government ID Number");
+  if (!agent.govIdDocument) missing.push("Government ID Document (upload)");
+  if (!agent.locations.some((l) => l.state && l.city)) missing.push("At least one location (with state & city)");
+  return missing;
+}
+
 export default function AgentDashboardPage() {
   const [agent, setAgent] = useState<PrivateAgent | null>(null);
   const [profile, setProfile] = useState(emptyProfile);
@@ -98,13 +115,12 @@ export default function AgentDashboardPage() {
   const [saving, setSaving] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [missingFields, setMissingFields] = useState<string[] | null>(null);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(
     null
   );
   const [uploading, setUploading] = useState<string | null>(null);
   const [addDocLabel, setAddDocLabel] = useState("");
-
-  const [editingBusinessInfo, setEditingBusinessInfo] = useState(false);
 
   const [locationDraft, setLocationDraft] = useState<(typeof emptyLocationDraft & { id: string | null }) | null>(
     null
@@ -161,17 +177,6 @@ export default function AgentDashboardPage() {
     }
   }
 
-  async function handleSaveBusinessInfoSection() {
-    const ok = await saveProfileFields();
-    if (ok) setEditingBusinessInfo(false);
-  }
-
-  function handleCancelBusinessInfoSection() {
-    if (agent) setProfile(profileFromAgent(agent));
-    setEditingBusinessInfo(false);
-    setMessage(null);
-  }
-
   async function handleUpload(
     type: "gst" | "certificate" | "additional" | "govId" | "tradeLicense" | "gstCertificate" | "profile",
     file: File,
@@ -218,9 +223,21 @@ export default function AgentDashboardPage() {
   }
 
   async function handleSubmitVerification() {
+    if (!agent) return;
+    const missing = getMissingRequiredFields(agent, profile);
+    if (missing.length > 0) {
+      setMissingFields(missing);
+      return;
+    }
+
     setSubmitting(true);
     setMessage(null);
     try {
+      // Push any unsaved edits to the always-editable fields before the
+      // server re-checks the same requirements.
+      const saved = await saveProfileFields();
+      if (!saved) return;
+
       const res = await fetch("/api/agent/submit", { method: "POST" });
       const data = await res.json();
       if (!res.ok) {
@@ -238,7 +255,6 @@ export default function AgentDashboardPage() {
 
   function handleRegisterClick() {
     setMessage(null);
-    setEditingBusinessInfo(true);
     setTab("info");
   }
 
@@ -404,8 +420,6 @@ export default function AgentDashboardPage() {
     { ok: hasRequiredDocument, text: "Government ID Document uploaded" },
     { ok: documentsUploaded >= 4, text: `Supporting documents (${documentsUploaded} of ${documentSlots.length})` },
   ];
-
-  const typeService = SERVICES.find((s) => s.slug === agent.businessType);
 
   return (
     <div className="min-h-screen bg-white px-4 py-7 sm:px-8 lg:py-9" style={jakarta}>
@@ -652,25 +666,12 @@ export default function AgentDashboardPage() {
                         <button
                           type="button"
                           onClick={handleSubmitVerification}
-                          disabled={!hasRequiredDocument || submitting}
-                          className={
-                            "flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-[13.5px] font-extrabold transition " +
-                            (!hasRequiredDocument
-                              ? "neu-pressed cursor-not-allowed text-[#A9A08C]"
-                              : "text-[#F3EFE6]")
-                          }
-                          style={
-                            hasRequiredDocument
-                              ? { background: "#06042a", opacity: submitting ? 0.75 : 1 }
-                              : undefined
-                          }
+                          disabled={submitting}
+                          className="flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-[13.5px] font-extrabold text-[#F3EFE6] transition"
+                          style={{ background: "#06042a", opacity: submitting ? 0.75 : 1 }}
                         >
                           {submitting && <Spinner className="h-3.5 w-3.5" />}
-                          {submitting
-                            ? "Submitting…"
-                            : !hasRequiredDocument
-                              ? "Upload ID to submit"
-                              : "Submit for Verification"}
+                          {submitting ? "Submitting…" : "Submit for Verification"}
                         </button>
                         <button
                           type="button"
@@ -694,144 +695,116 @@ export default function AgentDashboardPage() {
                       <div className="text-base font-extrabold text-[#24201A]">Business Information</div>
                       <div className="mt-1 text-xs text-[#8A7F6C]">Shown on your public profile card.</div>
                     </div>
-                    <div className="flex gap-2.5">
-                      {editingBusinessInfo && (
-                        <button
-                          type="button"
-                          onClick={handleSaveBusinessInfoSection}
-                          disabled={saving}
-                          className="flex items-center gap-2 rounded-xl px-[18px] py-2.5 text-[12.5px] font-extrabold text-[#F3EFE6]"
-                          style={{ background: "#06042a", opacity: saving ? 0.75 : 1 }}
-                        >
-                          {saving && <Spinner className="h-3.5 w-3.5" />}
-                          {saving ? "Saving…" : "Save changes"}
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() =>
-                          editingBusinessInfo ? handleCancelBusinessInfoSection() : setEditingBusinessInfo(true)
-                        }
-                        className="neu-raised-sm rounded-xl px-[18px] py-2.5 text-[12.5px] font-bold text-[#6E6455]"
-                      >
-                        {editingBusinessInfo ? "Cancel" : "Edit section"}
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={saveProfileFields}
+                      disabled={saving}
+                      className="flex items-center gap-2 rounded-xl px-[18px] py-2.5 text-[12.5px] font-extrabold text-[#F3EFE6]"
+                      style={{ background: "#06042a", opacity: saving ? 0.75 : 1 }}
+                    >
+                      {saving && <Spinner className="h-3.5 w-3.5" />}
+                      {saving ? "Saving…" : "Save progress"}
+                    </button>
                   </div>
 
                   <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     <BizField
                       label="Company Name"
-                      editing={editingBusinessInfo}
                       value={profile.companyName}
-                      shown={agent.companyName}
                       placeholder="Al-Safar Travels"
                       onChange={(v) => setProfile({ ...profile, companyName: v })}
+                      required
                     />
                     <div>
-                      <div className="mb-[7px] text-[11px] font-bold text-[#6E6455]">Business Type</div>
-                      {editingBusinessInfo ? (
-                        <select
-                          className="w-full rounded-xl border-none bg-white px-3.5 py-3 text-[13px] font-semibold text-[#24201A] outline-none neu-pressed"
-                          value={profile.businessType}
-                          onChange={(e) => setProfile({ ...profile, businessType: e.target.value })}
-                        >
-                          <option value="" disabled>
-                            Select Business Type
+                      <div className="mb-[7px] text-[11px] font-bold text-[#6E6455]">
+                        Business Type
+                        <span className="ml-1 text-[#C0392B]">*</span>
+                      </div>
+                      <select
+                        className="w-full rounded-xl border-none bg-white px-3.5 py-3 text-[13px] font-semibold text-[#24201A] outline-none neu-pressed"
+                        value={profile.businessType}
+                        onChange={(e) => setProfile({ ...profile, businessType: e.target.value })}
+                      >
+                        <option value="" disabled>
+                          Select Business Type
+                        </option>
+                        {SERVICES.map((s) => (
+                          <option key={s.slug} value={s.slug}>
+                            {s.icon} {s.label}
                           </option>
-                          {SERVICES.map((s) => (
-                            <option key={s.slug} value={s.slug}>
-                              {s.icon} {s.label}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <div className="px-0 py-[3px] text-[13.5px] font-bold text-[#3A342B]">
-                          {typeService ? `${typeService.icon} ${typeService.label}` : agent.businessType || "—"}
-                        </div>
-                      )}
+                        ))}
+                      </select>
                     </div>
                     <BizField
                       label="Business Email"
-                      editing={editingBusinessInfo}
                       value={profile.businessEmail}
-                      shown={agent.businessEmail}
                       placeholder="office@agency.in"
                       quick="Use account email"
                       onQuick={() => setProfile({ ...profile, businessEmail: agent.email })}
                       onChange={(v) => setProfile({ ...profile, businessEmail: v })}
+                      required
                     />
                     <BizField
                       label="Business Phone"
-                      editing={editingBusinessInfo}
                       value={profile.businessPhone}
-                      shown={agent.businessPhone}
                       placeholder="+91 40 0000 0000"
                       quick="Use account phone"
                       onQuick={() => setProfile({ ...profile, businessPhone: agent.mobileNumber })}
                       onChange={(v) => setProfile({ ...profile, businessPhone: v })}
+                      required
                     />
                     <BizField
-                      label="Experience (years)"
-                      editing={editingBusinessInfo}
+                      label="Experience (years) (Optional)"
                       value={profile.experienceYears}
-                      shown={agent.experienceYears != null ? `${agent.experienceYears} years` : ""}
                       type="number"
+                      placeholder="Optional"
                       onChange={(v) => setProfile({ ...profile, experienceYears: v })}
                     />
                     <BizField
-                      label="Total Bookings"
-                      editing={editingBusinessInfo}
+                      label="Total Bookings (Optional)"
                       value={profile.totalBookings}
-                      shown={agent.totalBookings != null ? agent.totalBookings.toLocaleString("en-IN") : ""}
                       type="number"
+                      placeholder="Optional"
                       onChange={(v) => setProfile({ ...profile, totalBookings: v })}
                     />
                     <BizField
-                      label="Starting Package Price (₹)"
-                      editing={editingBusinessInfo}
+                      label="Starting Package Price (₹) (Optional)"
                       value={profile.startingPrice}
-                      shown={agent.startingPrice != null ? `₹${agent.startingPrice.toLocaleString("en-IN")}` : ""}
                       type="number"
+                      placeholder="Optional"
                       onChange={(v) => setProfile({ ...profile, startingPrice: v })}
                     />
                     <BizField
-                      label="GST Number"
-                      editing={editingBusinessInfo}
+                      label="GST Number (Optional)"
                       value={profile.gstNumber}
-                      shown={agent.gstNumber}
                       placeholder="36AAAAA0000A1Z5"
                       onChange={(v) => setProfile({ ...profile, gstNumber: v })}
                     />
                     <div>
-                      <div className="mb-[7px] text-[11px] font-bold text-[#6E6455]">Government ID Type</div>
-                      {editingBusinessInfo ? (
-                        <select
-                          className="w-full rounded-xl border-none bg-white px-3.5 py-3 text-[13px] font-semibold text-[#24201A] outline-none neu-pressed"
-                          value={profile.govIdType}
-                          onChange={(e) => setProfile({ ...profile, govIdType: e.target.value })}
-                        >
-                          <option value="" disabled>
-                            Select ID Type
+                      <div className="mb-[7px] text-[11px] font-bold text-[#6E6455]">
+                        Government ID Type
+                        <span className="ml-1 text-[#C0392B]">*</span>
+                      </div>
+                      <select
+                        className="w-full rounded-xl border-none bg-white px-3.5 py-3 text-[13px] font-semibold text-[#24201A] outline-none neu-pressed"
+                        value={profile.govIdType}
+                        onChange={(e) => setProfile({ ...profile, govIdType: e.target.value })}
+                      >
+                        <option value="" disabled>
+                          Select ID Type
+                        </option>
+                        {GOVERNMENT_ID_TYPES.map((type) => (
+                          <option key={type} value={type}>
+                            {type}
                           </option>
-                          {GOVERNMENT_ID_TYPES.map((type) => (
-                            <option key={type} value={type}>
-                              {type}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <div className="px-0 py-[3px] text-[13.5px] font-bold text-[#3A342B]">
-                          {agent.govIdType || "—"}
-                        </div>
-                      )}
+                        ))}
+                      </select>
                     </div>
                     <BizField
                       label="Government ID Number"
-                      editing={editingBusinessInfo}
                       value={profile.govIdNumber}
-                      shown={agent.govIdNumber}
                       onChange={(v) => setProfile({ ...profile, govIdNumber: v })}
+                      required
                     />
                   </div>
                 </div>
@@ -1156,6 +1129,51 @@ export default function AgentDashboardPage() {
           </div>
         </div>
       )}
+
+      {missingFields && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 grid place-items-center bg-[#14201C]/55 p-4 backdrop-blur-sm"
+        >
+          <div className="w-full max-w-[440px] rounded-[26px] bg-white p-9 shadow-2xl">
+            <div
+              className="mx-auto grid h-[68px] w-[68px] place-items-center rounded-full"
+              style={{ background: "rgba(192,57,43,.12)" }}
+            >
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#C0392B" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 9v4M12 17h.01M10.3 3.9L2.5 17.5a1.7 1.7 0 001.5 2.6h16a1.7 1.7 0 001.5-2.6L13.7 3.9a1.7 1.7 0 00-3.4 0z" />
+              </svg>
+            </div>
+            <div className="mt-5 text-center text-[21px] font-extrabold text-[#24201A]">
+              A few things are missing
+            </div>
+            <p className="mt-2.5 text-center text-[13px] leading-[1.65] text-[#7A705E]">
+              Fill these in before you can submit for verification:
+            </p>
+            <ul className="mt-4 flex flex-col gap-2">
+              {missingFields.map((f) => (
+                <li
+                  key={f}
+                  className="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-[13px] font-semibold text-[#A0301F]"
+                  style={{ background: "rgba(192,57,43,.08)" }}
+                >
+                  <span className="h-[7px] w-[7px] shrink-0 rounded-full" style={{ background: "#C0392B" }} />
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <button
+              type="button"
+              onClick={() => setMissingFields(null)}
+              className="mt-6 w-full rounded-2xl py-3.5 text-[13.5px] font-extrabold text-[#F3EFE6]"
+              style={{ background: "#06042a" }}
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1187,46 +1205,48 @@ function StatCard({
 
 function BizField({
   label,
-  editing,
   value,
-  shown,
   placeholder,
   type,
   quick,
   onQuick,
   onChange,
+  required,
 }: {
   label: string;
-  editing: boolean;
   value: string;
-  shown: string | null | undefined;
   placeholder?: string;
   type?: string;
   quick?: string;
   onQuick?: () => void;
   onChange: (value: string) => void;
+  required?: boolean;
 }) {
+  const missing = required && !value.trim();
   return (
     <div>
       <div className="mb-[7px] flex items-baseline justify-between">
-        <span className="text-[11px] font-bold text-[#6E6455]">{label}</span>
-        {editing && quick && (
+        <span className="text-[11px] font-bold text-[#6E6455]">
+          {label}
+          {required && <span className="ml-1 text-[#C0392B]">*</span>}
+        </span>
+        {quick && (
           <button type="button" onClick={onQuick} className="text-[10.5px] font-bold text-[#0E5B4A]">
             {quick}
           </button>
         )}
       </div>
-      {editing ? (
-        <input
-          type={type ?? "text"}
-          value={value}
-          placeholder={placeholder}
-          onChange={(e) => onChange(e.target.value)}
-          className="neu-pressed w-full rounded-xl border-none bg-white px-3.5 py-3 text-[13px] font-semibold text-[#24201A] outline-none"
-        />
-      ) : (
-        <div className="px-0 py-[3px] text-[13.5px] font-bold text-[#3A342B]">{shown || "—"}</div>
-      )}
+      <input
+        type={type ?? "text"}
+        value={value}
+        placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+        className={
+          "neu-pressed w-full rounded-xl px-3.5 py-3 text-[13px] font-semibold text-[#24201A] outline-none " +
+          (missing ? "border-[1.5px] border-dashed" : "border-none")
+        }
+        style={missing ? { borderColor: "rgba(192,57,43,.45)" } : undefined}
+      />
     </div>
   );
 }
@@ -1250,9 +1270,47 @@ function LocationEditor({
   onSave: () => void;
   onCancel: () => void;
 }) {
+  const [locating, setLocating] = useState(false);
+  const [locateError, setLocateError] = useState<string | null>(null);
+
+  async function handleUseCurrentLocation() {
+    setLocating(true);
+    setLocateError(null);
+    try {
+      const resolved = await resolveNearbyLocation();
+      if (!resolved.state) {
+        setLocateError("Could not match your location to a supported state.");
+        return;
+      }
+      onChange({ ...draft, country: "India", state: resolved.state, city: resolved.city });
+    } catch (err) {
+      setLocateError(err instanceof LocationError ? err.message : "Could not determine your location.");
+    } finally {
+      setLocating(false);
+    }
+  }
+
   return (
     <div className="neu-pressed mt-3.5 rounded-[18px] p-[18px]">
-      {isNew && <div className="mb-3.5 text-[13px] font-extrabold text-[#24201A]">Add Location</div>}
+      <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2.5">
+        {isNew && <div className="text-[13px] font-extrabold text-[#24201A]">Add Location</div>}
+        <button
+          type="button"
+          onClick={handleUseCurrentLocation}
+          disabled={locating}
+          className="neu-raised-sm ml-auto flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[11.5px] font-bold text-[#0E5B4A] disabled:opacity-60"
+        >
+          {locating ? (
+            <Spinner className="h-3 w-3" />
+          ) : (
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0E5B4A" strokeWidth={2.1} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 3L14 21l-2.4-7.6L4 11z" />
+            </svg>
+          )}
+          {locating ? "Locating…" : "Use current location"}
+        </button>
+      </div>
+      {locateError && <p className="mb-3.5 text-[11.5px] font-semibold text-[#C0392B]">{locateError}</p>}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <LocEditField label="Country">
           <select

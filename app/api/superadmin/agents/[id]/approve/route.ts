@@ -4,16 +4,18 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { Agent } from "@/models/Agent";
 import { getSession } from "@/lib/auth";
 import { toPrivateAgent } from "@/lib/serializers";
+import { approveAgentSchema } from "@/lib/validation";
 import {
   unauthorizedResponse,
   forbiddenResponse,
   notFoundResponse,
   errorResponse,
+  validationErrorResponse,
   serverErrorResponse,
 } from "@/lib/api-response";
 
 export async function POST(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -23,6 +25,10 @@ export async function POST(
 
     const { id } = await params;
     if (!mongoose.Types.ObjectId.isValid(id)) return notFoundResponse("Agent not found");
+
+    const body = await request.json().catch(() => ({}));
+    const parsed = approveAgentSchema.safeParse(body);
+    if (!parsed.success) return validationErrorResponse(parsed.error);
 
     await connectToDatabase();
 
@@ -46,6 +52,7 @@ export async function POST(
     agent.verificationStatus = "VERIFIED";
     agent.isListed = true;
     agent.rejectionReason = "";
+    agent.verificationBadge = parsed.data.verificationBadge;
     await agent.save();
 
     return NextResponse.json({ agent: toPrivateAgent(agent) });

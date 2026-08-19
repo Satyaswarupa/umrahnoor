@@ -63,6 +63,7 @@ export async function POST(request: NextRequest) {
       country: formData.get("country"),
       state: formData.get("state"),
       city: formData.get("city"),
+      verificationBadge: formData.get("verificationBadge") ?? undefined,
     });
     if (!parsed.success) return validationErrorResponse(parsed.error);
 
@@ -77,41 +78,51 @@ export async function POST(request: NextRequest) {
 
     await connectToDatabase();
 
-    const { companyName, businessType, mobileNumber, whatsappNumber, country, state, city } =
+    const { companyName, businessType, mobileNumber, whatsappNumber, country, state, city, verificationBadge } =
       parsed.data;
 
     const agentId = new mongoose.Types.ObjectId();
+    const userId = new mongoose.Types.ObjectId();
     const email = `agent-${agentId}@umrahnoor.internal`;
-    const passwordHash = await hashPassword(crypto.randomBytes(24).toString("hex"));
 
-    const user = await User.create({
-      name: companyName,
-      email,
-      passwordHash,
-      role: "ADMIN",
-    });
+    // Password hashing, the Cloudinary upload, and the two document writes
+    // are all independent of each other (the userId/agentId are generated
+    // above rather than read back from a created document) — running them
+    // concurrently instead of one after another cuts total latency roughly
+    // to the slowest single step instead of the sum of all of them.
+    const [passwordHash, profileImage] = await Promise.all([
+      hashPassword(crypto.randomBytes(24).toString("hex")),
+      file instanceof File ? uploadDocumentToCloudinary(file, `umrahnoor/agents/${agentId}`) : Promise.resolve(null),
+    ]);
 
-    const profileImage =
-      file instanceof File ? await uploadDocumentToCloudinary(file, `umrahnoor/agents/${agentId}`) : null;
-
-    const agent = await Agent.create({
-      _id: agentId,
-      userId: user._id,
-      companyName,
-      ownerName: companyName,
-      email,
-      mobileNumber,
-      whatsappNumber,
-      businessType,
-      services: [businessType],
-      country,
-      state,
-      city,
-      profileImage,
-      locations: [{ country, state, city, address: "", pincode: "", services: [businessType] }],
-      verificationStatus: "VERIFIED",
-      isListed: true,
-    });
+    const [, agent] = await Promise.all([
+      User.create({
+        _id: userId,
+        name: companyName,
+        email,
+        passwordHash,
+        role: "ADMIN",
+      }),
+      Agent.create({
+        _id: agentId,
+        userId,
+        companyName,
+        ownerName: companyName,
+        email,
+        mobileNumber,
+        whatsappNumber,
+        businessType,
+        services: [businessType],
+        country,
+        state,
+        city,
+        profileImage,
+        locations: [{ country, state, city, address: "", pincode: "", services: [businessType] }],
+        verificationStatus: "VERIFIED",
+        isListed: true,
+        verificationBadge,
+      }),
+    ]);
 
     return NextResponse.json({ agent: toPrivateAgent(agent) }, { status: 201 });
   } catch (error) {
