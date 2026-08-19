@@ -35,7 +35,7 @@ export default function ServicePicker() {
           >
             <div
               className="grid h-[52px] w-[52px] place-items-center rounded-[17px] text-2xl"
-              style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)" }}
+              style={{ background: "#06042a" }}
             >
               <span>{service.icon}</span>
             </div>

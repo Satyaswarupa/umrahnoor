@@ -21,12 +21,16 @@ export default function HeroSearch() {
   const [error, setError] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
 
-  function goToLocation(state: string, city: string) {
+  function goToLocation(state: string, city: string, coords?: { latitude: number; longitude: number }) {
     setSuggestions([]);
     const params = new URLSearchParams();
     params.set("country", "India");
     if (state) params.set("state", state);
     if (city) params.set("city", city);
+    if (coords) {
+      params.set("lat", String(coords.latitude));
+      params.set("lng", String(coords.longitude));
+    }
     router.push(`/?${params.toString()}#agents`, { scroll: false });
     scrollToAgents();
   }
@@ -62,7 +66,10 @@ export default function HeroSearch() {
     try {
       const resolved = await resolveNearbyLocation();
       setQuery([resolved.city, resolved.state].filter(Boolean).join(", "));
-      goToLocation(resolved.state, resolved.city);
+      goToLocation(resolved.state, resolved.city, {
+        latitude: resolved.latitude,
+        longitude: resolved.longitude,
+      });
     } catch (err) {
       setError(err instanceof LocationError ? err.message : "Could not determine your location.");
     } finally {
@@ -100,7 +107,7 @@ export default function HeroSearch() {
           <button
             type="submit"
             className="flex-1 rounded-2xl px-6 py-3.5 text-sm font-bold text-[#F3EFE6] shadow-sm sm:flex-initial"
-            style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)" }}
+            style={{ background: "#06042a" }}
           >
             Search
           </button>

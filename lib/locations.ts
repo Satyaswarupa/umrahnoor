@@ -19,7 +19,7 @@ export const INDIA_STATES_CITIES: Record<string, string[]> = {
   Meghalaya: ["Shillong"],
   Mizoram: ["Aizawl"],
   Nagaland: ["Kohima", "Dimapur"],
-  Odisha: ["Bhubaneswar", "Cuttack", "Rourkela", "Puri", "Sambalpur", "Berhampur"],
+  Odisha: ["Bhubaneswar", "Cuttack", "Rourkela", "Puri", "Sambalpur", "Berhampur", "Jajpur"],
   Punjab: ["Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Mohali"],
   Rajasthan: ["Jaipur", "Jodhpur", "Udaipur", "Kota", "Ajmer"],
   Sikkim: ["Gangtok"],

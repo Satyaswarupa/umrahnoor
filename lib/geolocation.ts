@@ -5,6 +5,8 @@ export type ResolvedLocation = {
   city: string;
   rawRegion?: string;
   rawCity?: string;
+  latitude: number;
+  longitude: number;
 };
 
 export type LocationErrorCode = "permission-denied" | "unavailable" | "no-match";
@@ -100,6 +102,10 @@ export async function resolveNearbyLocation(): Promise<ResolvedLocation> {
     );
   }
 
-  const city = matchCity(state, rawCity);
-  return { state, city, rawRegion, rawCity };
+  // The curated city list only covers major cities (for the search bar's
+  // autocomplete). The browser can resolve to a smaller town that isn't in
+  // that list, so fall back to the geocoder's own city name instead of
+  // dropping it — agents are matched against this string directly.
+  const city = matchCity(state, rawCity) || (rawCity ? rawCity.trim() : "");
+  return { state, city, rawRegion, rawCity, latitude, longitude };
 }

@@ -22,6 +22,11 @@ type NearbyState = {
   agents: PublicAgentSummary[] | null;
   state: string;
   city: string;
+  latitude: number | null;
+  longitude: number | null;
+  // true when there was no agent in `city` itself and the list below is the
+  // nearest agents elsewhere in the state, ranked by real distance.
+  nearbyFallback: boolean;
   // "search" = the visitor searched a location in the hero bar (via ?state=&city=
   // on this same page); "near-me" = auto-detected on load; null = neither ran yet
   // or both came back empty, so we're showing the newest-agents fallback.
@@ -44,12 +49,17 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
     agents: null,
     state: "",
     city: "",
+    latitude: null,
+    longitude: null,
+    nearbyFallback: false,
     source: null,
   });
 
   const searchParams = useSearchParams();
   const searchedState = searchParams.get("state") ?? "";
   const searchedCity = searchParams.get("city") ?? "";
+  const searchedLat = searchParams.get("lat");
+  const searchedLng = searchParams.get("lng");
 
   useEffect(() => {
     let cancelled = false;
@@ -60,18 +70,26 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
       try {
         let resolvedState = searchedState;
         let resolvedCity = searchedCity;
+        let latitude = searchedLat ? Number.parseFloat(searchedLat) : null;
+        let longitude = searchedLng ? Number.parseFloat(searchedLng) : null;
 
         if (!searched) {
           const resolved = await resolveNearbyLocation();
           if (cancelled) return;
           resolvedState = resolved.state;
           resolvedCity = resolved.city;
+          latitude = resolved.latitude;
+          longitude = resolved.longitude;
         }
 
         const params = new URLSearchParams();
         params.set("country", "India");
         if (resolvedState) params.set("state", resolvedState);
         if (resolvedCity) params.set("city", resolvedCity);
+        if (latitude != null && longitude != null) {
+          params.set("lat", String(latitude));
+          params.set("lng", String(longitude));
+        }
 
         const res = await fetch(`/api/agents?${params.toString()}`);
         const data = await res.json();
@@ -80,25 +98,61 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
         const source: NearbyState["source"] = searched ? "search" : "near-me";
 
         if (res.ok && data.agents?.length > 0) {
-          setNearby({ loading: false, agents: data.agents, state: resolvedState, city: resolvedCity, source });
+          setNearby({
+            loading: false,
+            agents: data.agents,
+            state: resolvedState,
+            city: resolvedCity,
+            latitude,
+            longitude,
+            nearbyFallback: Boolean(data.nearbyFallback),
+            source,
+          });
         } else if (searched) {
           // A search that comes back empty should say so, not silently fall
           // back to an unrelated agent list — that's what "no result" looked
           // like before this fix.
-          setNearby({ loading: false, agents: [], state: resolvedState, city: resolvedCity, source });
+          setNearby({
+            loading: false,
+            agents: [],
+            state: resolvedState,
+            city: resolvedCity,
+            latitude,
+            longitude,
+            nearbyFallback: false,
+            source,
+          });
         } else {
-          setNearby({ loading: false, agents: null, state: "", city: "", source: null });
+          setNearby({
+            loading: false,
+            agents: null,
+            state: "",
+            city: "",
+            latitude: null,
+            longitude: null,
+            nearbyFallback: false,
+            source: null,
+          });
         }
       } catch {
         if (cancelled) return;
-        setNearby({ loading: false, agents: null, state: "", city: "", source: null });
+        setNearby({
+          loading: false,
+          agents: null,
+          state: "",
+          city: "",
+          latitude: null,
+          longitude: null,
+          nearbyFallback: false,
+          source: null,
+        });
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [searchedState, searchedCity]);
+  }, [searchedState, searchedCity, searchedLat, searchedLng]);
 
   const [chipAgents, setChipAgents] = useState<PublicAgentSummary[] | null>(null);
   const [chipLoading, setChipLoading] = useState(false);
@@ -114,6 +168,10 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
       params.set("country", "India");
       if (nearby.state) params.set("state", nearby.state);
       if (nearby.city) params.set("city", nearby.city);
+      if (nearby.latitude != null && nearby.longitude != null) {
+        params.set("lat", String(nearby.latitude));
+        params.set("lng", String(nearby.longitude));
+      }
       params.set("service", chip);
       const res = await fetch(`/api/agents?${params.toString()}`);
       const data = await res.json();
@@ -124,17 +182,20 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
     return () => {
       cancelled = true;
     };
-  }, [chip, nearby.state, nearby.city]);
+  }, [chip, nearby.state, nearby.city, nearby.latitude, nearby.longitude]);
 
   const loading = nearby.loading || chipLoading;
   const agents = chip ? (chipAgents ?? []) : (nearby.agents ?? initialAgents);
   const locationLabel = [nearby.city, nearby.state].filter(Boolean).join(", ");
   const noSearchResults = !chip && nearby.source === "search" && agents.length === 0;
+  const showingNearbyFallback = !chip && nearby.nearbyFallback && agents.length > 0;
 
   const title =
     nearby.source === "search"
       ? agents.length > 0
-        ? `Agents in ${locationLabel}`
+        ? showingNearbyFallback
+          ? `No agents in ${locationLabel} — nearest agents`
+          : `Agents in ${locationLabel}`
         : "No agents found"
       : nearby.source === "near-me"
         ? "Agents near you"
@@ -142,10 +203,14 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
   const subtitle =
     nearby.source === "search"
       ? agents.length > 0
-        ? `${agents.length} licensed operators in ${locationLabel}.`
+        ? showingNearbyFallback
+          ? `No verified agents in ${locationLabel} yet — showing the ${agents.length} closest agents in ${nearby.state}, nearest first.`
+          : `${agents.length} licensed operators in ${locationLabel}.`
         : `We couldn't find any verified agents in ${locationLabel} yet.`
       : nearby.source === "near-me"
-        ? `${agents.length} licensed operators near ${locationLabel || "you"}.`
+        ? showingNearbyFallback
+          ? `No verified agents in ${locationLabel} yet — showing the ${agents.length} closest agents nearby, nearest first.`
+          : `${agents.length} licensed operators near ${locationLabel || "you"}.`
         : "Licence checked every season by our team. Contact agents directly — no forms, no middlemen.";
 
   return (
@@ -167,7 +232,7 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
                   "rounded-full px-[18px] py-2.5 text-[13px] font-bold transition " +
                   (on ? "text-[#F3EFE6] shadow-sm" : "neu-raised-sm text-[#6E6455]")
                 }
-                style={on ? { background: "linear-gradient(145deg, #0E5B4A, #0A4438)" } : undefined}
+                style={on ? { background: "#06042a" } : undefined}
               >
                 {c.label}
               </button>
@@ -222,6 +287,7 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
                     <span>
                       {[agent.city, agent.state].filter(Boolean).join(", ") || "India"}
                       {agent.experienceYears ? ` · ${agent.experienceYears} yrs experience` : ""}
+                      {agent.distanceKm != null ? ` · ~${agent.distanceKm} km away` : ""}
                     </span>
                   </div>
                 </div>

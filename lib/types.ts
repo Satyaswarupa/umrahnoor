@@ -70,6 +70,9 @@ export type PublicAgentSummary = {
   profileImage?: AgentDoc | null;
   experienceYears?: number | null;
   startingPrice?: number | null;
+  // Only set when /api/agents fell back from "no agent in this exact city"
+  // to ranking agents elsewhere in the state by real distance.
+  distanceKm?: number;
 };
 
 export type SafeUser = {

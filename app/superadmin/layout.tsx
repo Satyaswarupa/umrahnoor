@@ -71,7 +71,7 @@ export default async function SuperadminLayout({ children }: { children: React.R
           <div className="flex items-center gap-2.5">
             <div
               className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[12.5px] font-extrabold text-[#F6E2B4]"
-              style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)" }}
+              style={{ background: "#06042a" }}
             >
               {initial}
             </div>

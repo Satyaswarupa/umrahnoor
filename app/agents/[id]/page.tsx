@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import mongoose from "mongoose";
 import VerifiedBadge from "@/components/VerifiedBadge";
@@ -10,7 +11,13 @@ import { SITE_URL } from "@/lib/site-config";
 
 type Params = Promise<{ id: string }>;
 
-async function getAgent(id: string) {
+// Agent profiles don't change second-to-second — cache each profile page for
+// a few minutes instead of re-querying on every visit.
+export const revalidate = 300;
+
+// generateMetadata and the page component both need this agent — cache()
+// dedupes the two calls into a single DB query per request instead of two.
+const getAgent = cache(async (id: string) => {
   if (!mongoose.Types.ObjectId.isValid(id)) return null;
 
   await connectToDatabase();
@@ -22,7 +29,7 @@ async function getAgent(id: string) {
 
   if (!agent) return null;
   return toPublicAgentDetail(agent);
-}
+});
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { id } = await params;

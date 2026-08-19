@@ -9,10 +9,16 @@ import ServicesShowcase from "@/components/home/ServicesShowcase";
 import ServicePicker from "@/components/home/ServicePicker";
 import AgentsGrid from "@/components/home/AgentsGrid";
 import AgencyCTA from "@/components/home/AgencyCTA";
+import FaqAccordion from "@/components/home/FaqAccordion";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Agent } from "@/models/Agent";
 import { toPublicAgentSummary } from "@/lib/serializers";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site-config";
+
+// Featured agents and the stats badge don't need to be live-fresh on every
+// request — cache the rendered page for a minute so repeat visits skip the
+// DB round trip entirely instead of re-querying on every load.
+export const revalidate = 60;
 
 const HOW_IT_WORKS = [
   {
@@ -181,7 +187,7 @@ export default async function Home() {
               className="h-[420px] rounded-[34px] bg-cover bg-center sm:h-[480px]"
               style={{
                 backgroundImage:
-                  "url('https://i.ibb.co/pvmTrDR1/Gemini-Generated-Image-600zb6600zb6600z.png')",
+                  "url('https://i.ibb.co/DgMyNmPN/pexels-earth-photart-2149767641-35315917.jpg')",
                 boxShadow: "16px 16px 34px rgba(150,138,118,.55), -10px -10px 26px rgba(255,255,255,.9)",
               }}
             />
@@ -235,14 +241,7 @@ export default async function Home() {
           <h2 className="text-center text-[26px] font-extrabold tracking-tight text-[#24201A]">
             Frequently Asked Questions
           </h2>
-          <dl className="mt-9 space-y-7">
-            {FAQS.map((faq) => (
-              <div key={faq.question}>
-                <dt className="font-bold text-[#24201A]">{faq.question}</dt>
-                <dd className="mt-2 text-sm leading-[1.6] text-[#7A705E]">{faq.answer}</dd>
-              </div>
-            ))}
-          </dl>
+          <FaqAccordion faqs={FAQS} />
         </section>
       </main>
 

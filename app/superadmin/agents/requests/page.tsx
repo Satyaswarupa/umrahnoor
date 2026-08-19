@@ -75,7 +75,7 @@ export default function AgentRequestsPage() {
         <div className="flex items-center gap-2.5">
           <span
             className="rounded-full px-4 py-2.5 text-[11.5px] font-extrabold tracking-[0.06em] text-[#F6E2B4]"
-            style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)" }}
+            style={{ background: "#06042a" }}
           >
             PENDING
           </span>

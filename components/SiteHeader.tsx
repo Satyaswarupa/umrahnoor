@@ -26,7 +26,7 @@ function NavLinks({ session, className }: { session: Session; className: string 
           <Link
             href="/signup"
             className="rounded-full px-5 py-2.5 text-center text-[13px] font-bold text-[#F3EFE6] shadow-sm"
-            style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)" }}
+            style={{ background: "#06042a" }}
           >
             Sign Up
           </Link>
@@ -45,7 +45,7 @@ function NavLinks({ session, className }: { session: Session; className: string 
           <Link
             href="/admin/dashboard"
             className="rounded-full px-5 py-2.5 text-center text-[13px] font-bold text-[#F3EFE6] shadow-sm"
-            style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)" }}
+            style={{ background: "#06042a" }}
           >
             Agent Dashboard
           </Link>
@@ -58,7 +58,7 @@ function NavLinks({ session, className }: { session: Session; className: string 
           <Link
             href="/superadmin/dashboard"
             className="rounded-full px-5 py-2.5 text-center text-[13px] font-bold text-[#F3EFE6] shadow-sm"
-            style={{ background: "linear-gradient(145deg, #0E5B4A, #0A4438)" }}
+            style={{ background: "#06042a" }}
           >
             Superadmin Dashboard
           </Link>

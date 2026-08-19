@@ -293,7 +293,7 @@ export default function AgentReviewCard({ agent, onApprove, onReject, onToggleLi
                 }
                 style={
                   hasRequiredDocuments
-                    ? { background: "linear-gradient(145deg, #0E5B4A, #0A4438)", opacity: busyAction === "approve" ? 0.75 : 1 }
+                    ? { background: "#06042a", opacity: busyAction === "approve" ? 0.75 : 1 }
                     : undefined
                 }
               >
