@@ -79,7 +79,7 @@ export default function HeroSearch() {
 
   return (
     <form onSubmit={handleSubmit} className="relative mt-7 max-w-[620px]">
-      <div className="neu-raised flex flex-col gap-2.5 rounded-[24px] bg-[#EAE5DB] p-3 sm:flex-row sm:items-center">
+      <div className="neu-raised flex flex-col gap-2.5 rounded-[24px] bg-white p-3 sm:flex-row sm:items-center">
         <div className="neu-pressed flex items-center gap-2.5 rounded-2xl px-4 py-3.5 sm:flex-1">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#9A907C" strokeWidth={2.2} strokeLinecap="round">
             <circle cx="11" cy="11" r="7" />
@@ -115,14 +115,14 @@ export default function HeroSearch() {
       </div>
 
       {suggestions.length > 0 && (
-        <div className="neu-raised absolute left-0 right-0 top-full z-10 mt-2 overflow-hidden rounded-2xl bg-[#EAE5DB]">
+        <div className="neu-raised absolute left-0 right-0 top-full z-10 mt-2 overflow-hidden rounded-2xl bg-white">
           {suggestions.map((suggestion, index) => (
             <button
               key={suggestion.label}
               type="button"
               onClick={() => handleSelectSuggestion(suggestion)}
               className={
-                "flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-[#24201A] hover:bg-[#E4DED2]" +
+                "flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-[#24201A] hover:bg-[#F4F2EC]" +
                 (index > 0 ? " border-t border-[#00000010]" : "")
               }
             >

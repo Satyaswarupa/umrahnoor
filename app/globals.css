@@ -32,26 +32,23 @@ body {
   overflow-x: hidden;
 }
 
-/* Neumorphic "soft UI" shadow tokens used by the cream/emerald homepage
-   restyle (header, footer, hero, service picker, agent cards). Defined once
-   since the same dual light/dark shadow pairs repeat across many components. */
+/* Flat minimalist surface treatments, kept under the same class names used
+   throughout the site so every component picks up the new look at once.
+   Raised surfaces are a plain card with a hairline border and (for the
+   larger variant) a faint shadow; pressed/inset surfaces read as "sunken"
+   via a light neutral fill instead of a shadow illusion. */
 .neu-raised {
-  box-shadow:
-    8px 8px 18px rgba(150, 138, 118, 0.5),
-    -6px -6px 16px rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(36, 32, 26, 0.1);
+  box-shadow: 0 1px 3px rgba(36, 32, 26, 0.05);
 }
 .neu-raised-sm {
-  box-shadow:
-    5px 5px 12px rgba(150, 138, 118, 0.48),
-    -4px -4px 10px rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(36, 32, 26, 0.09);
 }
 .neu-pressed {
-  box-shadow:
-    inset 4px 4px 9px rgba(150, 138, 118, 0.5),
-    inset -4px -4px 9px rgba(255, 255, 255, 0.95);
+  background-color: #F4F2EC;
+  border: 1px solid rgba(36, 32, 26, 0.07);
 }
 .neu-inset {
-  box-shadow:
-    inset 8px 8px 18px rgba(150, 138, 118, 0.5),
-    inset -8px -8px 18px rgba(255, 255, 255, 0.95);
+  background-color: #F4F2EC;
+  border: 1px solid rgba(36, 32, 26, 0.09);
 }

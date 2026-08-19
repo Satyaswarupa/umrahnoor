@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function SiteFooter() {
   return (
     <footer
-      className="mt-[88px] border-t border-white/70 bg-[#EAE5DB] text-[#24201A]"
+      className="mt-[88px] border-t border-black/[0.06] bg-white text-[#24201A]"
       style={{ fontFamily: "var(--font-jakarta), sans-serif" }}
     >
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 py-11 sm:px-6 md:grid-cols-[1.4fr_1fr]">

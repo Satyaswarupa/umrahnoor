@@ -328,7 +328,7 @@ export default function AgentDashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center gap-2 bg-[#EAE5DB] text-[#6E6455]" style={jakarta}>
+      <div className="flex min-h-screen items-center justify-center gap-2 bg-white text-[#6E6455]" style={jakarta}>
         <Spinner className="h-5 w-5" />
         <span>Loading dashboard...</span>
       </div>
@@ -337,7 +337,7 @@ export default function AgentDashboardPage() {
 
   if (!agent) {
     return (
-      <div className="min-h-screen bg-[#EAE5DB] px-4 py-10 sm:px-6" style={jakarta}>
+      <div className="min-h-screen bg-white px-4 py-10 sm:px-6" style={jakarta}>
         <p className="text-red-600">Could not load your agent profile. Please try logging in again.</p>
       </div>
     );
@@ -408,7 +408,7 @@ export default function AgentDashboardPage() {
   const typeService = SERVICES.find((s) => s.slug === agent.businessType);
 
   return (
-    <div className="min-h-screen bg-[#EAE5DB] px-4 py-7 sm:px-8 lg:py-9" style={jakarta}>
+    <div className="min-h-screen bg-white px-4 py-7 sm:px-8 lg:py-9" style={jakarta}>
       <div className="mx-auto max-w-[1320px]">
         <div className="flex flex-wrap items-center justify-between gap-4 pb-5">
           <div className="flex items-center gap-2.5">
@@ -439,7 +439,7 @@ export default function AgentDashboardPage() {
           </div>
         </div>
 
-        <div className="neu-raised flex flex-wrap items-center gap-4 rounded-3xl bg-[#EAE5DB] px-6 py-5 sm:px-7">
+        <div className="neu-raised flex flex-wrap items-center gap-4 rounded-3xl bg-white px-6 py-5 sm:px-7">
           <div className="relative h-[68px] w-[68px] shrink-0 rounded-full">
             {agent.profileImage ? (
               <div className="relative h-full w-full overflow-hidden rounded-full">
@@ -450,7 +450,7 @@ export default function AgentDashboardPage() {
                 {(agent.companyName || agent.ownerName || "?").charAt(0).toUpperCase()}
               </div>
             )}
-            <label className="absolute -bottom-1 -right-1 grid h-7 w-7 cursor-pointer place-items-center rounded-full bg-[#0E5B4A] text-white ring-2 ring-[#EAE5DB]">
+            <label className="absolute -bottom-1 -right-1 grid h-7 w-7 cursor-pointer place-items-center rounded-full bg-[#0E5B4A] text-white ring-2 ring-white">
               {uploading === "profile" ? <Spinner className="h-3.5 w-3.5" /> : <span className="text-[11px]">✎</span>}
               <input
                 type="file"
@@ -485,7 +485,7 @@ export default function AgentDashboardPage() {
         </div>
 
         <div className="mt-6 grid grid-cols-1 items-start gap-6 lg:grid-cols-[236px_1fr]">
-          <aside className="neu-raised flex flex-col gap-1.5 rounded-[22px] bg-[#EAE5DB] p-3.5 lg:sticky lg:top-6">
+          <aside className="neu-raised flex flex-col gap-1.5 rounded-[22px] bg-white p-3.5 lg:sticky lg:top-6">
             {TABS.map((t) => {
               const active = t.key === tab;
               const flagged = t.key === "info" && !hasRequiredDocument;
@@ -557,7 +557,7 @@ export default function AgentDashboardPage() {
                 {agent.verificationStatus === "INCOMPLETE" && (
                   <div
                     className="flex flex-wrap items-center gap-6 rounded-[22px] px-6 py-6 sm:px-7"
-                    style={{ background: "linear-gradient(145deg, #0E5B4A, #093B31)" }}
+                    style={{ background: "#06042a" }}
                   >
                     <div className="flex-1">
                       <div style={amiri} className="text-lg text-[#F6E2B4]">
@@ -611,7 +611,7 @@ export default function AgentDashboardPage() {
                 </div>
 
                 {agent.verificationStatus !== "VERIFIED" && (
-                  <div className="neu-raised rounded-[22px] bg-[#EAE5DB] p-6">
+                  <div className="neu-raised rounded-[22px] bg-white p-6">
                     <div className="flex flex-wrap items-start gap-6">
                       <div className="flex-1">
                         <div className="text-base font-extrabold text-[#24201A]">Submit for Verification</div>
@@ -688,7 +688,7 @@ export default function AgentDashboardPage() {
 
             {tab === "info" && (
               <div className="flex flex-col gap-5">
-                <div className="neu-raised rounded-[22px] bg-[#EAE5DB] p-6">
+                <div className="neu-raised rounded-[22px] bg-white p-6">
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                       <div className="text-base font-extrabold text-[#24201A]">Business Information</div>
@@ -732,7 +732,7 @@ export default function AgentDashboardPage() {
                       <div className="mb-[7px] text-[11px] font-bold text-[#6E6455]">Business Type</div>
                       {editingBusinessInfo ? (
                         <select
-                          className="w-full rounded-xl border-none bg-[#EAE5DB] px-3.5 py-3 text-[13px] font-semibold text-[#24201A] outline-none neu-pressed"
+                          className="w-full rounded-xl border-none bg-white px-3.5 py-3 text-[13px] font-semibold text-[#24201A] outline-none neu-pressed"
                           value={profile.businessType}
                           onChange={(e) => setProfile({ ...profile, businessType: e.target.value })}
                         >
@@ -807,7 +807,7 @@ export default function AgentDashboardPage() {
                       <div className="mb-[7px] text-[11px] font-bold text-[#6E6455]">Government ID Type</div>
                       {editingBusinessInfo ? (
                         <select
-                          className="w-full rounded-xl border-none bg-[#EAE5DB] px-3.5 py-3 text-[13px] font-semibold text-[#24201A] outline-none neu-pressed"
+                          className="w-full rounded-xl border-none bg-white px-3.5 py-3 text-[13px] font-semibold text-[#24201A] outline-none neu-pressed"
                           value={profile.govIdType}
                           onChange={(e) => setProfile({ ...profile, govIdType: e.target.value })}
                         >
@@ -836,7 +836,7 @@ export default function AgentDashboardPage() {
                   </div>
                 </div>
 
-                <div className="neu-raised rounded-[22px] bg-[#EAE5DB] p-6">
+                <div className="neu-raised rounded-[22px] bg-white p-6">
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                       <div className="text-base font-extrabold text-[#24201A]">Locations</div>
@@ -951,7 +951,7 @@ export default function AgentDashboardPage() {
                   </div>
                 </div>
 
-                <div className="neu-raised rounded-[22px] bg-[#EAE5DB] p-6">
+                <div className="neu-raised rounded-[22px] bg-white p-6">
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                       <div className="text-base font-extrabold text-[#24201A]">Documents</div>
@@ -1050,7 +1050,7 @@ export default function AgentDashboardPage() {
                       onChange={(e) => setAddDocLabel(e.target.value)}
                       disabled={(agent.additionalDocuments?.length ?? 0) >= 5}
                       placeholder="Document label (optional)"
-                      className="neu-pressed min-w-0 flex-1 rounded-xl border-none bg-[#EAE5DB] px-3.5 py-2.5 text-xs font-semibold text-[#24201A] outline-none disabled:opacity-50"
+                      className="neu-pressed min-w-0 flex-1 rounded-xl border-none bg-white px-3.5 py-2.5 text-xs font-semibold text-[#24201A] outline-none disabled:opacity-50"
                     />
                     <label
                       className={
@@ -1102,7 +1102,7 @@ export default function AgentDashboardPage() {
 
             {tab === "subscription" && (
               <div className="neu-inset rounded-3xl px-8 py-16 text-center">
-                <div className="neu-raised mx-auto grid h-16 w-16 place-items-center rounded-[20px] bg-[#EAE5DB]">
+                <div className="neu-raised mx-auto grid h-16 w-16 place-items-center rounded-[20px] bg-white">
                   <span style={amiri} className="text-2xl text-[#0E5B4A]">
                     ص
                   </span>
@@ -1131,7 +1131,7 @@ export default function AgentDashboardPage() {
           aria-modal="true"
           className="fixed inset-0 z-50 grid place-items-center bg-[#14201C]/55 p-4 backdrop-blur-sm"
         >
-          <div className="w-full max-w-[440px] rounded-[26px] bg-[#EAE5DB] p-9 text-center shadow-2xl">
+          <div className="w-full max-w-[440px] rounded-[26px] bg-white p-9 text-center shadow-2xl">
             <div
               className="mx-auto grid h-[68px] w-[68px] place-items-center rounded-full"
               style={{ background: "#06042a" }}
@@ -1174,7 +1174,7 @@ function StatCard({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="neu-raised rounded-[20px] bg-[#EAE5DB] p-[19px]">
+    <div className="neu-raised rounded-[20px] bg-white p-[19px]">
       <div className="text-[10.5px] font-extrabold tracking-[0.08em] text-[#8A7F6C]">{label}</div>
       <div className="mt-2.5 text-[26px] font-extrabold tracking-tight" style={{ color: color ?? "#24201A" }}>
         {value}
@@ -1222,7 +1222,7 @@ function BizField({
           value={value}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
-          className="neu-pressed w-full rounded-xl border-none bg-[#EAE5DB] px-3.5 py-3 text-[13px] font-semibold text-[#24201A] outline-none"
+          className="neu-pressed w-full rounded-xl border-none bg-white px-3.5 py-3 text-[13px] font-semibold text-[#24201A] outline-none"
         />
       ) : (
         <div className="px-0 py-[3px] text-[13.5px] font-bold text-[#3A342B]">{shown || "—"}</div>

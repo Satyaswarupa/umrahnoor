@@ -14,10 +14,8 @@ export default function FaqAccordion({ faqs }: { faqs: Faq[] }) {
         return (
           <div
             key={faq.question}
-            className={
-              "neu-raised-sm overflow-hidden rounded-[22px] bg-[#EAE5DB] transition-shadow duration-300" +
-              (open ? " shadow-[inset_2px_2px_6px_rgba(150,138,118,0.35)]" : "")
-            }
+            className="neu-raised-sm overflow-hidden rounded-[22px] bg-white transition-colors duration-300"
+            style={open ? { borderColor: "rgba(6,4,42,0.3)" } : undefined}
           >
             <button
               type="button"

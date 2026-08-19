@@ -96,7 +96,8 @@ export default function SignupForm() {
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-800 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-60"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-60"
+          style={{ background: "#06042a" }}
         >
           {loading && <Spinner className="h-4 w-4" />}
           {loading ? "Creating account..." : "Sign Up"}

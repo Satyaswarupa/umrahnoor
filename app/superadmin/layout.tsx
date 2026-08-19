@@ -47,8 +47,8 @@ export default async function SuperadminLayout({ children }: { children: React.R
   const initial = (staff?.name?.trim()?.[0] || "S").toUpperCase();
 
   return (
-    <div className="flex min-h-screen flex-col gap-6 bg-[#EAE5DB] p-[26px] pb-[60px] sm:flex-row" style={jakarta}>
-      <aside className="neu-raised flex shrink-0 flex-col gap-1.5 rounded-[26px] bg-[#EAE5DB] p-[18px] sm:sticky sm:top-[26px] sm:w-[244px] sm:self-start">
+    <div className="flex min-h-screen flex-col gap-6 bg-white p-[26px] pb-[60px] sm:flex-row" style={jakarta}>
+      <aside className="neu-raised flex shrink-0 flex-col gap-1.5 rounded-[26px] bg-white p-[18px] sm:sticky sm:top-[26px] sm:w-[244px] sm:self-start">
         <Link href="/superadmin/dashboard" className="flex items-center gap-2.5 px-1.5 pb-4 pt-1">
           <div className="neu-pressed grid h-10 w-10 shrink-0 place-items-center rounded-[14px]">
             <span style={{ fontFamily: "var(--font-amiri), serif" }} className="text-lg text-[#0E5B4A]">

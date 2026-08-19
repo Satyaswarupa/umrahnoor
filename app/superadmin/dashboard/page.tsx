@@ -67,7 +67,7 @@ export default async function SuperadminOverviewPage() {
       <div className="mt-[26px] flex flex-col gap-[22px]">
         <div className="grid grid-cols-1 gap-[18px] sm:grid-cols-2 lg:grid-cols-5">
           {cards.map((card) => (
-            <Link key={card.label} href={card.href} className="neu-raised rounded-3xl bg-[#EAE5DB] p-[22px] transition">
+            <Link key={card.label} href={card.href} className="neu-raised rounded-3xl bg-white p-[22px] transition">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-extrabold tracking-[0.06em] text-[#8A7F6C]">{card.label}</span>
                 <span className="h-2 w-2 rounded-full" style={{ background: card.color, opacity: 0.5 }} />
@@ -81,7 +81,7 @@ export default async function SuperadminOverviewPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-[22px] lg:grid-cols-[1.45fr_1fr]">
-          <div className="neu-raised rounded-3xl bg-[#EAE5DB] p-6">
+          <div className="neu-raised rounded-3xl bg-white p-6">
             <div className="flex items-center justify-between">
               <div className="text-[15px] font-extrabold text-[#24201A]">Verification pipeline</div>
               <Link href="/superadmin/agents/requests" className="text-xs font-bold text-[#0E5B4A]">
@@ -107,7 +107,7 @@ export default async function SuperadminOverviewPage() {
             </div>
           </div>
 
-          <div className="neu-raised rounded-3xl bg-[#EAE5DB] p-6">
+          <div className="neu-raised rounded-3xl bg-white p-6">
             <div className="text-[15px] font-extrabold text-[#24201A]">Needs your attention</div>
             <div className="mt-4 flex flex-col gap-3">
               {attention.length === 0 ? (

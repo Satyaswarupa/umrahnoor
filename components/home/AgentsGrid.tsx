@@ -244,7 +244,7 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
       {loading ? (
         <div className="mt-7 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="neu-raised-sm h-64 animate-pulse rounded-[26px] bg-[#E4DED2]" />
+            <div key={i} className="neu-raised-sm h-64 animate-pulse rounded-[26px] bg-[#F4F2EC]" />
           ))}
         </div>
       ) : agents.length === 0 ? (
@@ -258,10 +258,10 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
       ) : (
         <div className="mt-7 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {agents.map((agent) => (
-            <div key={agent.id} className="neu-raised-sm rounded-[26px] bg-[#EAE5DB] p-[22px]">
+            <div key={agent.id} className="neu-raised-sm rounded-[26px] bg-white p-[22px]">
               <div className="flex items-start gap-3.5">
                 <div className="neu-pressed h-[62px] w-[62px] shrink-0 rounded-[19px] p-[5px]">
-                  <div className="relative h-full w-full overflow-hidden rounded-[14px] bg-[#E4DED2]">
+                  <div className="relative h-full w-full overflow-hidden rounded-[14px] bg-[#F4F2EC]">
                     {agent.profileImage ? (
                       <Image
                         src={agent.profileImage.url}
@@ -337,7 +337,7 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
                   target="_blank"
                   rel="noopener noreferrer"
                   className="grid h-[42px] w-[42px] shrink-0 place-items-center rounded-2xl"
-                  style={{ background: "#25D366", boxShadow: "5px 5px 12px rgba(37,211,102,.42), -4px -4px 10px rgba(255,255,255,.9)" }}
+                  style={{ background: "#25D366", boxShadow: "0 4px 12px rgba(37,211,102,0.3)" }}
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="#FFF">
                     <path d="M12 2.6a9.3 9.3 0 00-7.9 14.2L2.7 21.4l4.7-1.3A9.3 9.3 0 1012 2.6zm5.3 13c-.2.6-1.2 1.2-1.9 1.2-1.7 0-4.2-1.4-5.8-3.1-1.3-1.4-2.2-3.2-2.2-4.4 0-.8.5-1.6 1-1.9.3-.2.9-.2 1.1.1l1.1 1.8c.1.3.1.5-.1.8l-.5.6c-.2.2-.2.4-.1.6.5 1.1 1.6 2.2 2.7 2.7.2.1.5.1.6-.1l.6-.6c.2-.2.5-.3.8-.2l1.8 1c.3.2.3.8 0 1.5z" />

@@ -31,7 +31,7 @@ export default function ServicePicker() {
           <Link
             key={service.slug}
             href="#agents"
-            className="neu-raised-sm rounded-[26px] bg-[#EAE5DB] p-5 transition hover:-translate-y-0.5"
+            className="neu-raised-sm rounded-[26px] bg-white p-5 transition hover:-translate-y-0.5"
           >
             <div
               className="grid h-[52px] w-[52px] place-items-center rounded-[17px] text-2xl"

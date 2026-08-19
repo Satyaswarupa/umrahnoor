@@ -17,7 +17,7 @@ const emptyForm = {
 };
 
 const fieldClass =
-  "w-full box-border rounded-2xl border-none bg-[#EAE5DB] px-4 py-3.5 text-[13.5px] font-semibold text-[#24201A] outline-none neu-pressed";
+  "w-full box-border rounded-2xl border-none bg-white px-4 py-3.5 text-[13.5px] font-semibold text-[#24201A] outline-none neu-pressed";
 
 export default function NewAgentPage() {
   const [form, setForm] = useState(emptyForm);
@@ -101,7 +101,7 @@ export default function NewAgentPage() {
           </div>
         )}
 
-        <div className="neu-raised rounded-3xl bg-[#EAE5DB] p-7">
+        <div className="neu-raised rounded-3xl bg-white p-7">
           <div className="flex flex-wrap items-center justify-between gap-5">
             <div>
               <div className="text-base font-extrabold text-[#24201A]">Agent details</div>
@@ -121,7 +121,7 @@ export default function NewAgentPage() {
           <div className="mt-[26px] grid grid-cols-1 gap-[30px] sm:grid-cols-[156px_1fr]">
             <div className="flex flex-col items-center gap-3">
               <div className="neu-inset h-[124px] w-[124px] rounded-full p-[7px]">
-                <div className="relative h-full w-full overflow-hidden rounded-full bg-[#EAE5DB]">
+                <div className="relative h-full w-full overflow-hidden rounded-full bg-white">
                   {imagePreview ? (
                     // eslint-disable-next-line @next/next/no-img-element -- local blob: preview
                     <img src={imagePreview} alt="" className="h-full w-full object-cover" />

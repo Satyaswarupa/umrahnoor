@@ -10,7 +10,7 @@ function NavLinks({ session, className }: { session: Session; className: string 
     <div className={className}>
       <Link
         href="/admin/signup"
-        className="neu-raised-sm rounded-full bg-[#EAE5DB] px-4 py-2.5 text-center text-[13px] font-bold text-[#6E6455] transition hover:text-[#0E5B4A]"
+        className="neu-raised-sm rounded-full bg-white px-4 py-2.5 text-center text-[13px] font-bold text-[#6E6455] transition hover:text-[#0E5B4A]"
       >
         List your agency
       </Link>
@@ -74,7 +74,7 @@ export default async function SiteHeader() {
 
   return (
     <header
-      className="sticky top-0 z-40 border-b border-white/70 bg-[#EAE5DB]/90 backdrop-blur-md"
+      className="sticky top-0 z-40 border-b border-black/[0.06] bg-white/90 backdrop-blur-md"
       style={{ fontFamily: "var(--font-jakarta), sans-serif" }}
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -103,7 +103,7 @@ export default async function SiteHeader() {
 
         <NavLinks
           session={session}
-          className="hidden flex-col gap-3 border-t border-white/70 pb-4 pt-4 peer-checked:flex sm:hidden"
+          className="hidden flex-col gap-3 border-t border-black/[0.06] pb-4 pt-4 peer-checked:flex sm:hidden"
         />
       </div>
     </header>

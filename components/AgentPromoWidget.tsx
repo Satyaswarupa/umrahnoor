@@ -55,7 +55,7 @@ export default function AgentPromoWidget() {
         visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
       }`}
     >
-      <div className="relative rounded-2xl bg-emerald-900 p-5 pt-6 text-white shadow-xl ring-1 ring-emerald-950/20">
+      <div className="relative rounded-2xl bg-emerald-900 p-5 pt-6 text-white shadow-lg ring-1 ring-emerald-950/20">
         <button
           type="button"
           onClick={() => setDismissed(true)}

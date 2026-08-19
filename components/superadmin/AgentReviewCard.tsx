@@ -21,6 +21,7 @@ type Props = {
 };
 
 export default function AgentReviewCard({ agent, onApprove, onReject, onToggleListed }: Props) {
+  const [expanded, setExpanded] = useState(false);
   const [busyAction, setBusyAction] = useState<"approve" | "reject" | "toggle" | null>(null);
   const [rejecting, setRejecting] = useState(false);
   const [reason, setReason] = useState("");
@@ -85,22 +86,27 @@ export default function AgentReviewCard({ agent, onApprove, onReject, onToggleLi
   ];
 
   return (
-    <div className="neu-raised rounded-3xl bg-[#EAE5DB] p-[26px]">
-      <div className="flex flex-wrap items-start gap-4">
-        <div className="neu-pressed relative h-[60px] w-[60px] shrink-0 overflow-hidden rounded-full">
+    <div className="neu-raised overflow-hidden rounded-3xl bg-white">
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        aria-expanded={expanded}
+        className="flex w-full flex-wrap items-center gap-4 p-[18px] text-left"
+      >
+        <div className="neu-pressed relative h-11 w-11 shrink-0 overflow-hidden rounded-full">
           {agent.profileImage ? (
             <Image src={agent.profileImage.url} alt="" fill className="object-cover" />
           ) : (
-            <div className="grid h-full w-full place-items-center text-xl font-extrabold text-[#0E5B4A]">
+            <div className="grid h-full w-full place-items-center text-base font-extrabold text-[#0E5B4A]">
               {agent.companyName?.charAt(0).toUpperCase() || agent.ownerName?.charAt(0).toUpperCase() || "?"}
             </div>
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-lg font-extrabold tracking-tight text-[#24201A]">
+          <div className="truncate text-[15px] font-extrabold tracking-tight text-[#24201A]">
             {agent.companyName || "Untitled Agency"}
           </div>
-          <div className="mt-1 text-[12.5px] text-[#7A705E]">
+          <div className="mt-0.5 truncate text-[12px] text-[#7A705E]">
             {agent.ownerName}
             {typeService ? ` · ${typeService.icon} ${typeService.label}` : ""}
           </div>
@@ -117,220 +123,242 @@ export default function AgentReviewCard({ agent, onApprove, onReject, onToggleLi
           <span className="rounded-full px-3 py-1.5 text-[10.5px] font-extrabold tracking-[0.08em]" style={{ color: st.fg, background: st.bg }}>
             {agent.verificationStatus}
           </span>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#9A907C"
+            strokeWidth={2.4}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={"shrink-0 transition-transform duration-200" + (expanded ? " rotate-180" : "")}
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
         </div>
-      </div>
+      </button>
 
-      {!hasRequiredDocuments && (
-        <div className="mt-4 flex items-center gap-2.5 rounded-2xl px-[15px] py-3" style={{ color: "#8A5A12", background: "rgba(192,138,46,.18)" }}>
-          <span className="h-[7px] w-[7px] shrink-0 rounded-full" style={{ background: "#C08A2E" }} />
-          <span className="text-xs font-bold">
-            Government ID document is missing — this agent cannot be approved until it is uploaded.
-          </span>
-        </div>
-      )}
-
-      {unlisted && (
-        <div className="mt-3.5 flex items-center gap-2.5 rounded-2xl px-[15px] py-3" style={{ color: "#8A5A12", background: "rgba(192,138,46,.18)" }}>
-          <span className="h-[7px] w-[7px] shrink-0 rounded-full" style={{ background: "#C08A2E" }} />
-          <span className="text-xs font-bold">Currently unlisted from the public site — verification history is kept.</span>
-        </div>
-      )}
-
-      {agent.rejectionReason && (
-        <div className="mt-4 rounded-2xl px-4 py-3.5" style={{ background: "rgba(192,57,43,.12)" }}>
-          <div className="text-[10px] font-extrabold tracking-[0.08em] text-[#A0301F]">REJECTION REASON</div>
-          <div className="mt-1.5 text-[12.5px] leading-[1.55] text-[#A0301F]">{agent.rejectionReason}</div>
-        </div>
-      )}
-
-      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[0.9fr_1.35fr]">
-        <div className="neu-pressed rounded-2xl p-[18px]">
-          <div className="text-[10px] font-extrabold tracking-[0.1em] text-[#8A7F6C]">CONTACT</div>
-          <div className="mt-3.5 flex flex-col gap-[11px]">
-            <ContactRow label="Email" value={agent.email} />
-            <ContactRow label="Mobile" value={agent.mobileNumber} />
-            <ContactRow label="WhatsApp" value={agent.whatsappNumber} />
-          </div>
-        </div>
-        <div className="neu-pressed rounded-2xl p-[18px]">
-          <div className="text-[10px] font-extrabold tracking-[0.1em] text-[#8A7F6C]">BUSINESS</div>
-          <div className="mt-3.5 grid grid-cols-1 gap-x-[18px] gap-y-[11px] sm:grid-cols-2">
-            {businessRows.map((r) => (
-              <div key={r.k}>
-                <div className="text-[10.5px] text-[#9A907C]">{r.k}</div>
-                <div className="mt-0.5 text-[12.5px] font-bold text-[#3A342B]">{r.v}</div>
+      <div
+        className="grid transition-[grid-template-rows] duration-300 ease-in-out"
+        style={{ gridTemplateRows: expanded ? "1fr" : "0fr" }}
+      >
+        <div className="overflow-hidden">
+          <div className="border-t border-[#96897625] px-[26px] pb-[26px] pt-5">
+            {!hasRequiredDocuments && (
+              <div className="mt-4 flex items-center gap-2.5 rounded-2xl px-[15px] py-3" style={{ color: "#8A5A12", background: "rgba(192,138,46,.18)" }}>
+                <span className="h-[7px] w-[7px] shrink-0 rounded-full" style={{ background: "#C08A2E" }} />
+                <span className="text-xs font-bold">
+                  Government ID document is missing — this agent cannot be approved until it is uploaded.
+                </span>
               </div>
-            ))}
-          </div>
-          {agent.description && (
-            <div className="mt-3.5 border-t border-[#96897640] pt-3 text-xs leading-[1.6] text-[#6E6455]">
-              {agent.description}
-            </div>
-          )}
-        </div>
-      </div>
+            )}
 
-      {agent.locations.length > 0 && (
-        <div className="mt-5">
-          <div className="text-[10px] font-extrabold tracking-[0.1em] text-[#8A7F6C]">LOCATIONS</div>
-          <div className="mt-3 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-            {agent.locations.map((location) => (
-              <div key={location.id} className="neu-raised-sm rounded-2xl p-4">
-                <div className="text-[13px] font-extrabold text-[#24201A]">
-                  {[location.city, location.state].filter(Boolean).join(", ") || "Untitled location"}
+            {unlisted && (
+              <div className="mt-3.5 flex items-center gap-2.5 rounded-2xl px-[15px] py-3" style={{ color: "#8A5A12", background: "rgba(192,138,46,.18)" }}>
+                <span className="h-[7px] w-[7px] shrink-0 rounded-full" style={{ background: "#C08A2E" }} />
+                <span className="text-xs font-bold">Currently unlisted from the public site — verification history is kept.</span>
+              </div>
+            )}
+
+            {agent.rejectionReason && (
+              <div className="mt-4 rounded-2xl px-4 py-3.5" style={{ background: "rgba(192,57,43,.12)" }}>
+                <div className="text-[10px] font-extrabold tracking-[0.08em] text-[#A0301F]">REJECTION REASON</div>
+                <div className="mt-1.5 text-[12.5px] leading-[1.55] text-[#A0301F]">{agent.rejectionReason}</div>
+              </div>
+            )}
+
+            <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[0.9fr_1.35fr]">
+              <div className="neu-pressed rounded-2xl p-[18px]">
+                <div className="text-[10px] font-extrabold tracking-[0.1em] text-[#8A7F6C]">CONTACT</div>
+                <div className="mt-3.5 flex flex-col gap-[11px]">
+                  <ContactRow label="Email" value={agent.email} />
+                  <ContactRow label="Mobile" value={agent.mobileNumber} />
+                  <ContactRow label="WhatsApp" value={agent.whatsappNumber} />
                 </div>
-                <div className="mt-1 text-[11px] leading-[1.5] text-[#8A7F6C]">
-                  {[location.address, location.country, location.pincode].filter(Boolean).join(" · ")}
+              </div>
+              <div className="neu-pressed rounded-2xl p-[18px]">
+                <div className="text-[10px] font-extrabold tracking-[0.1em] text-[#8A7F6C]">BUSINESS</div>
+                <div className="mt-3.5 grid grid-cols-1 gap-x-[18px] gap-y-[11px] sm:grid-cols-2">
+                  {businessRows.map((r) => (
+                    <div key={r.k}>
+                      <div className="text-[10.5px] text-[#9A907C]">{r.k}</div>
+                      <div className="mt-0.5 text-[12.5px] font-bold text-[#3A342B]">{r.v}</div>
+                    </div>
+                  ))}
                 </div>
-                {location.services.length > 0 && (
-                  <div className="mt-2.5 flex flex-wrap gap-[7px]">
-                    {location.services.map((slug) => (
-                      <span
-                        key={slug}
-                        className="neu-pressed inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10.5px] font-bold text-[#4A4238]"
-                      >
-                        <span className="text-[11px]">{SERVICES.find((s) => s.slug === slug)?.icon}</span>
-                        {getServiceLabel(slug)}
-                      </span>
-                    ))}
+                {agent.description && (
+                  <div className="mt-3.5 border-t border-[#96897640] pt-3 text-xs leading-[1.6] text-[#6E6455]">
+                    {agent.description}
                   </div>
                 )}
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+            </div>
 
-      <div className="mt-5">
-        <div className="text-[10px] font-extrabold tracking-[0.1em] text-[#8A7F6C]">DOCUMENTS</div>
-        <div className="mt-3 flex flex-wrap gap-2.5">
-          {docs.map((d) => {
-            if (d.doc) {
-              return (
-                <a
-                  key={d.label}
-                  href={d.doc.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="neu-raised-sm flex items-center gap-1.5 rounded-2xl px-3.5 py-2.5 text-[#0A4438]"
-                >
-                  <DocIcon />
-                  <span className="text-[11.5px] font-bold">{d.label}</span>
-                  <span className="text-[10px] font-extrabold opacity-75">OPEN</span>
-                </a>
-              );
-            }
-            const missingRequired = d.required;
-            return (
-              <span
-                key={d.label}
-                className={
-                  "flex items-center gap-1.5 rounded-2xl px-3.5 py-2.5 " +
-                  (missingRequired ? "border-[1.5px]" : "neu-pressed")
-                }
-                style={
-                  missingRequired
-                    ? { color: "#C0392B", borderColor: "rgba(192,57,43,.5)" }
-                    : { color: "#9A907C" }
-                }
-              >
-                <DocIcon />
-                <span className="text-[11.5px] font-bold">{d.label}</span>
-                <span className="text-[10px] font-extrabold opacity-75">{missingRequired ? "MISSING" : "NOT UPLOADED"}</span>
-              </span>
-            );
-          })}
+            {agent.locations.length > 0 && (
+              <div className="mt-5">
+                <div className="text-[10px] font-extrabold tracking-[0.1em] text-[#8A7F6C]">LOCATIONS</div>
+                <div className="mt-3 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+                  {agent.locations.map((location) => (
+                    <div key={location.id} className="neu-raised-sm rounded-2xl p-4">
+                      <div className="text-[13px] font-extrabold text-[#24201A]">
+                        {[location.city, location.state].filter(Boolean).join(", ") || "Untitled location"}
+                      </div>
+                      <div className="mt-1 text-[11px] leading-[1.5] text-[#8A7F6C]">
+                        {[location.address, location.country, location.pincode].filter(Boolean).join(" · ")}
+                      </div>
+                      {location.services.length > 0 && (
+                        <div className="mt-2.5 flex flex-wrap gap-[7px]">
+                          {location.services.map((slug) => (
+                            <span
+                              key={slug}
+                              className="neu-pressed inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10.5px] font-bold text-[#4A4238]"
+                            >
+                              <span className="text-[11px]">{SERVICES.find((s) => s.slug === slug)?.icon}</span>
+                              {getServiceLabel(slug)}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="mt-5">
+              <div className="text-[10px] font-extrabold tracking-[0.1em] text-[#8A7F6C]">DOCUMENTS</div>
+              <div className="mt-3 flex flex-wrap gap-2.5">
+                {docs.map((d) => {
+                  if (d.doc) {
+                    return (
+                      <a
+                        key={d.label}
+                        href={d.doc.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="neu-raised-sm flex items-center gap-1.5 rounded-2xl px-3.5 py-2.5 text-[#0A4438]"
+                      >
+                        <DocIcon />
+                        <span className="text-[11.5px] font-bold">{d.label}</span>
+                        <span className="text-[10px] font-extrabold opacity-75">OPEN</span>
+                      </a>
+                    );
+                  }
+                  const missingRequired = d.required;
+                  return (
+                    <span
+                      key={d.label}
+                      className={
+                        "flex items-center gap-1.5 rounded-2xl px-3.5 py-2.5 " +
+                        (missingRequired ? "border-[1.5px]" : "neu-pressed")
+                      }
+                      style={
+                        missingRequired
+                          ? { color: "#C0392B", borderColor: "rgba(192,57,43,.5)" }
+                          : { color: "#9A907C" }
+                      }
+                    >
+                      <DocIcon />
+                      <span className="text-[11.5px] font-bold">{d.label}</span>
+                      <span className="text-[10px] font-extrabold opacity-75">{missingRequired ? "MISSING" : "NOT UPLOADED"}</span>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="my-5 h-px bg-gradient-to-r from-[#96897650] to-white/95" />
+
+            {rejecting ? (
+              <div className="neu-pressed rounded-2xl p-[18px]">
+                <div className="text-xs font-extrabold text-[#A0301F]">
+                  Reason for rejection <span className="font-semibold text-[#9A907C]">— shared with the agent, required</span>
+                </div>
+                <textarea
+                  rows={2}
+                  placeholder="e.g. Government ID number does not match the uploaded document."
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  className="neu-pressed mt-3 w-full resize-y rounded-2xl border-none bg-white px-4 py-3.5 text-[12.5px] font-semibold text-[#24201A] outline-none"
+                />
+                <div className="mt-3 flex gap-2.5">
+                  <button
+                    type="button"
+                    onClick={handleReject}
+                    disabled={busy || !reason.trim()}
+                    className="flex items-center gap-2 rounded-2xl px-5 py-3 text-[12.5px] font-extrabold text-white disabled:cursor-not-allowed disabled:opacity-45"
+                    style={{ background: "#C0392B" }}
+                  >
+                    {busyAction === "reject" && <Spinner className="h-3.5 w-3.5" />}
+                    Confirm rejection
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRejecting(false)}
+                    disabled={busy}
+                    className="neu-raised-sm rounded-2xl px-5 py-3 text-[12.5px] font-bold text-[#6E6455] disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              (onApprove || onReject || onToggleListed) && (
+                <div className="flex flex-wrap items-center gap-[11px]">
+                  {onApprove && (
+                    <button
+                      type="button"
+                      onClick={handleApprove}
+                      disabled={busy || !hasRequiredDocuments}
+                      title={!hasRequiredDocuments ? "Government ID document required before approval" : "Publish this agent as verified"}
+                      className={
+                        "flex items-center gap-2 rounded-2xl px-[22px] py-[13px] text-[13px] font-extrabold transition disabled:cursor-not-allowed " +
+                        (hasRequiredDocuments ? "text-[#F6E2B4]" : "neu-pressed text-[#A9A08C]")
+                      }
+                      style={
+                        hasRequiredDocuments
+                          ? { background: "#06042a", opacity: busyAction === "approve" ? 0.75 : 1 }
+                          : undefined
+                      }
+                    >
+                      {busyAction === "approve" && <Spinner className="h-3.5 w-3.5" />}
+                      {busyAction === "approve" ? "Approving…" : "Approve"}
+                    </button>
+                  )}
+                  {onReject && (
+                    <button
+                      type="button"
+                      onClick={() => setRejecting(true)}
+                      disabled={busy}
+                      className="neu-raised-sm flex items-center gap-2 rounded-2xl border-[1.5px] px-[22px] py-[13px] text-[13px] font-extrabold text-[#C0392B] disabled:opacity-50"
+                      style={{ borderColor: "rgba(192,57,43,.5)" }}
+                    >
+                      Reject
+                    </button>
+                  )}
+                  {onToggleListed && (
+                    <button
+                      type="button"
+                      onClick={handleToggleListed}
+                      disabled={busy}
+                      title="Hide from the public directory, keep verification history"
+                      className="neu-raised-sm flex items-center gap-2 rounded-2xl border-[1.5px] px-[22px] py-[13px] text-[13px] font-extrabold text-[#4A4238] disabled:opacity-50"
+                      style={{ borderColor: "rgba(150,138,118,.35)" }}
+                    >
+                      {busyAction === "toggle" && <Spinner className="h-3.5 w-3.5" />}
+                      {busyAction === "toggle" ? "Updating…" : unlisted ? "Relist Agent" : "Unlist Agent"}
+                    </button>
+                  )}
+                  <span className="ml-auto text-[11px] text-[#9A907C]">
+                    Applied {agent.createdAt ? new Date(agent.createdAt).toLocaleDateString() : "—"} · ID {agent.id.slice(-6).toUpperCase()}
+                  </span>
+                </div>
+              )
+            )}
+          </div>
         </div>
       </div>
-
-      <div className="my-5 h-px bg-gradient-to-r from-[#96897650] to-white/95" />
-
-      {rejecting ? (
-        <div className="neu-pressed rounded-2xl p-[18px]">
-          <div className="text-xs font-extrabold text-[#A0301F]">
-            Reason for rejection <span className="font-semibold text-[#9A907C]">— shared with the agent, required</span>
-          </div>
-          <textarea
-            rows={2}
-            placeholder="e.g. Government ID number does not match the uploaded document."
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            className="neu-pressed mt-3 w-full resize-y rounded-2xl border-none bg-[#EAE5DB] px-4 py-3.5 text-[12.5px] font-semibold text-[#24201A] outline-none"
-          />
-          <div className="mt-3 flex gap-2.5">
-            <button
-              type="button"
-              onClick={handleReject}
-              disabled={busy || !reason.trim()}
-              className="flex items-center gap-2 rounded-2xl px-5 py-3 text-[12.5px] font-extrabold text-white disabled:cursor-not-allowed disabled:opacity-45"
-              style={{ background: "#C0392B" }}
-            >
-              {busyAction === "reject" && <Spinner className="h-3.5 w-3.5" />}
-              Confirm rejection
-            </button>
-            <button
-              type="button"
-              onClick={() => setRejecting(false)}
-              disabled={busy}
-              className="neu-raised-sm rounded-2xl px-5 py-3 text-[12.5px] font-bold text-[#6E6455] disabled:opacity-50"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      ) : (
-        (onApprove || onReject || onToggleListed) && (
-          <div className="flex flex-wrap items-center gap-[11px]">
-            {onApprove && (
-              <button
-                type="button"
-                onClick={handleApprove}
-                disabled={busy || !hasRequiredDocuments}
-                title={!hasRequiredDocuments ? "Government ID document required before approval" : "Publish this agent as verified"}
-                className={
-                  "flex items-center gap-2 rounded-2xl px-[22px] py-[13px] text-[13px] font-extrabold transition disabled:cursor-not-allowed " +
-                  (hasRequiredDocuments ? "text-[#F6E2B4]" : "neu-pressed text-[#A9A08C]")
-                }
-                style={
-                  hasRequiredDocuments
-                    ? { background: "#06042a", opacity: busyAction === "approve" ? 0.75 : 1 }
-                    : undefined
-                }
-              >
-                {busyAction === "approve" && <Spinner className="h-3.5 w-3.5" />}
-                {busyAction === "approve" ? "Approving…" : "Approve"}
-              </button>
-            )}
-            {onReject && (
-              <button
-                type="button"
-                onClick={() => setRejecting(true)}
-                disabled={busy}
-                className="neu-raised-sm flex items-center gap-2 rounded-2xl border-[1.5px] px-[22px] py-[13px] text-[13px] font-extrabold text-[#C0392B] disabled:opacity-50"
-                style={{ borderColor: "rgba(192,57,43,.5)" }}
-              >
-                Reject
-              </button>
-            )}
-            {onToggleListed && (
-              <button
-                type="button"
-                onClick={handleToggleListed}
-                disabled={busy}
-                title="Hide from the public directory, keep verification history"
-                className="neu-raised-sm flex items-center gap-2 rounded-2xl border-[1.5px] px-[22px] py-[13px] text-[13px] font-extrabold text-[#4A4238] disabled:opacity-50"
-                style={{ borderColor: "rgba(150,138,118,.35)" }}
-              >
-                {busyAction === "toggle" && <Spinner className="h-3.5 w-3.5" />}
-                {busyAction === "toggle" ? "Updating…" : unlisted ? "Relist Agent" : "Unlist Agent"}
-              </button>
-            )}
-            <span className="ml-auto text-[11px] text-[#9A907C]">
-              Applied {agent.createdAt ? new Date(agent.createdAt).toLocaleDateString() : "—"} · ID {agent.id.slice(-6).toUpperCase()}
-            </span>
-          </div>
-        )
-      )}
     </div>
   );
 }

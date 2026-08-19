@@ -26,7 +26,7 @@ export default function UsersTable({ users }: { users: SafeUser[] }) {
         <SearchInput value={query} onChange={setQuery} placeholder="Search users…" />
       </div>
 
-      <div className="neu-raised mt-4 rounded-3xl bg-[#EAE5DB] px-[10px] pb-[6px] pt-[10px]">
+      <div className="neu-raised mt-4 rounded-3xl bg-white px-[10px] pb-[6px] pt-[10px]">
         <div className="grid grid-cols-[1.4fr_1.8fr_1fr_1fr] gap-4 px-[18px] py-4">
           {["NAME", "EMAIL", "ROLE", "JOINED"].map((c) => (
             <div key={c} className="text-[10px] font-extrabold tracking-[0.1em] text-[#8A7F6C]">
