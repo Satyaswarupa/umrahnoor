@@ -7,6 +7,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { Agent } from "@/models/Agent";
 import { toPublicAgentDetail } from "@/lib/serializers";
 import { toTelLink, toWhatsappLink } from "@/lib/contact-links";
+import { getServiceIcon, getServiceLabel } from "@/lib/services";
 import { SITE_URL } from "@/lib/site-config";
 
 type Params = Promise<{ id: string }>;
@@ -111,6 +112,16 @@ export default async function AgentDetailPage({ params }: { params: Params }) {
         )}
 
         <dl className="mt-6 grid grid-cols-1 gap-4 border-t border-emerald-900/10 pt-6 sm:grid-cols-2">
+          {agent.businessType && (
+            <div>
+              <dt className="text-xs font-medium uppercase tracking-wide text-emerald-900/50">
+                Business Type
+              </dt>
+              <dd className="mt-1 text-sm text-emerald-950">
+                {getServiceIcon(agent.businessType)} {getServiceLabel(agent.businessType)}
+              </dd>
+            </div>
+          )}
           {agent.ownerName && (
             <div>
               <dt className="text-xs font-medium uppercase tracking-wide text-emerald-900/50">

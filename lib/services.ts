@@ -19,3 +19,7 @@ export const SERVICE_SLUGS = SERVICES.map((s) => s.slug) as [string, ...string[]
 export function getServiceLabel(slug: string): string {
   return SERVICES.find((s) => s.slug === slug)?.label ?? slug;
 }
+
+export function getServiceIcon(slug: string): string {
+  return SERVICES.find((s) => s.slug === slug)?.icon ?? "";
+}

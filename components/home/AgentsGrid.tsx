@@ -6,16 +6,16 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { PublicAgentSummary } from "@/lib/types";
 import { toTelLink, toWhatsappLink } from "@/lib/contact-links";
-import { getServiceLabel } from "@/lib/services";
+import { SERVICES, getServiceIcon, getServiceLabel } from "@/lib/services";
 import { resolveNearbyLocation } from "@/lib/geolocation";
 import { VerifiedTick } from "@/components/VerifiedBadge";
 
+// Every business type an agent can register as (superadmin and self-service
+// signup both pick from this same list) — mirrored here as filter chips so
+// pilgrims can filter by any of them, not just a curated subset.
 const CHIPS = [
   { id: "", label: "All agents" },
-  { id: "full-package", label: "Full Package" },
-  { id: "visa", label: "Visa" },
-  { id: "air-ticket", label: "Air Ticket" },
-  { id: "hotels", label: "Hotels" },
+  ...SERVICES.map((service) => ({ id: service.slug, label: service.label })),
 ];
 
 type NearbyState = {
@@ -308,6 +308,14 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
                       {agent.distanceKm != null ? ` · ~${agent.distanceKm} km away` : ""}
                     </span>
                   </div>
+                  {agent.businessType && (
+                    <span
+                      className="mt-2 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold text-[#8A6A0A]"
+                      style={{ background: "rgba(212,160,23,0.12)" }}
+                    >
+                      {getServiceIcon(agent.businessType)} {getServiceLabel(agent.businessType)}
+                    </span>
+                  )}
                 </div>
               </div>
 

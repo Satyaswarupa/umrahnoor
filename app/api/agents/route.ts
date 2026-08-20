@@ -30,14 +30,14 @@ function badgeWeight(badge: string | undefined): number {
 // the closest one on record.
 const NEARBY_RADIUS_KM = 200;
 
-// An agent counts as offering a service either through their dashboard's
-// single-select "Business Type" field (e.g. businessType === "hotels") or
-// the older per-location multi-select services list — agents may only have
-// filled in one of the two depending on which flow they signed up through.
-function offersService(agent: AgentLean, matchingLocations: AgentLocation[], service?: string): boolean {
+// The service/business-type filter chips on the homepage are meant to be an
+// exclusive "this is what this agent does" match against their single
+// businessType field — not a fuzzy "offers this among other things" check.
+// (Older per-location multi-select services still exist and are shown as
+// tags on the card, but they don't drive this filter.)
+function offersService(agent: AgentLean, service?: string): boolean {
   if (!service) return true;
-  if (agent.businessType === service) return true;
-  return matchingLocations.some((location) => (location.services ?? []).includes(service));
+  return agent.businessType === service;
 }
 
 function matchingLocationsFor(
@@ -81,9 +81,7 @@ export async function GET(request: NextRequest) {
       }
 
       const found = await Agent.find(query).sort({ createdAt: -1 }).limit(200).lean();
-      const filtered = found.filter((agent) =>
-        offersService(agent, matchingLocationsFor(agent, { country, state }), service),
-      );
+      const filtered = found.filter((agent) => offersService(agent, service));
       const sorted = filtered
         .sort((a, b) => badgeWeight(a.verificationBadge) - badgeWeight(b.verificationBadge))
         .slice(0, 100);
@@ -108,9 +106,7 @@ export async function GET(request: NextRequest) {
         .limit(200)
         .lean();
 
-      const filtered = found.filter((agent) =>
-        offersService(agent, matchingLocationsFor(agent, { country, state, city }), service),
-      );
+      const filtered = found.filter((agent) => offersService(agent, service));
       const sorted = filtered
         .sort((a, b) => badgeWeight(a.verificationBadge) - badgeWeight(b.verificationBadge))
         .slice(0, 100);
@@ -137,8 +133,9 @@ export async function GET(request: NextRequest) {
 
     const ranked = candidates
       .map((agent) => {
+        if (!offersService(agent, service)) return null;
+
         const matchingLocations = matchingLocationsFor(agent, { country, state });
-        if (!offersService(agent, matchingLocations, service)) return null;
 
         // Named-city match is decided by string equality against whatever
         // the visitor's device resolved their city to — that string can

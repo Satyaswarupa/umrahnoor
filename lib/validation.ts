@@ -79,7 +79,7 @@ export const agentProfileUpdateSchema = z.object({
     .or(z.literal("")),
   verifiedCertificate: z.string().trim().max(200).optional().default(""),
   description: z.string().trim().max(1000).optional().default(""),
-  businessType: z.string().trim().max(100).optional().or(z.literal("")),
+  businessType: z.enum(SERVICE_SLUGS).optional().or(z.literal("")),
   businessEmail: emailSchema.optional().or(z.literal("")),
   businessPhone: phoneSchema.optional().or(z.literal("")),
   experienceYears: z.coerce.number().int().min(0).max(80).nullable().optional(),
