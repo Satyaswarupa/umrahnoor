@@ -213,7 +213,9 @@ export default async function Home() {
           </ol>
         </section>
 
-        <ServicePicker />
+        <Suspense fallback={<ServicePickerSkeleton />}>
+          <ServicePicker />
+        </Suspense>
 
         <AgencyCTA />
 
@@ -245,6 +247,21 @@ function AgentsGridSkeleton() {
       <div className="mt-7 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="neu-raised-sm h-64 animate-pulse rounded-[26px] bg-[#F4F2EC]" />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ServicePicker also reads the search query params (useSearchParams) to
+// highlight the active service filter, so it needs the same Suspense boundary.
+function ServicePickerSkeleton() {
+  return (
+    <section className="mx-auto max-w-6xl px-4 pt-20 sm:px-6">
+      <div className="h-8 w-56 animate-pulse rounded-full bg-[#F4F2EC]" />
+      <div className="mt-7 grid grid-cols-2 gap-4 lg:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="neu-raised-sm h-32 animate-pulse rounded-[26px] bg-[#F4F2EC]" />
         ))}
       </div>
     </section>
