@@ -515,7 +515,7 @@ export default function AgentDashboardPage() {
                     "flex items-center gap-2.5 rounded-2xl px-4 py-3 text-left transition " +
                     (active ? "text-[#F3EFE6] shadow-sm" : "neu-raised-sm text-[#4A4238]")
                   }
-                  style={active ? { background: "#06042a" } : undefined}
+                  style={active ? { background: "#CCAE2C" } : undefined}
                 >
                   <span className="w-[18px] text-center text-sm">{t.icon}</span>
                   <span className="flex-1 text-[13.5px] font-bold">{t.label}</span>
@@ -571,7 +571,7 @@ export default function AgentDashboardPage() {
                 {agent.verificationStatus === "INCOMPLETE" && (
                   <div
                     className="flex flex-wrap items-center gap-6 rounded-[22px] px-6 py-6 sm:px-7"
-                    style={{ background: "#06042a" }}
+                    style={{ background: "#CCAE2C" }}
                   >
                     <div className="flex-1">
                       <div style={amiri} className="text-lg text-[#F6E2B4]">
@@ -668,7 +668,7 @@ export default function AgentDashboardPage() {
                           onClick={handleSubmitVerification}
                           disabled={submitting}
                           className="flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-[13.5px] font-extrabold text-[#F3EFE6] transition"
-                          style={{ background: "#06042a", opacity: submitting ? 0.75 : 1 }}
+                          style={{ background: "#CCAE2C", opacity: submitting ? 0.75 : 1 }}
                         >
                           {submitting && <Spinner className="h-3.5 w-3.5" />}
                           {submitting ? "Submitting…" : "Submit for Verification"}
@@ -700,7 +700,7 @@ export default function AgentDashboardPage() {
                       onClick={saveProfileFields}
                       disabled={saving}
                       className="flex items-center gap-2 rounded-xl px-[18px] py-2.5 text-[12.5px] font-extrabold text-[#F3EFE6]"
-                      style={{ background: "#06042a", opacity: saving ? 0.75 : 1 }}
+                      style={{ background: "#CCAE2C", opacity: saving ? 0.75 : 1 }}
                     >
                       {saving && <Spinner className="h-3.5 w-3.5" />}
                       {saving ? "Saving…" : "Save progress"}
@@ -823,7 +823,7 @@ export default function AgentDashboardPage() {
                         onClick={startAddLocation}
                         disabled={agent.locations.length >= 10}
                         className="flex items-center gap-2 rounded-xl px-[18px] py-2.5 text-[12.5px] font-extrabold text-[#F3EFE6] disabled:opacity-50"
-                        style={{ background: "#06042a" }}
+                        style={{ background: "#CCAE2C" }}
                       >
                         + Add location
                       </button>
@@ -1062,7 +1062,7 @@ export default function AgentDashboardPage() {
                         onClick={handleSubmitVerification}
                         disabled={submitting}
                         className="inline-flex items-center gap-2 rounded-2xl px-6 py-3.5 text-[13.5px] font-extrabold text-[#F3EFE6] disabled:cursor-not-allowed"
-                        style={{ background: "#06042a", opacity: submitting ? 0.6 : 1 }}
+                        style={{ background: "#CCAE2C", opacity: submitting ? 0.6 : 1 }}
                       >
                         {submitting && <Spinner className="h-4 w-4" />}
                         {submitting ? "Applying..." : "Apply for Verification"}
@@ -1107,7 +1107,7 @@ export default function AgentDashboardPage() {
           <div className="w-full max-w-[440px] rounded-[26px] bg-white p-9 text-center shadow-2xl">
             <div
               className="mx-auto grid h-[68px] w-[68px] place-items-center rounded-full"
-              style={{ background: "#06042a" }}
+              style={{ background: "#CCAE2C" }}
             >
               <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#F6E2B4" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 12.5l5 5L20 6.5" />
@@ -1122,7 +1122,7 @@ export default function AgentDashboardPage() {
               type="button"
               onClick={() => setSubmitSuccess(false)}
               className="mt-6 w-full rounded-2xl py-3.5 text-[13.5px] font-extrabold text-[#F3EFE6]"
-              style={{ background: "#06042a" }}
+              style={{ background: "#CCAE2C" }}
             >
               Back to dashboard
             </button>
@@ -1167,7 +1167,7 @@ export default function AgentDashboardPage() {
               type="button"
               onClick={() => setMissingFields(null)}
               className="mt-6 w-full rounded-2xl py-3.5 text-[13.5px] font-extrabold text-[#F3EFE6]"
-              style={{ background: "#06042a" }}
+              style={{ background: "#CCAE2C" }}
             >
               Got it
             </button>
@@ -1390,7 +1390,7 @@ function LocationEditor({
                 "flex items-center gap-1.5 rounded-[11px] px-3 py-2 text-[11.5px] font-bold transition " +
                 (active ? "text-[#F3EFE6]" : "neu-raised-sm text-[#6E6455]")
               }
-              style={active ? { background: "#06042a" } : undefined}
+              style={active ? { background: "#CCAE2C" } : undefined}
             >
               <span className="text-[13px]">{service.icon}</span>
               {service.label}
@@ -1405,7 +1405,7 @@ function LocationEditor({
           onClick={onSave}
           disabled={saving}
           className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[12.5px] font-extrabold text-[#F3EFE6] disabled:opacity-60"
-          style={{ background: "#06042a" }}
+          style={{ background: "#CCAE2C" }}
         >
           {saving && <Spinner className="h-3.5 w-3.5" />}
           {saving ? "Saving..." : "Save Location"}

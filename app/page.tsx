@@ -1,13 +1,14 @@
-import Link from "next/link";
 import { Suspense } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AgentPromoWidget from "@/components/AgentPromoWidget";
 import WhatsAppFloatButton from "@/components/WhatsAppFloatButton";
 import HeroSearch from "@/components/home/HeroSearch";
+import TypewriterText from "@/components/home/TypewriterText";
 import ServicesShowcase from "@/components/home/ServicesShowcase";
 import ServicePicker from "@/components/home/ServicePicker";
 import AgentsGrid from "@/components/home/AgentsGrid";
+import TopCities from "@/components/home/TopCities";
 import AgencyCTA from "@/components/home/AgencyCTA";
 import FaqAccordion from "@/components/home/FaqAccordion";
 import { connectToDatabase } from "@/lib/mongodb";
@@ -149,63 +150,46 @@ export default async function Home() {
       <SiteHeader />
 
       <main className="flex-1" style={{ fontFamily: "var(--font-jakarta), sans-serif" }}>
-        <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 pt-16 sm:px-6 sm:pt-20 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
-          <div>
-            <div className="neu-pressed inline-flex items-center gap-2.5 rounded-full px-4 py-2">
+        <section
+          className="relative overflow-hidden bg-cover bg-center px-4 pb-20 pt-24 sm:px-6 sm:pb-28 sm:pt-28 lg:flex lg:min-h-[680px] lg:items-center lg:pb-0 lg:pt-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(180deg, rgba(10,12,16,.35) 0%, rgba(10,12,16,.55) 55%, rgba(10,12,16,.85) 100%), url('https://i.ibb.co/j9N4C30C/pexels-earth-photart-2149767641-35315917-1.jpg')",
+          }}
+        >
+          <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center text-center">
+            <div className="inline-flex items-center gap-2.5 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
               <span className="h-[7px] w-[7px] rounded-full bg-[#25D366]" />
-              <span className="text-[11px] font-bold tracking-[0.08em] text-[#6E6455]">
+              <span className="text-[11px] font-bold tracking-[0.08em] text-white/90">
                 {stats.agentCount} VERIFIED AGENTS · {stats.cityCount} CITIES
               </span>
             </div>
 
-            <h1 className="mt-5 text-[42px] font-extrabold leading-[1.08] tracking-tight text-[#24201A] sm:text-[56px]">
-              Find & talk to
+            <h1 className="mt-5 text-[38px] font-extrabold leading-[1.1] tracking-tight text-white drop-shadow-md sm:text-[54px]">
+              Book Your Umrah Journey
               <br />
-              verified Umrah agents —
-              <br />
-              <span className="text-[#0E5B4A]">directly.</span>
+              <span className="inline-block min-h-[2.3em] align-top">
+                With{" "}
+                <TypewriterText
+                  phrases={["Trusted Agents", "Verified Agents", "Affordable Packages"]}
+                  className="text-[#EAC831]"
+                />
+              </span>
             </h1>
 
-            <p className="mt-5 max-w-[480px] text-[17px] leading-[1.65] text-[#6E6455]">
-              <strong className="text-[#24201A]">In short:</strong> UmrahJao is a free directory
-              that connects pilgrims across India with {stats.agentCount} verified, GST-registered
-              Umrah agents in {stats.cityCount} cities. Search by city, compare packages, and call
-              or WhatsApp any agent yourself — no middlemen, no commission, no booking forms.
-            </p>
-
-            <p className="mt-3 max-w-[480px] text-sm leading-[1.6] text-[#8A7F6C]">
-              Built for first-time pilgrims, families, and groups in India who want to book Umrah
-              packages, visa, air ticket, hotel, or ziyarat services directly with a licensed
-              operator instead of going through a travel portal.
+            <p className="mt-4 text-[14px] font-bold tracking-wide text-[#F6E2B4] sm:text-[15px]">
+              Affordable Packages • Verified Services • Hassle-Free Booking
             </p>
 
             <HeroSearch />
-          </div>
-
-          <div className="relative">
-            <div
-              className="h-[420px] rounded-[34px] bg-cover bg-center sm:h-[480px]"
-              style={{
-                backgroundImage:
-                  "url('https://i.ibb.co/DgMyNmPN/pexels-earth-photart-2149767641-35315917.jpg')",
-                boxShadow: "0 12px 32px rgba(36,32,26,0.12)",
-              }}
-            />
-            <Link
-              href="#agents"
-              className="absolute left-5 bottom-6 flex items-center justify-center gap-2 rounded-2xl bg-[#25D366] px-4 py-3 shadow-lg sm:left-6 sm:bottom-8 sm:px-5 sm:py-3.5 lg:-left-8 lg:bottom-10"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFF" className="shrink-0">
-                <path d="M12 2.6a9.3 9.3 0 00-7.9 14.2L2.7 21.4l4.7-1.3A9.3 9.3 0 1012 2.6zm5.3 13c-.2.6-1.2 1.2-1.9 1.2-1.7 0-4.2-1.4-5.8-3.1-1.3-1.4-2.2-3.2-2.2-4.4 0-.8.5-1.6 1-1.9.3-.2.9-.2 1.1.1l1.1 1.8c.1.3.1.5-.1.8l-.5.6c-.2.2-.2.4-.1.6.5 1.1 1.6 2.2 2.7 2.7.2.1.5.1.6-.1l.6-.6c.2-.2.5-.3.8-.2l1.8 1c.3.2.3.8 0 1.5z" />
-              </svg>
-              <span className="text-[12px] font-extrabold text-white sm:text-[13px]">WhatsApp an agent</span>
-            </Link>
           </div>
         </section>
 
         <Suspense fallback={<AgentsGridSkeleton />}>
           <AgentsGrid initialAgents={featuredAgents} />
         </Suspense>
+
+        <TopCities />
 
         <ServicesShowcase />
 

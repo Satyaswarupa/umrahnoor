@@ -18,7 +18,7 @@ export default function NavLink({
         "flex items-center gap-2.5 rounded-[14px] px-[13px] py-3 transition " +
         (active ? "text-[#F6E2B4] shadow-sm" : "neu-raised-sm text-[#4A4238] hover:text-[#0E5B4A]")
       }
-      style={active ? { background: "#06042a" } : undefined}
+      style={active ? { background: "#CCAE2C" } : undefined}
     >
       <span className="w-[18px] text-center text-[13px]">{item.icon}</span>
       <span className="flex-1 text-[13.5px] font-bold">{item.label}</span>

@@ -155,7 +155,7 @@ export default async function AgentDetailPage({ params }: { params: Params }) {
           <a
             href={toTelLink(agent.mobileNumber)}
             className="flex items-center justify-center rounded-lg px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-            style={{ background: "#06042a" }}
+            style={{ background: "#CCAE2C" }}
           >
             Call Now
           </a>

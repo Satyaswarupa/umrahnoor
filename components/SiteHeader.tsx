@@ -34,7 +34,7 @@ function NavLinks({
           <Link
             href="/signup"
             className="rounded-full px-5 py-2.5 text-center text-[13px] font-bold text-[#F3EFE6] shadow-sm"
-            style={{ background: "#06042a" }}
+            style={{ background: "#CCAE2C" }}
           >
             Sign Up
           </Link>
@@ -54,7 +54,7 @@ function NavLinks({
             <Link
               href="/admin/dashboard"
               className="rounded-full px-5 py-2.5 text-center text-[13px] font-bold text-[#F3EFE6] shadow-sm"
-              style={{ background: "#06042a" }}
+              style={{ background: "#CCAE2C" }}
             >
               Agent Dashboard
             </Link>
@@ -68,7 +68,7 @@ function NavLinks({
           <Link
             href="/superadmin/dashboard"
             className="rounded-full px-5 py-2.5 text-center text-[13px] font-bold text-[#F3EFE6] shadow-sm"
-            style={{ background: "#06042a" }}
+            style={{ background: "#CCAE2C" }}
           >
             Superadmin Dashboard
           </Link>

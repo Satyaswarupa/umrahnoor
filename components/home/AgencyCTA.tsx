@@ -17,7 +17,7 @@ export default function AgencyCTA() {
           <Link
             href="/admin/signup"
             className="rounded-2xl px-6 py-3.5 text-sm font-bold text-[#F3EFE6] shadow-sm"
-            style={{ background: "#06042a" }}
+            style={{ background: "#CCAE2C" }}
           >
             List your agency
           </Link>

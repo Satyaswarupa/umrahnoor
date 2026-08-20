@@ -36,6 +36,10 @@ type NearbyState = {
 
 export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAgentSummary[] }) {
   const [chip, setChip] = useState("");
+  // Mirrors ?service= into `chip` without an effect (React's "adjusting
+  // state during render" pattern) so the "Our Services" section's picks —
+  // and its Clear Filters button — stay in sync with the chip row below.
+  const [prevSearchedService, setPrevSearchedService] = useState<string | null>(null);
   const [nearby, setNearby] = useState<NearbyState>({
     loading: true,
     agents: null,
@@ -52,6 +56,12 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
   const searchedCity = searchParams.get("city") ?? "";
   const searchedLat = searchParams.get("lat");
   const searchedLng = searchParams.get("lng");
+  const searchedService = searchParams.get("service") ?? "";
+
+  if (searchedService !== prevSearchedService) {
+    setPrevSearchedService(searchedService);
+    setChip(searchedService);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -224,7 +234,7 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
                   "rounded-full px-[18px] py-2.5 text-[13px] font-bold transition " +
                   (on ? "text-[#F3EFE6] shadow-sm" : "neu-raised-sm text-[#6E6455]")
                 }
-                style={on ? { background: "#06042a" } : undefined}
+                style={on ? { background: "#CCAE2C" } : undefined}
               >
                 {c.label}
               </button>

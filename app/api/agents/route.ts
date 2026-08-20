@@ -12,11 +12,44 @@ type AgentLocation = {
   services?: string[];
 };
 
+type AgentLean = {
+  businessType?: string;
+  verificationBadge?: string;
+  locations?: AgentLocation[];
+};
+
 // GOLD-badge agents rank ahead of everyone else, wherever they appear in a
 // results list — Array#sort is stable, so this only reorders across badge
 // tiers and leaves each tier's existing order (recency, distance) untouched.
 function badgeWeight(badge: string | undefined): number {
   return badge === "GOLD" ? 0 : 1;
+}
+
+// How far outside the named city an agent (GOLD or not) is still allowed to
+// surface as "nearby" — beyond this it's not a useful result even if it's
+// the closest one on record.
+const NEARBY_RADIUS_KM = 200;
+
+// An agent counts as offering a service either through their dashboard's
+// single-select "Business Type" field (e.g. businessType === "hotels") or
+// the older per-location multi-select services list — agents may only have
+// filled in one of the two depending on which flow they signed up through.
+function offersService(agent: AgentLean, matchingLocations: AgentLocation[], service?: string): boolean {
+  if (!service) return true;
+  if (agent.businessType === service) return true;
+  return matchingLocations.some((location) => (location.services ?? []).includes(service));
+}
+
+function matchingLocationsFor(
+  agent: AgentLean,
+  filter: { country?: string; state?: string; city?: string },
+): AgentLocation[] {
+  return (agent.locations ?? []).filter(
+    (location) =>
+      (!filter.country || location.country === filter.country) &&
+      (!filter.state || location.state === filter.state) &&
+      (!filter.city || location.city === filter.city),
+  );
 }
 
 // Verified/listed agents change infrequently — cache each distinct search
@@ -34,64 +67,87 @@ export async function GET(request: NextRequest) {
     const lng = Number.parseFloat(searchParams.get("lng") ?? "");
     const hasCoords = Number.isFinite(lat) && Number.isFinite(lng);
 
-    const query: Record<string, unknown> = {
-      verificationStatus: "VERIFIED",
-      isListed: true,
-    };
-
-    const locationMatch: Record<string, unknown> = {};
-    if (country) locationMatch.country = country;
-    if (state) locationMatch.state = state;
-    if (city) locationMatch.city = city;
-    if (service) locationMatch.services = service;
-    if (Object.keys(locationMatch).length > 0) {
-      query.locations = { $elemMatch: locationMatch };
-    }
-
     await connectToDatabase();
 
-    const agents = await Agent.find(query).sort({ createdAt: -1 }).limit(100).lean();
+    // No city named — nothing to rank against exact-vs-nearby, just badge order.
+    if (!city) {
+      const locationMatch: Record<string, unknown> = {};
+      if (country) locationMatch.country = country;
+      if (state) locationMatch.state = state;
 
-    if (agents.length > 0) {
-      const sorted = [...agents].sort(
-        (a, b) => badgeWeight(a.verificationBadge) - badgeWeight(b.verificationBadge),
+      const query: Record<string, unknown> = { verificationStatus: "VERIFIED", isListed: true };
+      if (Object.keys(locationMatch).length > 0) {
+        query.locations = { $elemMatch: locationMatch };
+      }
+
+      const found = await Agent.find(query).sort({ createdAt: -1 }).limit(200).lean();
+      const filtered = found.filter((agent) =>
+        offersService(agent, matchingLocationsFor(agent, { country, state }), service),
       );
+      const sorted = filtered
+        .sort((a, b) => badgeWeight(a.verificationBadge) - badgeWeight(b.verificationBadge))
+        .slice(0, 100);
       return NextResponse.json({
         agents: sorted.map((agent) => toPublicAgentSummary(agent, { country, state, city })),
       });
     }
 
-    // No agent in the exact city — if we know the visitor's coordinates, fall
-    // back to every agent elsewhere in the state and rank them by real
-    // distance from those coordinates instead of returning nothing.
-    if (!city || !hasCoords) {
-      return NextResponse.json({ agents: [] });
+    // A city was named. Without coordinates we can't judge "nearby", so keep
+    // it simple: exact-city agents only, GOLD first among them.
+    if (!hasCoords) {
+      const locationMatch: Record<string, unknown> = { city };
+      if (country) locationMatch.country = country;
+      if (state) locationMatch.state = state;
+
+      const found = await Agent.find({
+        verificationStatus: "VERIFIED",
+        isListed: true,
+        locations: { $elemMatch: locationMatch },
+      })
+        .sort({ createdAt: -1 })
+        .limit(200)
+        .lean();
+
+      const filtered = found.filter((agent) =>
+        offersService(agent, matchingLocationsFor(agent, { country, state, city }), service),
+      );
+      const sorted = filtered
+        .sort((a, b) => badgeWeight(a.verificationBadge) - badgeWeight(b.verificationBadge))
+        .slice(0, 100);
+      return NextResponse.json({
+        agents: sorted.map((agent) => toPublicAgentSummary(agent, { country, state, city })),
+      });
     }
 
-    const fallbackMatch: Record<string, unknown> = {};
-    if (country) fallbackMatch.country = country;
-    if (state) fallbackMatch.state = state;
-    if (service) fallbackMatch.services = service;
+    // City + coordinates: rank the whole state (not just the named city) so a
+    // GOLD agent nearby always outranks a plain-verified agent in the exact
+    // city — falling back to distance, then exact-city match, when nobody's
+    // GOLD. Agents in the named city always show even without distance data.
+    const stateMatch: Record<string, unknown> = {};
+    if (country) stateMatch.country = country;
+    if (state) stateMatch.state = state;
 
-    const fallbackQuery: Record<string, unknown> = {
-      verificationStatus: "VERIFIED",
-      isListed: true,
-    };
-    if (Object.keys(fallbackMatch).length > 0) {
-      fallbackQuery.locations = { $elemMatch: fallbackMatch };
+    const stateQuery: Record<string, unknown> = { verificationStatus: "VERIFIED", isListed: true };
+    if (Object.keys(stateMatch).length > 0) {
+      stateQuery.locations = { $elemMatch: stateMatch };
     }
 
-    const candidates = await Agent.find(fallbackQuery).limit(200).lean();
+    const candidates = await Agent.find(stateQuery).sort({ createdAt: -1 }).limit(300).lean();
     const userPoint = { lat, lng };
 
     const ranked = candidates
       .map((agent) => {
-        const matchingLocations = ((agent.locations ?? []) as AgentLocation[]).filter(
-          (location) =>
-            (!country || location.country === country) &&
-            (!state || location.state === state) &&
-            (!service || (location.services ?? []).includes(service)),
-        );
+        const matchingLocations = matchingLocationsFor(agent, { country, state });
+        if (!offersService(agent, matchingLocations, service)) return null;
+
+        // Named-city match is decided by string equality against whatever
+        // the visitor's device resolved their city to — that string can
+        // legitimately differ from an agent's registered city (geocoder
+        // quirks, unlisted towns falling back to a raw name, etc.). Real
+        // distance is computed independently below and is what actually
+        // decides ranking, so a shaky cityMatch never lets a farther agent
+        // steal a "same city" placement it didn't earn.
+        const cityMatch = matchingLocations.some((location) => location.city === city);
 
         let nearestCity = "";
         let nearestDistanceKm = Infinity;
@@ -105,9 +161,15 @@ export async function GET(request: NextRequest) {
           }
         }
 
-        return { agent, nearestCity, nearestDistanceKm };
+        return { agent, cityMatch, nearestCity, nearestDistanceKm };
       })
-      .filter((entry) => Number.isFinite(entry.nearestDistanceKm))
+      .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
+      // Keep every exact-city agent regardless of distance data; only keep
+      // elsewhere-in-state agents we can place within the nearby radius.
+      .filter((entry) => entry.cityMatch || entry.nearestDistanceKm <= NEARBY_RADIUS_KM)
+      // Badge tier first, then purely real distance — an exact city-name
+      // match carries no extra weight of its own, so the actually-nearest
+      // GOLD agent always wins regardless of how their city string compares.
       .sort(
         (a, b) =>
           badgeWeight(a.agent.verificationBadge) - badgeWeight(b.agent.verificationBadge) ||
@@ -116,11 +178,17 @@ export async function GET(request: NextRequest) {
       .slice(0, 100);
 
     return NextResponse.json({
-      agents: ranked.map((entry) => ({
-        ...toPublicAgentSummary(entry.agent, { country, state, city: entry.nearestCity }),
-        distanceKm: Math.round(entry.nearestDistanceKm),
-      })),
-      nearbyFallback: ranked.length > 0,
+      agents: ranked.map((entry) => {
+        const summary = toPublicAgentSummary(entry.agent, {
+          country,
+          state,
+          city: entry.cityMatch ? city : entry.nearestCity,
+        });
+        return entry.cityMatch ? summary : { ...summary, distanceKm: Math.round(entry.nearestDistanceKm) };
+      }),
+      // "No verified agents in <city> — showing nearest agents" only makes
+      // sense when nobody actually matched the named city.
+      nearbyFallback: ranked.length > 0 && !ranked.some((entry) => entry.cityMatch),
     });
   } catch (error) {
     console.error("public agents list error", error);

@@ -68,6 +68,7 @@ export type PublicAgentSummary = {
   city: string;
   description: string;
   services: string[];
+  businessType?: string;
   profileImage?: AgentDoc | null;
   experienceYears?: number | null;
   startingPrice?: number | null;

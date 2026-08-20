@@ -212,7 +212,7 @@ export default function NewAgentPage() {
                           "flex items-center gap-[7px] rounded-2xl px-[14px] py-2.5 text-xs font-bold transition " +
                           (active ? "text-[#F6E2B4]" : "neu-raised-sm text-[#4A4238]")
                         }
-                        style={active ? { background: "#06042a" } : undefined}
+                        style={active ? { background: "#CCAE2C" } : undefined}
                       >
                         <span className="text-[13px]">{service.icon}</span>
                         {service.label}
@@ -317,7 +317,7 @@ export default function NewAgentPage() {
               type="submit"
               disabled={saving}
               className="flex items-center gap-2 rounded-full px-[26px] py-[15px] text-[13.5px] font-extrabold text-[#F6E2B4] disabled:opacity-75"
-              style={{ background: "#06042a" }}
+              style={{ background: "#CCAE2C" }}
             >
               {saving && <Spinner className="h-3.5 w-3.5" />}
               {saving ? "Adding agent…" : "Add Agent"}
