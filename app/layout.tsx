@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Plus_Jakarta_Sans, Amiri } from "next/font/google";
+import { Geist_Mono, Roboto, Plus_Jakarta_Sans, Amiri } from "next/font/google";
 import "./globals.css";
 import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_LOGO_PATH, SITE_NAME, SITE_OG_IMAGE_PATH, SITE_URL } from "@/lib/site-config";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const roboto = Roboto({
+  variable: "--font-roboto",
   subsets: ["latin"],
+  weight: "variable",
+  style: ["normal", "italic"],
 });
 
 const geistMono = Geist_Mono({
@@ -95,7 +97,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${jakarta.variable} ${amiri.variable} h-full antialiased`}
+      className={`${roboto.variable} ${geistMono.variable} ${jakarta.variable} ${amiri.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white text-emerald-950">
         <script
