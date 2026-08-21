@@ -30,21 +30,23 @@ const MESSAGES = [
   },
 ];
 
-export default function AgentPromoWidget() {
+export default function AgentPromoWidget({
+  visible,
+  dismissed,
+  onDismiss,
+}: {
+  visible: boolean;
+  dismissed: boolean;
+  onDismiss: () => void;
+}) {
   const router = useRouter();
-  const [visible, setVisible] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
   const [message, setMessage] = useState<(typeof MESSAGES)[number] | null>(null);
 
   useEffect(() => {
     const pickId = setTimeout(() => {
       setMessage(MESSAGES[Math.floor(Math.random() * MESSAGES.length)]);
     }, 0);
-    const showId = setTimeout(() => setVisible(true), 600);
-    return () => {
-      clearTimeout(pickId);
-      clearTimeout(showId);
-    };
+    return () => clearTimeout(pickId);
   }, []);
 
   if (dismissed || !message) return null;
@@ -58,7 +60,7 @@ export default function AgentPromoWidget() {
       <div className="relative rounded-2xl bg-emerald-900 p-5 pt-6 text-white shadow-lg ring-1 ring-emerald-950/20">
         <button
           type="button"
-          onClick={() => setDismissed(true)}
+          onClick={onDismiss}
           aria-label="Close"
           className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full text-emerald-200 hover:bg-white/10 hover:text-white"
         >

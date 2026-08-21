@@ -30,14 +30,19 @@ function badgeWeight(badge: string | undefined): number {
 // the closest one on record.
 const NEARBY_RADIUS_KM = 200;
 
-// The service/business-type filter chips on the homepage are meant to be an
-// exclusive "this is what this agent does" match against their single
-// businessType field — not a fuzzy "offers this among other things" check.
-// (Older per-location multi-select services still exist and are shown as
-// tags on the card, but they don't drive this filter.)
+// A match is either "this is this agent's primary business type" or "this
+// agent tagged one of their locations as offering it" — e.g. a Travel Agency
+// whose locations list Hajj Package as one of several services offered
+// still needs to surface on the Hajj Package page, not just agents whose
+// single businessType is exactly "hajj-package".
 function offersService(agent: AgentLean, service?: string): boolean {
   if (!service) return true;
-  return agent.businessType === service;
+  if (agent.businessType === service) return true;
+  return (agent.locations ?? []).some((location) => location.services?.includes(service));
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function matchingLocationsFor(
@@ -63,9 +68,11 @@ export async function GET(request: NextRequest) {
     const state = searchParams.get("state")?.trim();
     const city = searchParams.get("city")?.trim();
     const service = searchParams.get("service")?.trim();
+    const name = searchParams.get("q")?.trim();
     const lat = Number.parseFloat(searchParams.get("lat") ?? "");
     const lng = Number.parseFloat(searchParams.get("lng") ?? "");
     const hasCoords = Number.isFinite(lat) && Number.isFinite(lng);
+    const nameMatch = name ? { companyName: { $regex: escapeRegex(name), $options: "i" } } : {};
 
     await connectToDatabase();
 
@@ -75,7 +82,7 @@ export async function GET(request: NextRequest) {
       if (country) locationMatch.country = country;
       if (state) locationMatch.state = state;
 
-      const query: Record<string, unknown> = { verificationStatus: "VERIFIED", isListed: true };
+      const query: Record<string, unknown> = { verificationStatus: "VERIFIED", isListed: true, ...nameMatch };
       if (Object.keys(locationMatch).length > 0) {
         query.locations = { $elemMatch: locationMatch };
       }
@@ -100,6 +107,7 @@ export async function GET(request: NextRequest) {
       const found = await Agent.find({
         verificationStatus: "VERIFIED",
         isListed: true,
+        ...nameMatch,
         locations: { $elemMatch: locationMatch },
       })
         .sort({ createdAt: -1 })
@@ -123,7 +131,7 @@ export async function GET(request: NextRequest) {
     if (country) stateMatch.country = country;
     if (state) stateMatch.state = state;
 
-    const stateQuery: Record<string, unknown> = { verificationStatus: "VERIFIED", isListed: true };
+    const stateQuery: Record<string, unknown> = { verificationStatus: "VERIFIED", isListed: true, ...nameMatch };
     if (Object.keys(stateMatch).length > 0) {
       stateQuery.locations = { $elemMatch: stateMatch };
     }

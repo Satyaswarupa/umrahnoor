@@ -1,8 +1,8 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import AgentPromoWidget from "@/components/AgentPromoWidget";
-import WhatsAppFloatButton from "@/components/WhatsAppFloatButton";
+import FloatingWidgets from "@/components/FloatingWidgets";
 import HeroSearch from "@/components/home/HeroSearch";
 import TypewriterText from "@/components/home/TypewriterText";
 import ServicesShowcase from "@/components/home/ServicesShowcase";
@@ -157,31 +157,49 @@ export default async function Home() {
               "linear-gradient(180deg, rgba(10,12,16,.35) 0%, rgba(10,12,16,.55) 55%, rgba(10,12,16,.85) 100%), url('https://i.ibb.co/j9N4C30C/pexels-earth-photart-2149767641-35315917-1.jpg')",
           }}
         >
-          <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center text-center">
-            <div className="inline-flex items-center gap-2.5 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
-              <span className="h-[7px] w-[7px] rounded-full bg-[#25D366]" />
-              <span className="text-[11px] font-bold tracking-[0.08em] text-white/90">
-                {stats.agentCount} VERIFIED AGENTS · {stats.cityCount} CITIES
-              </span>
+          <div className="relative z-10 mx-auto w-full max-w-6xl">
+            <div className="flex max-w-2xl flex-col items-start text-left">
+              <div className="inline-flex items-center gap-2.5 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
+                <span className="h-[7px] w-[7px] rounded-full bg-[#25D366]" />
+                <span className="text-[11px] font-bold tracking-[0.08em] text-white/90">
+                  {stats.agentCount} VERIFIED AGENTS · {stats.cityCount} CITIES
+                </span>
+              </div>
+
+              <h1 className="mt-5 text-[38px] font-extrabold leading-[1.1] tracking-tight text-white drop-shadow-md sm:text-[54px]">
+                Book Your Umrah Journey
+                <br />
+                <span className="inline-block min-h-[2.3em] align-top">
+                  With{" "}
+                  <TypewriterText
+                    phrases={["Trusted Agents", "Verified Agents", "Affordable Packages"]}
+                    className="text-[#EAC831]"
+                  />
+                </span>
+              </h1>
+
+              <p className="mt-4 text-[14px] font-bold tracking-wide text-[#F6E2B4] sm:text-[15px]">
+                Affordable Packages • Verified Services • Hassle-Free Booking
+              </p>
+
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <a
+                  href="#agents"
+                  className="rounded-2xl px-6 py-3.5 text-sm font-bold text-[#F3EFE6] shadow-sm"
+                  style={{ background: "#CCAE2C" }}
+                >
+                  Get Best Umrah Deals
+                </a>
+                <Link
+                  href="/admin/signup"
+                  className="rounded-2xl border border-white/40 px-6 py-3.5 text-sm font-bold text-white backdrop-blur-sm"
+                >
+                  Become a Partner
+                </Link>
+              </div>
+
+              <HeroSearch />
             </div>
-
-            <h1 className="mt-5 text-[38px] font-extrabold leading-[1.1] tracking-tight text-white drop-shadow-md sm:text-[54px]">
-              Book Your Umrah Journey
-              <br />
-              <span className="inline-block min-h-[2.3em] align-top">
-                With{" "}
-                <TypewriterText
-                  phrases={["Trusted Agents", "Verified Agents", "Affordable Packages"]}
-                  className="text-[#EAC831]"
-                />
-              </span>
-            </h1>
-
-            <p className="mt-4 text-[14px] font-bold tracking-wide text-[#F6E2B4] sm:text-[15px]">
-              Affordable Packages • Verified Services • Hassle-Free Booking
-            </p>
-
-            <HeroSearch />
           </div>
         </section>
 
@@ -232,8 +250,7 @@ export default async function Home() {
       </main>
 
       <SiteFooter />
-      <AgentPromoWidget />
-      <WhatsAppFloatButton />
+      <FloatingWidgets />
     </div>
   );
 }

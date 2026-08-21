@@ -1,81 +1,82 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { resolveLocationQuery, searchLocations, type LocationSuggestion } from "@/lib/locations";
-import { LocationError, resolveNearbyLocation } from "@/lib/geolocation";
+import { useEffect, useState } from "react";
+import type { PublicAgentSummary } from "@/lib/types";
 
 // The dedicated /agents search-results page was removed — the only agents
 // list left is the "Agents near you" section further down this same page
-// (id="agents"). A resolved search updates this same page's ?state=&city=
-// query params, which that section reads to actually filter itself, then
-// scrolls the visitor down to it.
+// (id="agents"). A resolved search updates this same page's ?q= query
+// param, which that section reads to actually filter itself, then scrolls
+// the visitor down to it.
 function scrollToAgents() {
   document.getElementById("agents")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+const MIN_QUERY_LENGTH = 2;
+const SUGGESTION_LIMIT = 5;
+
 export default function HeroSearch() {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [locating, setLocating] = useState(false);
+  const [suggestions, setSuggestions] = useState<PublicAgentSummary[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
-  function goToLocation(state: string, city: string, coords?: { latitude: number; longitude: number }) {
-    setSuggestions([]);
-    const params = new URLSearchParams();
-    params.set("country", "India");
-    if (state) params.set("state", state);
-    if (city) params.set("city", city);
-    if (coords) {
-      params.set("lat", String(coords.latitude));
-      params.set("lng", String(coords.longitude));
+  // Debounced as-you-type name lookup against the same /api/agents?q= the
+  // full grid below uses — reuses its companyName regex match instead of
+  // introducing a second search codepath.
+  useEffect(() => {
+    const trimmed = query.trim();
+    if (trimmed.length < MIN_QUERY_LENGTH) {
+      setSuggestions([]);
+      return;
     }
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      try {
+        const params = new URLSearchParams();
+        params.set("country", "India");
+        params.set("q", trimmed);
+        const res = await fetch(`/api/agents?${params.toString()}`);
+        const data = await res.json();
+        if (cancelled) return;
+        setSuggestions((data.agents ?? []).slice(0, SUGGESTION_LIMIT));
+      } catch {
+        if (!cancelled) setSuggestions([]);
+      }
+    }, 250);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [query]);
+
+  function goSearch(name: string) {
+    setShowSuggestions(false);
+    const params = new URLSearchParams();
+    params.set("q", name);
     router.push(`/?${params.toString()}#agents`, { scroll: false });
     scrollToAgents();
   }
 
-  function handleChangeQuery(value: string) {
-    setQuery(value);
-    setError(null);
-    setSuggestions(value.trim() ? searchLocations(value) : []);
-  }
-
-  function handleSelectSuggestion(suggestion: LocationSuggestion) {
-    setQuery(suggestion.label);
-    goToLocation(suggestion.state, suggestion.city);
-  }
-
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    if (!query.trim()) {
+    const trimmed = query.trim();
+    if (!trimmed) {
+      setShowSuggestions(false);
       scrollToAgents();
       return;
     }
-    const resolved = resolveLocationQuery(query);
-    if (!resolved) {
-      setError("No matching city or state found. Try another search.");
-      return;
-    }
-    goToLocation(resolved.state, resolved.city);
+    goSearch(trimmed);
   }
 
-  async function handleNearMe() {
-    setError(null);
-    setLocating(true);
-    try {
-      const resolved = await resolveNearbyLocation();
-      setQuery([resolved.city, resolved.state].filter(Boolean).join(", "));
-      goToLocation(resolved.state, resolved.city, {
-        latitude: resolved.latitude,
-        longitude: resolved.longitude,
-      });
-    } catch (err) {
-      setError(err instanceof LocationError ? err.message : "Could not determine your location.");
-    } finally {
-      setLocating(false);
-    }
+  function handleSelectSuggestion(agent: PublicAgentSummary) {
+    setQuery(agent.companyName);
+    setShowSuggestions(false);
+    router.push(`/agents/${agent.id}`);
   }
+
+  const visibleSuggestions = showSuggestions ? suggestions : [];
 
   return (
     <form onSubmit={handleSubmit} className="relative mt-7 max-w-[620px]">
@@ -87,52 +88,47 @@ export default function HeroSearch() {
           </svg>
           <input
             value={query}
-            onChange={(e) => handleChangeQuery(e.target.value)}
-            placeholder="Search agent, city or area…"
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setShowSuggestions(true);
+            }}
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+            placeholder="Search agent name…"
             className="min-w-0 flex-1 border-none bg-transparent text-sm font-semibold text-[#3A342B] outline-none placeholder:text-[#9A907C]"
+            autoComplete="off"
           />
         </div>
-        <div className="flex gap-2.5">
-          <button
-            type="button"
-            onClick={handleNearMe}
-            disabled={locating}
-            className="neu-raised-sm flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-2xl px-[18px] py-3.5 text-[#0E5B4A] transition disabled:opacity-60 sm:flex-initial"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E5B4A" strokeWidth={2.1} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 3L14 21l-2.4-7.6L4 11z" />
-            </svg>
-            <span className="text-sm font-bold">{locating ? "Locating…" : "Near me"}</span>
-          </button>
-          <button
-            type="submit"
-            className="flex-1 rounded-2xl px-6 py-3.5 text-sm font-bold text-[#F3EFE6] shadow-sm sm:flex-initial"
-            style={{ background: "#CCAE2C" }}
-          >
-            Search
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="rounded-2xl px-6 py-3.5 text-sm font-bold text-[#F3EFE6] shadow-sm"
+          style={{ background: "#CCAE2C" }}
+        >
+          Search
+        </button>
       </div>
 
-      {suggestions.length > 0 && (
+      {visibleSuggestions.length > 0 && (
         <div className="neu-raised absolute left-0 right-0 top-full z-10 mt-2 overflow-hidden rounded-2xl bg-white">
-          {suggestions.map((suggestion, index) => (
+          {visibleSuggestions.map((agent, index) => (
             <button
-              key={suggestion.label}
+              key={agent.id}
               type="button"
-              onClick={() => handleSelectSuggestion(suggestion)}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => handleSelectSuggestion(agent)}
               className={
-                "flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-[#24201A] hover:bg-[#F4F2EC]" +
+                "flex w-full items-center justify-between gap-2 px-4 py-2.5 text-left hover:bg-[#F4F2EC]" +
                 (index > 0 ? " border-t border-[#00000010]" : "")
               }
             >
-              {suggestion.label}
+              <span className="text-sm font-semibold text-[#24201A]">{agent.companyName}</span>
+              <span className="text-xs text-[#9A907C]">
+                {[agent.city, agent.state].filter(Boolean).join(", ")}
+              </span>
             </button>
           ))}
         </div>
       )}
-
-      {error && <p className="mt-2 text-xs font-semibold text-[#B14A2E]">{error}</p>}
     </form>
   );
 }

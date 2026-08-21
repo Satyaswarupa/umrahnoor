@@ -57,6 +57,7 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
   const searchedLat = searchParams.get("lat");
   const searchedLng = searchParams.get("lng");
   const searchedService = searchParams.get("service") ?? "";
+  const searchedName = searchParams.get("q") ?? "";
 
   if (searchedService !== prevSearchedService) {
     setPrevSearchedService(searchedService);
@@ -65,7 +66,11 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
 
   useEffect(() => {
     let cancelled = false;
-    const searched = Boolean(searchedState || searchedCity);
+    const searched = Boolean(searchedState || searchedCity || searchedName);
+    // A name-only search (no place picked) shouldn't fall back to
+    // auto-resolving the visitor's location — it should just search by name
+    // across all of India, same as picking "All India" in the location bar.
+    const shouldResolveNearMe = !searched;
 
     (async () => {
       setNearby((prev) => ({ ...prev, loading: true }));
@@ -75,7 +80,7 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
         let latitude = searchedLat ? Number.parseFloat(searchedLat) : null;
         let longitude = searchedLng ? Number.parseFloat(searchedLng) : null;
 
-        if (!searched) {
+        if (shouldResolveNearMe) {
           const resolved = await resolveNearbyLocation();
           if (cancelled) return;
           resolvedState = resolved.state;
@@ -92,6 +97,7 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
           params.set("lat", String(latitude));
           params.set("lng", String(longitude));
         }
+        if (searchedName) params.set("q", searchedName);
 
         const res = await fetch(`/api/agents?${params.toString()}`);
         const data = await res.json();
@@ -154,7 +160,7 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
     return () => {
       cancelled = true;
     };
-  }, [searchedState, searchedCity, searchedLat, searchedLng]);
+  }, [searchedState, searchedCity, searchedLat, searchedLng, searchedName]);
 
   const [chipAgents, setChipAgents] = useState<PublicAgentSummary[] | null>(null);
   const [chipLoading, setChipLoading] = useState(false);
@@ -174,6 +180,7 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
         params.set("lat", String(nearby.latitude));
         params.set("lng", String(nearby.longitude));
       }
+      if (searchedName) params.set("q", searchedName);
       params.set("service", chip);
       const res = await fetch(`/api/agents?${params.toString()}`);
       const data = await res.json();
@@ -184,7 +191,7 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
     return () => {
       cancelled = true;
     };
-  }, [chip, nearby.state, nearby.city, nearby.latitude, nearby.longitude]);
+  }, [chip, nearby.state, nearby.city, nearby.latitude, nearby.longitude, searchedName]);
 
   const loading = nearby.loading || chipLoading;
   const agents = chip ? (chipAgents ?? []) : (nearby.agents ?? initialAgents);
@@ -192,8 +199,14 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
   const noSearchResults = !chip && nearby.source === "search" && agents.length === 0;
   const showingNearbyFallback = !chip && nearby.nearbyFallback && agents.length > 0;
 
-  const title =
-    nearby.source === "search"
+  // A name search takes over the heading regardless of whether a location
+  // was also picked — "results for X" is the more useful framing than
+  // "agents in Y" once the visitor has typed a specific agent name.
+  const title = searchedName
+    ? agents.length > 0
+      ? `Results for "${searchedName}"`
+      : `No agents named "${searchedName}"`
+    : nearby.source === "search"
       ? agents.length > 0
         ? showingNearbyFallback
           ? `No agents in ${locationLabel} — nearest agents`
@@ -202,8 +215,11 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
       : nearby.source === "near-me"
         ? "Agents near you"
         : "Verified Umrah agents";
-  const subtitle =
-    nearby.source === "search"
+  const subtitle = searchedName
+    ? agents.length > 0
+      ? `${agents.length} agent${agents.length === 1 ? "" : "s"} matching "${searchedName}"${locationLabel ? ` in ${locationLabel}` : ""}.`
+      : `We couldn't find any verified agents named "${searchedName}"${locationLabel ? ` in ${locationLabel}` : ""}.`
+    : nearby.source === "search"
       ? agents.length > 0
         ? showingNearbyFallback
           ? `No verified agents in ${locationLabel} yet — showing the ${agents.length} closest agents in ${nearby.state}, nearest first.`
@@ -285,6 +301,7 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
                         src={agent.profileImage.url}
                         alt={`${agent.companyName} — verified Umrah agent logo`}
                         fill
+                        sizes="62px"
                         className="object-cover"
                       />
                     ) : (
