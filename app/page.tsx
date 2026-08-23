@@ -38,6 +38,11 @@ const HOW_IT_WORKS = [
 
 const FAQS = [
   {
+    question: "What is UmrahJao?",
+    answer:
+      "UmrahJao is a free, India-wide directory of verified, GST-registered Umrah and Hajj travel agents. It's built for pilgrims who want to find and contact a trustworthy local agent directly — UmrahJao itself does not sell packages, process bookings, or take any commission.",
+  },
+  {
     question: "Is UmrahJao free to use?",
     answer:
       "Yes. UmrahJao is completely free for pilgrims. There are no booking fees, no commissions, and no middlemen — you contact agents directly.",
@@ -94,6 +99,20 @@ const webPageJsonLd = {
     "@type": "Audience",
     audienceType: "Pilgrims and families in India planning Umrah travel",
   },
+};
+
+const howToJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  name: "How to find and contact a verified Umrah agent on UmrahJao",
+  description:
+    "Three steps to find, compare, and directly contact a verified Umrah travel agent in India.",
+  step: HOW_IT_WORKS.map((item, index) => ({
+    "@type": "HowToStep",
+    position: index + 1,
+    name: item.step,
+    text: item.text,
+  })),
 };
 
 const breadcrumbJsonLd = {
@@ -177,7 +196,7 @@ export default async function Home() {
                 <span className="inline-block min-h-[2.3em] align-top">
                   With{" "}
                   <TypewriterText
-                    phrases={["Trusted Agents", "Verified Agents", "Affordable Packages"]}
+                    phrases={["Verified Agents", "Trusted Agents", "Affordable Packages"]}
                     className="text-[#EAC831]"
                   />
                 </span>
@@ -208,6 +227,19 @@ export default async function Home() {
           </div>
         </section>
 
+        <section className="mx-auto max-w-3xl px-4 pt-10 sm:px-6" style={{ fontFamily: "var(--font-jakarta), sans-serif" }}>
+          <p className="text-[15px] leading-[1.7] text-[#4A4238]">
+            <strong>UmrahJao</strong> is a free, India-wide directory of{" "}
+            <strong>
+              {stats.agentCount}+ verified, GST-registered Umrah and Hajj travel agents
+            </strong>{" "}
+            across {stats.cityCount}+ cities. It&apos;s built for pilgrims and families across
+            India who want to book directly with a licensed local agent instead of an unverified
+            reseller — search your city, compare verified agents, then call or WhatsApp the one
+            you choose. No account, no booking fee, no middleman.
+          </p>
+        </section>
+
         <Suspense fallback={<AgentsGridSkeleton />}>
           <AgentsGrid initialAgents={featuredAgents} />
         </Suspense>
@@ -217,6 +249,10 @@ export default async function Home() {
         <ServicesShowcase />
 
         <section className="mx-auto max-w-6xl px-4 pt-20 sm:px-6" style={{ fontFamily: "var(--font-jakarta), sans-serif" }}>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }}
+          />
           <h2 className="text-[28px] font-extrabold tracking-tight text-[#24201A] sm:text-[30px]">
             How does UmrahJao work?
           </h2>
