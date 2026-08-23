@@ -57,9 +57,10 @@ function matchingLocationsFor(
   );
 }
 
-// Verified/listed agents change infrequently — cache each distinct search
-// (by query string) for a minute instead of hitting the DB on every request.
-export const revalidate = 60;
+// Reads request.url for per-request search params, so it can never be
+// statically prerendered — declare it dynamic explicitly instead of letting
+// Next attempt (and bail out of) a static render on every build.
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   try {
