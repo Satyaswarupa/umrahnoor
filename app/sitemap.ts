@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Agent } from "@/models/Agent";
 import { SITE_URL } from "@/lib/site-config";
+import { BLOG_POSTS } from "@/lib/blog-posts";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   await connectToDatabase();
@@ -17,7 +18,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [
+  const blogEntries: MetadataRoute.Sitemap = BLOG_POSTS.map((post) => ({
+    url: `${SITE_URL}/blog/${post.slug}`,
+    lastModified: new Date(post.date),
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
+
+  const staticEntries: MetadataRoute.Sitemap = [
     {
       url: `${SITE_URL}/`,
       lastModified: new Date(),
@@ -25,11 +33,42 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     {
+      url: `${SITE_URL}/hajj-package`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${SITE_URL}/umrah-package`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${SITE_URL}/zyarat-package`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${SITE_URL}/blog`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.6,
+    },
+    {
+      url: `${SITE_URL}/plan`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.4,
+    },
+    {
       url: `${SITE_URL}/admin/signup`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.5,
     },
-    ...agentEntries,
   ];
+
+  return [...staticEntries, ...blogEntries, ...agentEntries];
 }

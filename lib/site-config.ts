@@ -1,6 +1,6 @@
 export const SITE_NAME = "UmrahJao";
 
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://umrahjao.vercel.app").replace(
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.umrahjao.com").replace(
   /\/$/,
   ""
 );
@@ -16,6 +16,11 @@ export const SITE_KEYWORDS = [
   "Hajj and Umrah travel agency",
   "book Umrah",
   "Umrah agent near me",
+  "Umrah Jao",
+  "UmrahJao",
+  "Umrajao",
+  "UmrahChalo",
+  "Umrah Chalo",
 ];
 
 export const SITE_LOGO_PATH = "/logo.png";

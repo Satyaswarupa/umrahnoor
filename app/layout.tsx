@@ -74,7 +74,7 @@ const organizationJsonLd = {
   "@type": "Organization",
   "@id": `${SITE_URL}/#organization`,
   name: SITE_NAME,
-  alternateName: "Umrah Noor",
+  alternateName: ["Umrah Noor", "Umrah Jao", "Umrajao", "Umrahchalo", "Umrah Chalo", "Umrah Chal", "Umrahjaa"],
   url: SITE_URL,
   logo: `${SITE_URL}${SITE_LOGO_PATH}`,
   description: SITE_DESCRIPTION,

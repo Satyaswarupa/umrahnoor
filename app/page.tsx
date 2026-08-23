@@ -62,6 +62,11 @@ const FAQS = [
     answer:
       "Yes. Use the location search or Near Me on the homepage to see verified Umrah agents in any city or state across India.",
   },
+  {
+    question: "Is UmrahJao also known by other names?",
+    answer:
+      "Yes — people also search for us as Umrah Jao, Umrajao, UmrahChalo, Umrah Chalo, or Umrahjaa. All of these refer to the same website, umrahjao.com.",
+  },
 ];
 
 const faqJsonLd = {
