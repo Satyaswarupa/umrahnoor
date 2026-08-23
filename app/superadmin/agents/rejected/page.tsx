@@ -44,7 +44,7 @@ export default function RejectedAgentsPage() {
         <div className="flex items-center gap-2.5">
           <span
             className="rounded-full px-4 py-2.5 text-[11.5px] font-extrabold tracking-[0.06em] text-[#F6E2B4]"
-            style={{ background: "#CCAE2C" }}
+            style={{ background: "#1D6FD8" }}
           >
             REJECTED
           </span>

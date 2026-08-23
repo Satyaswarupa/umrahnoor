@@ -28,17 +28,17 @@ function NavLinks({
       {!session && (
         <>
           <Link
-            href="/login"
+            href="/signup"
             className="text-center text-sm font-semibold text-[#4A4238] hover:text-[#0E5B4A]"
           >
-            Login
+            Sign Up
           </Link>
           <Link
-            href="/signup"
-            className="rounded-full px-5 py-2.5 text-center text-[13px] font-bold text-[#F3EFE6] shadow-sm"
-            style={{ background: "#CCAE2C" }}
+            href="/login"
+            className="rounded-full px-6 py-2.5 text-center text-[13px] font-extrabold uppercase tracking-wide text-white shadow-sm"
+            style={{ background: "#15803D" }}
           >
-            Sign Up
+            Login
           </Link>
         </>
       )}
@@ -56,7 +56,7 @@ function NavLinks({
             <Link
               href="/admin/dashboard"
               className="rounded-full px-5 py-2.5 text-center text-[13px] font-bold text-[#F3EFE6] shadow-sm"
-              style={{ background: "#CCAE2C" }}
+              style={{ background: "#1D6FD8" }}
             >
               Agent Dashboard
             </Link>
@@ -70,7 +70,7 @@ function NavLinks({
           <Link
             href="/superadmin/dashboard"
             className="rounded-full px-5 py-2.5 text-center text-[13px] font-bold text-[#F3EFE6] shadow-sm"
-            style={{ background: "#CCAE2C" }}
+            style={{ background: "#1D6FD8" }}
           >
             Superadmin Dashboard
           </Link>
@@ -169,12 +169,37 @@ export default async function SiteHeader({ showAgentDashboardLink = true }: { sh
         <input type="checkbox" id="mobile-nav-toggle" className="peer hidden" />
 
         <div className="flex items-center gap-4 py-3.5">
-          <Link href="/" className="flex shrink-0 items-center gap-3">
-            <Image src="/logo.png" alt="UmrahJao logo" width={40} height={40} className="h-10 w-10 rounded-[14px]" priority />
-            <div className="text-[16px] font-extrabold tracking-tight text-[#24201A]">UmrahJao</div>
+          <Link href="/" className="flex shrink-0 items-center gap-2">
+            <Image src="/logo.png" alt="UmrahJao logo" width={32} height={32} className="h-8 w-8 rounded-[10px]" priority />
+            <div className="text-[22px] font-extrabold tracking-tight">
+              <span className="text-[#151A40]">Umrah</span>
+              <span className="text-[#1D6FD8]">Jao</span>
+            </div>
           </Link>
 
           <PackagesNav className="ml-4 hidden items-center gap-6 lg:flex" />
+
+          <form
+            action="/"
+            className="ml-4 hidden min-w-0 max-w-xs flex-1 items-center gap-2 rounded-full border border-black/10 bg-white pl-4 pr-1.5 py-1.5 lg:flex"
+          >
+            <input
+              name="q"
+              placeholder="Search agents…"
+              className="min-w-0 flex-1 border-none bg-transparent text-[13px] font-semibold text-[#3A342B] outline-none placeholder:text-[#9A907C]"
+            />
+            <button
+              type="submit"
+              aria-label="Search"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-full"
+              style={{ background: "#1D6FD8" }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={2.4} strokeLinecap="round">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M16.5 16.5L21 21" />
+              </svg>
+            </button>
+          </form>
 
           <NavLinks
             session={session}

@@ -5,10 +5,9 @@ import { useState } from "react";
 import { resolveLocationQuery, searchLocations, type LocationSuggestion } from "@/lib/locations";
 import { LocationError, resolveNearbyLocation } from "@/lib/geolocation";
 
-// Same search-or-near-me pattern as the homepage's HeroSearch, but it stays
-// on whatever package page rendered it (instead of always routing to "/")
-// and always pins ?service= to that package so the agent grid below only
-// ever shows agents offering it.
+// A search-or-near-me bar that stays on whatever package page rendered it
+// (instead of routing to "/") and always pins ?service= to that package so
+// the agent grid below only ever shows agents offering it.
 export default function PackageSearch({ serviceSlug }: { serviceSlug: string }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -108,7 +107,7 @@ export default function PackageSearch({ serviceSlug }: { serviceSlug: string }) 
           <button
             type="submit"
             className="flex-1 rounded-2xl px-6 py-3.5 text-sm font-bold text-[#F3EFE6] shadow-sm sm:flex-initial"
-            style={{ background: "#CCAE2C" }}
+            style={{ background: "#1D6FD8" }}
           >
             Search
           </button>

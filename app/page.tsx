@@ -3,7 +3,6 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import FloatingWidgets from "@/components/FloatingWidgets";
-import HeroSearch from "@/components/home/HeroSearch";
 import TypewriterText from "@/components/home/TypewriterText";
 import ServicesShowcase from "@/components/home/ServicesShowcase";
 import ServicePicker from "@/components/home/ServicePicker";
@@ -174,70 +173,75 @@ export default async function Home() {
       <SiteHeader />
 
       <main className="flex-1" style={{ fontFamily: "var(--font-jakarta), sans-serif" }}>
-        <section
-          className="relative overflow-hidden bg-cover bg-center px-4 pb-20 pt-24 sm:px-6 sm:pb-28 sm:pt-28 lg:flex lg:min-h-[680px] lg:items-center lg:pb-0 lg:pt-0"
-          style={{
-            backgroundImage:
-              "linear-gradient(180deg, rgba(10,12,16,.35) 0%, rgba(10,12,16,.55) 55%, rgba(10,12,16,.85) 100%), url('https://i.ibb.co/j9N4C30C/pexels-earth-photart-2149767641-35315917-1.jpg')",
-          }}
-        >
+        <section className="relative overflow-hidden px-4 pb-12 pt-20 sm:px-6 sm:pb-14 sm:pt-24 lg:flex lg:min-h-[580px] lg:items-center lg:pb-16 lg:pt-0">
+          <div
+            className="absolute inset-0 bg-cover bg-center sm:hidden"
+            style={{
+              backgroundImage:
+                "linear-gradient(100deg, rgba(255,255,255,.94) 0%, rgba(255,255,255,.8) 28%, rgba(255,255,255,.35) 50%, rgba(10,12,16,.15) 68%, rgba(10,12,16,.4) 100%), url('https://i.ibb.co/4gK6PzZ3/Gemini-Generated-Image-mdnbtrmdnbtrmdnb.png')",
+            }}
+          />
+          <div
+            className="absolute inset-0 hidden bg-cover bg-center sm:block"
+            style={{
+              backgroundImage:
+                "linear-gradient(100deg, rgba(255,255,255,.94) 0%, rgba(255,255,255,.8) 28%, rgba(255,255,255,.35) 50%, rgba(10,12,16,.15) 68%, rgba(10,12,16,.4) 100%), url('https://i.ibb.co/NnVKMYVN/Gemini-Generated-Image-2vrqva2vrqva2vrq.png')",
+            }}
+          />
+
           <div className="relative z-10 mx-auto w-full max-w-6xl">
             <div className="flex max-w-2xl flex-col items-start text-left">
-              <div className="inline-flex items-center gap-2.5 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
-                <span className="h-[7px] w-[7px] rounded-full bg-[#25D366]" />
-                <span className="text-[11px] font-bold tracking-[0.08em] text-white/90">
+              <div className="inline-flex items-center gap-2.5 rounded-full bg-[#151A40]/[0.06] px-4 py-2">
+                <span className="h-[7px] w-[7px] rounded-full bg-[#16A34A]" />
+                <span className="text-[11px] font-bold tracking-[0.08em] text-[#151A40]/80">
                   {stats.agentCount} VERIFIED AGENTS · {stats.cityCount} CITIES
                 </span>
               </div>
 
-              <h1 className="mt-5 text-[38px] font-extrabold leading-[1.1] tracking-tight text-white drop-shadow-md sm:text-[54px]">
+              <div
+                className="mt-3 text-[22px] italic text-[#D9A521] sm:text-[26px]"
+                style={{ fontFamily: "'Segoe Script', 'Brush Script MT', cursive" }}
+              >
+                Hajj Mubarak
+              </div>
+
+              <h1 className="mt-1 text-[32px] font-extrabold leading-[1.1] tracking-tight text-[#151A40] sm:text-[44px]">
                 Book Your Umrah Journey
                 <br />
-                <span className="inline-block min-h-[2.3em] align-top">
+                <span className="block min-h-[2.3em] align-top sm:min-h-[1.2em]">
                   With{" "}
                   <TypewriterText
                     phrases={["Verified Agents", "Trusted Agents", "Affordable Packages"]}
-                    className="text-[#EAC831]"
+                    className="text-[#ebf5ec]"
                   />
                 </span>
               </h1>
 
-              <p className="mt-4 text-[14px] font-bold tracking-wide text-[#F6E2B4] sm:text-[15px]">
+              <p
+                className="mt-3 text-[13px] font-bold tracking-wide text-[#151A40] sm:text-[14px]"
+                style={{ textShadow: "0 1px 12px rgba(255,255,255,0.8)" }}
+              >
                 Affordable Packages • Verified Services • Hassle-Free Booking
               </p>
 
-              <div className="mt-6 flex flex-wrap items-center gap-3">
+              <div className="mt-5 flex flex-wrap items-center gap-3">
                 <a
                   href="#agents"
-                  className="rounded-2xl px-6 py-3.5 text-sm font-bold text-[#F3EFE6] shadow-sm"
-                  style={{ background: "#CCAE2C" }}
+                  className="flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold text-white shadow-sm"
+                  style={{ background: "#1D6FD8" }}
                 >
                   Get Best Umrah Deals
+                  <span aria-hidden>→</span>
                 </a>
                 <Link
                   href="/admin/signup"
-                  className="rounded-2xl border border-white/40 px-6 py-3.5 text-sm font-bold text-white backdrop-blur-sm"
+                  className="rounded-2xl border border-[#151A40]/30 px-5 py-3 text-sm font-bold text-[#151A40] backdrop-blur-sm"
                 >
                   Become a Partner
                 </Link>
               </div>
-
-              <HeroSearch />
             </div>
           </div>
-        </section>
-
-        <section className="mx-auto max-w-3xl px-4 pt-10 sm:px-6" style={{ fontFamily: "var(--font-jakarta), sans-serif" }}>
-          <p className="text-[15px] leading-[1.7] text-[#4A4238]">
-            <strong>UmrahJao</strong> is a free, India-wide directory of{" "}
-            <strong>
-              {stats.agentCount}+ verified, GST-registered Umrah and Hajj travel agents
-            </strong>{" "}
-            across {stats.cityCount}+ cities. It&apos;s built for pilgrims and families across
-            India who want to book directly with a licensed local agent instead of an unverified
-            reseller — search your city, compare verified agents, then call or WhatsApp the one
-            you choose. No account, no booking fee, no middleman.
-          </p>
         </section>
 
         <Suspense fallback={<AgentsGridSkeleton />}>
@@ -287,6 +291,38 @@ export default async function Home() {
             Frequently Asked Questions
           </h2>
           <FaqAccordion faqs={FAQS} />
+        </section>
+
+        <section className="mx-auto max-w-3xl px-4 pt-20 sm:px-6" style={{ fontFamily: "var(--font-jakarta), sans-serif" }}>
+          <div className="neu-raised-sm rounded-[26px] bg-white p-6 text-center sm:p-8">
+            <p className="text-[15.5px] leading-[1.85] text-[#4A4238] sm:text-[16.5px]">
+              <strong className="text-[#151A40]">UmrahJao</strong> is a free, India-wide directory
+              of{" "}
+              <span className="font-extrabold text-[#1D6FD8]">
+                {stats.agentCount}+ verified, GST-registered
+              </span>{" "}
+              Umrah and Hajj travel agents across{" "}
+              <span className="font-extrabold text-[#1D6FD8]">{stats.cityCount}+ cities</span>.
+              It&apos;s built for pilgrims and families across India who want to book directly
+              with a licensed local agent instead of an unverified reseller — search your city,
+              compare verified agents, then call or WhatsApp the one you choose.
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              {["No account needed", "No booking fee", "No middleman"].map((item) => (
+                <span
+                  key={item}
+                  className="neu-pressed inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[12.5px] font-bold text-[#0E5B4A]"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0E5B4A" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M8.5 12.3l2.3 2.3 4.7-4.9" />
+                  </svg>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
         </section>
       </main>
 

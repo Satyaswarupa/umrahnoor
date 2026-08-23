@@ -132,7 +132,7 @@ export default function TopCities() {
           >
             <div
               className="grid h-16 w-16 place-items-center rounded-full shadow-sm transition group-hover:-translate-y-0.5"
-              style={{ background: "#CCAE2C" }}
+              style={{ background: "#1D6FD8" }}
             >
               <Icon />
             </div>

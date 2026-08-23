@@ -175,13 +175,13 @@ export default function ServicesShowcase() {
           </div>
         </div>
 
-        {/* Right: 2x2 quick service grid */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        {/* Right: quick services — single scrollable row instead of a wrapping grid */}
+        <div className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] lg:grid lg:grid-cols-2 lg:overflow-visible [&::-webkit-scrollbar]:hidden">
           {QUICK_SERVICES.map((s) => (
             <Link
               key={s.slug}
               href="#agents"
-              className="neu-raised-sm flex flex-col overflow-hidden rounded-[26px] bg-white transition hover:-translate-y-0.5"
+              className="neu-raised-sm flex w-[240px] shrink-0 snap-start flex-col overflow-hidden rounded-[26px] bg-white transition hover:-translate-y-0.5 lg:w-auto"
             >
               <div
                 className="h-28 w-full bg-cover bg-center"

@@ -58,7 +58,7 @@ export default function ServicePicker() {
             "rounded-full px-[18px] py-2.5 text-[13px] font-bold transition disabled:cursor-not-allowed disabled:opacity-50 " +
             (activeService ? "text-[#F3EFE6] shadow-sm" : "neu-raised-sm text-[#6E6455]")
           }
-          style={activeService ? { background: "#CCAE2C" } : undefined}
+          style={activeService ? { background: "#1D6FD8" } : undefined}
         >
           Clear Filters
         </button>
@@ -74,12 +74,12 @@ export default function ServicePicker() {
               onClick={() => goToService(service.slug)}
               className={
                 "rounded-[26px] bg-white p-5 text-left transition hover:-translate-y-0.5 " +
-                (active ? "border-2 border-[#CCAE2C]" : "neu-raised-sm")
+                (active ? "border-2 border-[#1D6FD8]" : "neu-raised-sm")
               }
             >
               <div
                 className="grid h-[52px] w-[52px] place-items-center rounded-[17px] text-2xl"
-                style={{ background: "#CCAE2C" }}
+                style={{ background: "#1D6FD8" }}
               >
                 <span>{iconFor(service.slug)}</span>
               </div>

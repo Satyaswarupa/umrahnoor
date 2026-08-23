@@ -11,18 +11,18 @@ export default function PackagesNav({ className }: { className: string }) {
         <Link
           key={pkg.slug}
           href={`/${pkg.slug}`}
-          className="whitespace-nowrap text-sm font-bold text-[#4A4238] transition hover:text-[#0E5B4A]"
+          className="whitespace-nowrap text-[15px] font-bold text-[#151A40] transition hover:text-[#1D6FD8]"
         >
-          {pkg.label}
+          {pkg.label}s
         </Link>
       ))}
 
       <div className="group relative">
         <button
           type="button"
-          className="flex items-center gap-1 whitespace-nowrap text-sm font-bold text-[#4A4238] transition hover:text-[#0E5B4A]"
+          className="flex items-center gap-1 whitespace-nowrap text-[15px] font-bold text-[#151A40] transition hover:text-[#1D6FD8]"
         >
-          More
+          Customize
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
             <path d="M6 9l6 6 6-6" />
           </svg>

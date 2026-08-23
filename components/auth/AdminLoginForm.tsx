@@ -76,7 +76,7 @@ export default function AdminLoginForm() {
           type="submit"
           disabled={loading}
           className="inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-60"
-          style={{ background: "#CCAE2C" }}
+          style={{ background: "#1D6FD8" }}
         >
           {loading && <Spinner className="h-4 w-4" />}
           {loading ? "Logging in..." : "Login"}

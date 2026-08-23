@@ -29,7 +29,7 @@ export default function PlanPage() {
           <Link
             href="/umrah-package"
             className="mt-6 inline-block rounded-2xl px-6 py-3 text-sm font-bold text-[#F3EFE6] shadow-sm"
-            style={{ background: "#CCAE2C" }}
+            style={{ background: "#1D6FD8" }}
           >
             Browse Umrah Packages
           </Link>

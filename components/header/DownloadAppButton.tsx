@@ -36,7 +36,7 @@ export default function DownloadAppButton({ className }: { className?: string })
               type="button"
               onClick={() => setOpen(false)}
               className="mt-5 w-full rounded-2xl px-5 py-3 text-sm font-bold text-[#F3EFE6] shadow-sm"
-              style={{ background: "#CCAE2C" }}
+              style={{ background: "#1D6FD8" }}
             >
               Got it
             </button>

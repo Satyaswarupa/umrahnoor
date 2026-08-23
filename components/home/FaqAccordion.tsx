@@ -26,7 +26,7 @@ export default function FaqAccordion({ faqs }: { faqs: Faq[] }) {
               <span className="font-bold text-[#24201A]">{faq.question}</span>
               <span
                 className={
-                  "grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#CCAE2C] text-white transition-transform duration-300" +
+                  "grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#1D6FD8] text-white transition-transform duration-300" +
                   (open ? " rotate-45" : "")
                 }
               >
