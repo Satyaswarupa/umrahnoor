@@ -4,6 +4,7 @@ import { VERIFICATION_BADGES } from "@/models/Agent";
 
 const phoneRegex = /^\+?[0-9]{7,15}$/;
 const gstRegex = /^[0-9A-Z]{15}$/;
+const indianMobileRegex = /^[6-9]\d{9}$/;
 
 export const nameSchema = z.string().trim().min(2, "Name must be at least 2 characters").max(100);
 export const emailSchema = z.email("Enter a valid email address").trim().toLowerCase();
@@ -15,6 +16,11 @@ export const phoneSchema = z
   .string()
   .trim()
   .regex(phoneRegex, "Enter a valid phone number (digits only, optionally starting with +)");
+export const mobileNumberSchema = z
+  .string()
+  .trim()
+  .regex(indianMobileRegex, "Enter a valid 10-digit mobile number");
+export const otpCodeSchema = z.string().trim().regex(/^\d{6}$/, "Enter the 6-digit code");
 export const countrySchema = z.string().trim().min(2).max(100);
 export const stateSchema = z.string().trim().min(2).max(100);
 export const citySchema = z.string().trim().min(2).max(100);
@@ -34,6 +40,37 @@ export const signupSchema = z
 export const loginSchema = z.object({
   email: emailSchema,
   password: z.string().min(1, "Password is required"),
+});
+
+const portalSchema = z.enum(["user", "admin"]);
+
+export const otpSignupRequestSchema = z
+  .object({
+    name: nameSchema,
+    mobileNumber: mobileNumberSchema,
+    // Only the admin/agent signup form collects this — it lets an agent
+    // also log in with email+password later, alongside mobile OTP. The
+    // regular user signup form never sends it, so it stays optional here.
+    email: emailSchema.optional().or(z.literal("")),
+    password: passwordSchema,
+    confirmPassword: z.string(),
+    portal: portalSchema,
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export const otpLoginRequestSchema = z.object({
+  mobileNumber: mobileNumberSchema,
+  portal: portalSchema,
+});
+
+export const otpVerifySchema = z.object({
+  mobileNumber: mobileNumberSchema,
+  purpose: z.enum(["SIGNUP", "LOGIN"]),
+  otp: otpCodeSchema,
+  portal: portalSchema,
 });
 
 export const adminSignupSchema = z

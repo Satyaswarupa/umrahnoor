@@ -81,7 +81,8 @@ export type PublicAgentSummary = {
 export type SafeUser = {
   id: string;
   name: string;
-  email: string;
+  email?: string;
+  mobileNumber?: string;
   role: "USER" | "ADMIN" | "SUPERADMIN";
   createdAt: string;
 };

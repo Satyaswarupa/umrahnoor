@@ -1,4 +1,5 @@
-import mongoose, { Schema, type InferSchemaType, models, model } from "mongoose";
+import mongoose, { Schema, type InferSchemaType } from "mongoose";
+import { registerModel } from "@/lib/model-registry";
 
 export const VERIFICATION_STATUSES = [
   "INCOMPLETE",
@@ -43,7 +44,7 @@ const AgentSchema = new Schema(
     },
     companyName: { type: String, default: "", trim: true },
     ownerName: { type: String, required: true, trim: true },
-    email: { type: String, required: true, lowercase: true, trim: true },
+    email: { type: String, default: "", lowercase: true, trim: true },
     mobileNumber: { type: String, default: "", trim: true },
     whatsappNumber: { type: String, default: "", trim: true },
     country: { type: String, default: "", trim: true, index: true },
@@ -109,4 +110,4 @@ export type AgentDocument = InferSchemaType<typeof AgentSchema> & {
   _id: mongoose.Types.ObjectId;
 };
 
-export const Agent = models.Agent || model("Agent", AgentSchema);
+export const Agent = registerModel("Agent", AgentSchema);

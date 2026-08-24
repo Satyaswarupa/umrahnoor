@@ -9,7 +9,14 @@ const ROLE_STYLES: Record<string, { fg: string; bg: string }> = {
   USER: { fg: "#5B5346", bg: "rgba(120,110,95,.18)" },
 };
 
-type SafeUser = { id: string; name: string; email: string; role: string; createdAt: string | Date };
+type SafeUser = {
+  id: string;
+  name: string;
+  email?: string;
+  mobileNumber?: string;
+  role: string;
+  createdAt: string | Date;
+};
 
 export default function UsersTable({ users }: { users: SafeUser[] }) {
   const [query, setQuery] = useState("");
@@ -17,7 +24,9 @@ export default function UsersTable({ users }: { users: SafeUser[] }) {
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return users;
-    return users.filter((u) => (u.name + " " + u.email).toLowerCase().includes(q));
+    return users.filter((u) =>
+      (u.name + " " + (u.email ?? "") + " " + (u.mobileNumber ?? "")).toLowerCase().includes(q)
+    );
   }, [users, query]);
 
   return (
@@ -28,7 +37,7 @@ export default function UsersTable({ users }: { users: SafeUser[] }) {
 
       <div className="neu-raised mt-4 rounded-3xl bg-white px-[10px] pb-[6px] pt-[10px]">
         <div className="grid grid-cols-[1.4fr_1.8fr_1fr_1fr] gap-4 px-[18px] py-4">
-          {["NAME", "EMAIL", "ROLE", "JOINED"].map((c) => (
+          {["NAME", "CONTACT", "ROLE", "JOINED"].map((c) => (
             <div key={c} className="text-[10px] font-extrabold tracking-[0.1em] text-[#8A7F6C]">
               {c}
             </div>
@@ -48,7 +57,9 @@ export default function UsersTable({ users }: { users: SafeUser[] }) {
                 </div>
                 <span className="truncate text-[13px] font-bold text-[#24201A]">{user.name}</span>
               </div>
-              <div className="truncate text-[12.5px] text-[#6E6455]">{user.email}</div>
+              <div className="truncate text-[12.5px] text-[#6E6455]">
+                {user.mobileNumber || user.email || "—"}
+              </div>
               <div>
                 <span
                   className="rounded-full px-2.5 py-[5px] text-[10px] font-extrabold tracking-[0.06em]"

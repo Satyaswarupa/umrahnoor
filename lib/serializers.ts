@@ -8,7 +8,8 @@ export function toSafeUser(user: LeanUser) {
   return {
     id: String(user._id),
     name: user.name,
-    email: user.email,
+    email: user.email || undefined,
+    mobileNumber: user.mobileNumber || undefined,
     role: user.role,
     createdAt: user.createdAt,
   };

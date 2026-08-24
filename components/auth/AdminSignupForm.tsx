@@ -5,39 +5,67 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Field, inputClass } from "@/components/form";
 import Spinner from "@/components/Spinner";
-
-const initialForm = {
-  name: "",
-  phone: "",
-  email: "",
-  password: "",
-  confirmPassword: "",
-};
+import PasswordInput from "@/components/PasswordInput";
+import OtpVerifyStep from "@/components/auth/OtpVerifyStep";
 
 export default function AdminSignupForm() {
   const router = useRouter();
-  const [form, setForm] = useState(initialForm);
+  const [step, setStep] = useState<"details" | "otp">("details");
+  const [form, setForm] = useState({
+    name: "",
+    mobileNumber: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault();
+  async function sendOtp() {
     setError(null);
     setLoading(true);
-
     try {
-      const res = await fetch("/api/auth/agent-signup", {
+      const res = await fetch("/api/auth/otp/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, purpose: "SIGNUP", portal: "admin" }),
       });
       const data = await res.json();
-
       if (!res.ok) {
         setError(data.error ?? "Something went wrong. Please try again.");
         return;
       }
+      setStep("otp");
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
+  function handleDetailsSubmit(event: FormEvent) {
+    event.preventDefault();
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+    sendOtp();
+  }
+
+  async function handleVerify(otp: string) {
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mobileNumber: form.mobileNumber, purpose: "SIGNUP", otp, portal: "admin" }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Something went wrong. Please try again.");
+        return;
+      }
       router.push("/admin/dashboard");
       router.refresh();
     } catch {
@@ -55,68 +83,88 @@ export default function AdminSignupForm() {
         UmrahJao.
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <Field label="Full Name">
-          <input
-            required
-            type="text"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className={inputClass}
-          />
-        </Field>
-        <Field label="Mobile Number">
-          <input
-            required
-            type="tel"
-            placeholder="+91XXXXXXXXXX"
-            value={form.phone}
-            onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            className={inputClass}
-          />
-        </Field>
-        <Field label="Email">
-          <input
-            required
-            type="email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            className={inputClass}
-          />
-        </Field>
-        <Field label="Password">
-          <input
-            required
-            type="password"
-            minLength={8}
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            className={inputClass}
-          />
-        </Field>
-        <Field label="Confirm Password">
-          <input
-            required
-            type="password"
-            minLength={8}
-            value={form.confirmPassword}
-            onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-            className={inputClass}
-          />
-        </Field>
+      <div className="mt-6">
+        {step === "details" ? (
+          <form onSubmit={handleDetailsSubmit} className="space-y-4">
+            <Field label="Full Name">
+              <input
+                required
+                type="text"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className={inputClass}
+              />
+            </Field>
+            <Field label="Mobile Number">
+              <input
+                required
+                type="tel"
+                inputMode="numeric"
+                placeholder="10-digit mobile number"
+                maxLength={10}
+                value={form.mobileNumber}
+                onChange={(e) =>
+                  setForm({ ...form, mobileNumber: e.target.value.replace(/\D/g, "").slice(0, 10) })
+                }
+                className={inputClass}
+              />
+              <span className="mt-1 block text-xs text-emerald-900/60">
+                You&apos;ll receive an OTP on this number to verify your account.
+              </span>
+            </Field>
+            <Field label="Email">
+              <input
+                required
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                className={inputClass}
+              />
+              <span className="mt-1 block text-xs text-emerald-900/60">
+                So you can also log in with email + password, in addition to mobile OTP.
+              </span>
+            </Field>
+            <Field label="Password">
+              <PasswordInput
+                minLength={8}
+                value={form.password}
+                onChange={(value) => setForm({ ...form, password: value })}
+              />
+            </Field>
+            <Field label="Confirm Password">
+              <PasswordInput
+                minLength={8}
+                value={form.confirmPassword}
+                onChange={(value) => setForm({ ...form, confirmPassword: value })}
+              />
+            </Field>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-60"
-          style={{ background: "#1D6FD8" }}
-        >
-          {loading && <Spinner className="h-4 w-4" />}
-          {loading ? "Creating account..." : "Sign Up"}
-        </button>
-      </form>
+            <button
+              type="submit"
+              disabled={loading || form.mobileNumber.length !== 10}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-60"
+              style={{ background: "#1D6FD8" }}
+            >
+              {loading && <Spinner className="h-4 w-4" />}
+              {loading ? "Sending OTP..." : "Sign Up"}
+            </button>
+          </form>
+        ) : (
+          <OtpVerifyStep
+            mobileNumber={form.mobileNumber}
+            loading={loading}
+            error={error}
+            onVerify={handleVerify}
+            onResend={sendOtp}
+            onChangeNumber={() => {
+              setStep("details");
+              setError(null);
+            }}
+          />
+        )}
+      </div>
 
       <p className="mt-6 text-center text-sm text-emerald-900/70">
         Already registered?{" "}

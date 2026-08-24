@@ -178,14 +178,14 @@ export default async function Home() {
             className="absolute inset-0 bg-cover bg-center sm:hidden"
             style={{
               backgroundImage:
-                "linear-gradient(100deg, rgba(255,255,255,.94) 0%, rgba(255,255,255,.8) 28%, rgba(255,255,255,.35) 50%, rgba(10,12,16,.15) 68%, rgba(10,12,16,.4) 100%), url('https://i.ibb.co/4gK6PzZ3/Gemini-Generated-Image-mdnbtrmdnbtrmdnb.png')",
+                "linear-gradient(100deg, rgba(255,255,255,.6) 0%, rgba(255,255,255,.42) 28%, rgba(255,255,255,.14) 50%, rgba(10,12,16,.08) 68%, rgba(10,12,16,.3) 100%), url('https://i.ibb.co/4gK6PzZ3/Gemini-Generated-Image-mdnbtrmdnbtrmdnb.png')",
             }}
           />
           <div
             className="absolute inset-0 hidden bg-cover bg-center sm:block"
             style={{
               backgroundImage:
-                "linear-gradient(100deg, rgba(255,255,255,.94) 0%, rgba(255,255,255,.8) 28%, rgba(255,255,255,.35) 50%, rgba(10,12,16,.15) 68%, rgba(10,12,16,.4) 100%), url('https://i.ibb.co/NnVKMYVN/Gemini-Generated-Image-2vrqva2vrqva2vrq.png')",
+                "linear-gradient(100deg, rgba(255,255,255,.6) 0%, rgba(255,255,255,.42) 28%, rgba(255,255,255,.14) 50%, rgba(10,12,16,.08) 68%, rgba(10,12,16,.3) 100%), url('https://i.ibb.co/NnVKMYVN/Gemini-Generated-Image-2vrqva2vrqva2vrq.png')",
             }}
           />
 
@@ -205,7 +205,10 @@ export default async function Home() {
                 Hajj Mubarak
               </div>
 
-              <h1 className="mt-1 text-[32px] font-extrabold leading-[1.1] tracking-tight text-[#151A40] sm:text-[44px]">
+              <h1
+                className="mt-1 text-[32px] font-extrabold leading-[1.1] tracking-tight text-[#151A40] sm:text-[44px]"
+                style={{ textShadow: "0 2px 20px rgba(255,255,255,0.55)" }}
+              >
                 Book Your Umrah Journey
                 <br />
                 <span className="block min-h-[2.3em] align-top sm:min-h-[1.2em]">
