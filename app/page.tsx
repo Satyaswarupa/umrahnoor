@@ -175,17 +175,10 @@ export default async function Home() {
       <main className="flex-1" style={{ fontFamily: "var(--font-jakarta), sans-serif" }}>
         <section className="relative overflow-hidden px-4 pb-12 pt-20 sm:px-6 sm:pb-14 sm:pt-24 lg:flex lg:min-h-[580px] lg:items-center lg:pb-16 lg:pt-0">
           <div
-            className="absolute inset-0 bg-cover bg-center sm:hidden"
+            className="absolute inset-0 bg-cover bg-center"
             style={{
               backgroundImage:
-                "linear-gradient(100deg, rgba(255,255,255,.6) 0%, rgba(255,255,255,.42) 28%, rgba(255,255,255,.14) 50%, rgba(10,12,16,.08) 68%, rgba(10,12,16,.3) 100%), url('https://i.ibb.co/4gK6PzZ3/Gemini-Generated-Image-mdnbtrmdnbtrmdnb.png')",
-            }}
-          />
-          <div
-            className="absolute inset-0 hidden bg-cover bg-center sm:block"
-            style={{
-              backgroundImage:
-                "linear-gradient(100deg, rgba(255,255,255,.6) 0%, rgba(255,255,255,.42) 28%, rgba(255,255,255,.14) 50%, rgba(10,12,16,.08) 68%, rgba(10,12,16,.3) 100%), url('https://i.ibb.co/NnVKMYVN/Gemini-Generated-Image-2vrqva2vrqva2vrq.png')",
+                "linear-gradient(100deg, rgba(255,255,255,.6) 0%, rgba(255,255,255,.42) 28%, rgba(255,255,255,.14) 50%, rgba(10,12,16,.08) 68%, rgba(10,12,16,.3) 100%), url('https://i.ibb.co/Wv4hYPw7/Gemini-Generated-Image-2vrqva2vrqva2vrq.png')",
             }}
           />
 
