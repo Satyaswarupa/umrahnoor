@@ -177,7 +177,7 @@ export default async function Home() {
         <section className="relative overflow-hidden px-4 pb-12 pt-20 sm:px-6 sm:pb-14 sm:pt-24 lg:flex lg:min-h-[580px] lg:items-center lg:pb-16 lg:pt-0">
           <div className="absolute inset-0 overflow-hidden">
             <Image
-              src="https://i.ibb.co/Wv4hYPw7/Gemini-Generated-Image-2vrqva2vrqva2vrq.png"
+              src="/hero-mecca.png"
               alt=""
               fill
               priority

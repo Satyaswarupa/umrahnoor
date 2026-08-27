@@ -38,7 +38,7 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
   // and its Clear Filters button — stay in sync with the chip row below.
   const [prevSearchedService, setPrevSearchedService] = useState<string | null>(null);
   const [nearby, setNearby] = useState<NearbyState>({
-    loading: true,
+    loading: false,
     agents: null,
     state: "",
     city: "",
@@ -70,7 +70,18 @@ export default function AgentsGrid({ initialAgents }: { initialAgents: PublicAge
     const shouldResolveNearMe = !searched;
 
     (async () => {
-      setNearby((prev) => ({ ...prev, loading: true }));
+      // Only block the grid with a loading skeleton for an explicit action
+      // (a search, or the header's "Near Me" button — which already carries
+      // ?lat=&lng= by the time this runs). The passive auto-resolve below
+      // (silent geolocation on a bare page load) keeps showing the
+      // server-rendered `initialAgents` in the background instead, since it
+      // can otherwise sit waiting on a location permission prompt for up to
+      // 10s (see getCurrentPosition's timeout in lib/geolocation.ts) —
+      // stalling content that's already on the page for that long looked
+      // like the site had gotten slower, not more personalized.
+      if (searched) {
+        setNearby((prev) => ({ ...prev, loading: true }));
+      }
       try {
         let resolvedState = searchedState;
         let resolvedCity = searchedCity;

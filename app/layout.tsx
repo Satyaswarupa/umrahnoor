@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono, Roboto, Plus_Jakarta_Sans, Amiri } from "next/font/google";
 import "./globals.css";
 import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_LOGO_PATH, SITE_NAME, SITE_OG_IMAGE_PATH, SITE_URL } from "@/lib/site-config";
+import SiteLoader from "@/components/SiteLoader";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -47,9 +48,13 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true },
   },
   icons: {
-    icon: SITE_LOGO_PATH,
-    apple: SITE_LOGO_PATH,
-    shortcut: SITE_LOGO_PATH,
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/apple-icon.png",
+    shortcut: "/favicon.ico",
   },
   manifest: "/manifest.webmanifest",
   openGraph: {
@@ -104,6 +109,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify([organizationJsonLd, websiteJsonLd]) }}
         />
+        <SiteLoader />
         {children}
       </body>
     </html>

@@ -8,7 +8,7 @@ import { getServiceLabel } from "@/lib/services";
 
 // Used whenever an agent has no profile image of their own — a generic,
 // on-theme banner beats an empty gray box in the card's photo slot.
-const FALLBACK_BANNER = "https://i.ibb.co/NnVKMYVN/Gemini-Generated-Image-2vrqva2vrqva2vrq.png";
+const FALLBACK_BANNER = "/hero-mecca.png";
 
 export default function AgentCard({ agent }: { agent: PublicAgentSummary }) {
   const gold = agent.verificationBadge === "GOLD";

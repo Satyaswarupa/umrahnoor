@@ -23,7 +23,7 @@ export const SITE_KEYWORDS = [
   "Umrah Chalo",
 ];
 
-export const SITE_LOGO_PATH = "/logo.png";
+export const SITE_LOGO_PATH = "/logo-emblem.png";
 export const SITE_OG_IMAGE_PATH = "/og-image.png";
 
 export const SUPPORT_WHATSAPP_NUMBER = "918076731708";
