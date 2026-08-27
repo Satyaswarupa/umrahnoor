@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -174,13 +175,23 @@ export default async function Home() {
 
       <main className="flex-1" style={{ fontFamily: "var(--font-jakarta), sans-serif" }}>
         <section className="relative overflow-hidden px-4 pb-12 pt-20 sm:px-6 sm:pb-14 sm:pt-24 lg:flex lg:min-h-[580px] lg:items-center lg:pb-16 lg:pt-0">
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage:
-                "linear-gradient(100deg, rgba(255,255,255,.6) 0%, rgba(255,255,255,.42) 28%, rgba(255,255,255,.14) 50%, rgba(10,12,16,.08) 68%, rgba(10,12,16,.3) 100%), url('https://i.ibb.co/Wv4hYPw7/Gemini-Generated-Image-2vrqva2vrqva2vrq.png')",
-            }}
-          />
+          <div className="absolute inset-0 overflow-hidden">
+            <Image
+              src="https://i.ibb.co/Wv4hYPw7/Gemini-Generated-Image-2vrqva2vrqva2vrq.png"
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage:
+                  "linear-gradient(100deg, rgba(255,255,255,.6) 0%, rgba(255,255,255,.42) 28%, rgba(255,255,255,.14) 50%, rgba(10,12,16,.08) 68%, rgba(10,12,16,.3) 100%)",
+              }}
+            />
+          </div>
 
           <div className="relative z-10 mx-auto w-full max-w-6xl">
             <div className="flex max-w-2xl flex-col items-start text-left">
