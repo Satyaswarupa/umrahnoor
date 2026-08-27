@@ -77,10 +77,7 @@ export default function ServicePicker() {
                 (active ? "border-2 border-[#1D6FD8]" : "neu-raised-sm")
               }
             >
-              <div
-                className="grid h-[52px] w-[52px] place-items-center rounded-[17px] text-2xl"
-                style={{ background: "#1D6FD8" }}
-              >
+              <div className="neu-raised-sm grid h-[52px] w-[52px] place-items-center rounded-[17px] bg-[#F4F2EC] text-2xl saturate-[35%] opacity-90">
                 <span>{iconFor(service.slug)}</span>
               </div>
               <div className="mt-[18px] text-[17px] font-extrabold text-[#24201A]">{service.label}</div>
