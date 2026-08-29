@@ -228,6 +228,8 @@ export default async function SiteHeader({ showAgentDashboardLink = true }: { sh
         <MobileAgentSearch />
 
         <div className="hidden flex-col gap-5 border-t border-black/[0.06] pb-5 pt-4 peer-checked:flex lg:hidden">
+          <DownloadAppButton className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#22C55E] to-[#16A34A] px-4 py-3 text-sm font-extrabold text-white shadow-sm transition hover:brightness-105" />
+
           <div className="flex flex-col gap-3">
             <div className="text-[10.5px] font-extrabold tracking-[0.1em] text-[#9A907C]">PACKAGES</div>
             <Link href="/#agents" className="text-sm font-bold text-[#4A4238] hover:text-[#0E5B4A]">
@@ -269,7 +271,6 @@ export default async function SiteHeader({ showAgentDashboardLink = true }: { sh
             <Link href="/plan" className="text-sm font-bold text-[#4A4238] hover:text-[#0E5B4A]">
               Plans
             </Link>
-            <DownloadAppButton className="flex w-fit items-center gap-1.5 rounded-full bg-gradient-to-r from-[#22C55E] to-[#16A34A] px-4 py-2 text-[13px] font-bold text-white shadow-sm" />
           </div>
 
           <NavLinks
