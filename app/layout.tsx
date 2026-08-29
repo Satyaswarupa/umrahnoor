@@ -31,7 +31,7 @@ const amiri = Amiri({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} — Find Verified Umrah Travel Agents in India`,
+    default: `${SITE_NAME} — Verified Umrah & Hajj Travel Agents in India`,
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
@@ -62,13 +62,13 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: "/",
     siteName: SITE_NAME,
-    title: `${SITE_NAME} — Find Verified Umrah Travel Agents in India`,
+    title: `${SITE_NAME} — Verified Umrah & Hajj Travel Agents in India`,
     description: SITE_DESCRIPTION,
     images: [{ url: SITE_OG_IMAGE_PATH, width: 1200, height: 630, alt: `${SITE_NAME} logo` }],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} — Find Verified Umrah Travel Agents in India`,
+    title: `${SITE_NAME} — Verified Umrah & Hajj Travel Agents in India`,
     description: SITE_DESCRIPTION,
     images: [SITE_OG_IMAGE_PATH],
   },

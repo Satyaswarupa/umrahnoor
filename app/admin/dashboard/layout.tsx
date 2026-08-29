@@ -23,7 +23,7 @@ export default async function AdminDashboardLayout({
       <header className="border-b border-emerald-900/10 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo-emblem.png" alt="UmrahJao logo" width={661} height={699} className="h-8 w-8 object-contain" />
+            <Image src="/logo-emblem-v2.png" alt="UmrahJao logo" width={661} height={699} className="h-8 w-8 object-contain" />
             <span className="text-lg font-semibold tracking-tight text-emerald-950">
               UmrahJao <span className="font-normal text-emerald-900/60">Agent Dashboard</span>
             </span>

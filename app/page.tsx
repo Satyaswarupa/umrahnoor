@@ -40,7 +40,7 @@ const FAQS = [
   {
     question: "What is UmrahJao?",
     answer:
-      "UmrahJao is a free, India-wide directory of verified, GST-registered Umrah and Hajj travel agents. It's built for pilgrims who want to find and contact a trustworthy local agent directly — UmrahJao itself does not sell packages, process bookings, or take any commission.",
+      "UmrahJao is a free, India-wide directory of verified, GST-registered Umrah and Hajj travel agents. It helps pilgrims find and connect with a trustworthy local agent directly — UmrahJao itself does not sell packages, process bookings, or take any commission.",
   },
   {
     question: "Is UmrahJao free to use?",

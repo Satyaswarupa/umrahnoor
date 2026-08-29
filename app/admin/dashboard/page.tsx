@@ -426,7 +426,7 @@ export default function AgentDashboardPage() {
       <div className="mx-auto max-w-[1320px]">
         <div className="flex flex-wrap items-center justify-between gap-4 pb-5">
           <div className="flex items-center gap-2.5">
-            <Image src="/logo-emblem.png" alt="UmrahJao logo" width={661} height={699} className="h-9 w-9 object-contain" />
+            <Image src="/logo-emblem-v2.png" alt="UmrahJao logo" width={661} height={699} className="h-9 w-9 object-contain" />
             <div>
               <div className="text-sm font-extrabold tracking-tight text-[#24201A]">UmrahJao</div>
               <div className="mt-0.5 text-[9px] font-bold tracking-[0.14em] text-[#8A7F6C]">AGENT PORTAL</div>

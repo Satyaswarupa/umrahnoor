@@ -10,7 +10,7 @@ export default function SiteFooter() {
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 py-11 sm:px-6 md:grid-cols-[1.4fr_1fr]">
         <div>
           <div className="flex items-center gap-2.5">
-            <Image src="/logo-emblem.png" alt="UmrahJao logo" width={661} height={699} className="h-16 w-16 object-contain" />
+            <Image src="/logo-emblem-v2.png" alt="UmrahJao logo" width={661} height={699} className="h-16 w-16 object-contain" />
             <div className="text-[19px] font-extrabold">UmrahJao</div>
           </div>
           <p className="mt-3.5 max-w-xs text-xs leading-[1.7] text-[#8A7F6C]">

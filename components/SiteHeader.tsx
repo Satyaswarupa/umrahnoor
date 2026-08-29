@@ -171,11 +171,11 @@ export default async function SiteHeader({ showAgentDashboardLink = true }: { sh
         <div className="flex items-center gap-4 py-3.5">
           <Link href="/" className="flex shrink-0 items-center gap-2">
             <Image
-              src="/logo-emblem.png"
+              src="/logo-emblem-v2.png"
               alt="Umrah Jao"
               width={661}
               height={699}
-              className="h-11 w-auto object-contain"
+              className="h-20 w-auto object-contain"
               priority
             />
             <div className="text-[22px] font-extrabold tracking-tight">

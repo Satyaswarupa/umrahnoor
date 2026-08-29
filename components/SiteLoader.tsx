@@ -79,16 +79,16 @@ export default function SiteLoader() {
       <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_120px_40px_rgba(176,141,87,0.08)]" />
 
       <div className="relative flex flex-col items-center px-6">
-        <div className="relative flex h-[188px] w-[188px] items-center justify-center rounded-full border border-[#C9A85C]/50">
+        <div className="relative flex h-[240px] w-[240px] items-center justify-center rounded-full border border-[#C9A85C]/50">
           <div className="absolute inset-[8px] rounded-full border border-[#C9A85C]/30" />
           <div className="absolute inset-0 animate-[spin_5s_linear_infinite] rounded-full border border-dashed border-[#C9A85C]/25" />
           <Image
-            src="/logo-emblem.png"
+            src="/logo-emblem-v2.png"
             alt="Umrah Jao"
             width={661}
             height={699}
             priority
-            className="relative h-[132px] w-[132px] object-contain drop-shadow-[0_1px_1px_rgba(0,0,0,0.15)]"
+            className="relative h-[184px] w-[184px] object-contain drop-shadow-[0_1px_1px_rgba(0,0,0,0.15)]"
           />
         </div>
 
